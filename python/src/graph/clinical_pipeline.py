@@ -3,30 +3,54 @@ LangGraph clinical decision pipeline orchestrator.
 
 Wires the five agents into a sequential pipeline with conditional routing:
 
-    Intake -> Diagnosis --(needs_more_info?)--> Intake (loop back)
+    Intake -> Diagnosis --(needs_more_info?)--> Intake (loop back, capped)
                        \--(ready)-----------> Treatment -> Coding -> Audit -> END
+
+The diagnosis->intake loop-back is guarded by a retry counter
+(state.diagnosis_attempts vs settings.max_diagnosis_retries) so the loop is
+guaranteed to terminate: once the retry budget is exhausted the pipeline
+proceeds to Treatment on a low-confidence path instead of looping forever.
 """
 
 from __future__ import annotations
+import structlog
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
 from .state import ClinicalState
+from ..config.settings import get_settings
 from ..agents.intake_agent import intake_agent
 from ..agents.diagnosis_agent import diagnosis_agent
 from ..agents.treatment_agent import treatment_agent
 from ..agents.coding_agent import coding_agent
 from ..agents.audit_agent import audit_agent
 
+logger = structlog.get_logger(__name__)
+
 
 def _route_after_diagnosis(state: ClinicalState) -> str:
     """
     Conditional edge after Diagnosis Agent.
-    If the agent determines more patient info is needed, route back to Intake.
-    Otherwise proceed to Treatment.
+
+    If the agent determined that more patient info is needed, route back to
+    Intake — but only while the retry budget is not exhausted
+    (settings.max_diagnosis_retries loop-backs, default 2). Once the cap is
+    reached, proceed to Treatment anyway so the pipeline always terminates.
     """
     if state.needs_more_info:
-        return "intake"
+        max_retries = get_settings().max_diagnosis_retries
+        if state.diagnosis_attempts <= max_retries:
+            logger.info(
+                "route.diagnosis_retry",
+                attempt=state.diagnosis_attempts,
+                max_retries=max_retries,
+            )
+            return "intake"
+        logger.warning(
+            "route.diagnosis_retry_cap_reached",
+            attempts=state.diagnosis_attempts,
+            max_retries=max_retries,
+        )
     return "treatment"
 
 

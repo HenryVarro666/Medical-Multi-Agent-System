@@ -1,0 +1,492 @@
+{
+  "case": {
+    "id": "case_004",
+    "description": "55-year-old male with worsening shortness of breath on exertion over the past month, now occurring with minimal activity. Bilateral lower extremity edema, orthopnea requiring 3 pillows, and paroxysmal nocturnal dyspnea. History of coronary artery disease (CABG 3 years ago), type 2 diabetes, and hypertension. Current medications: carvedilol 25mg BID, furosemide 40mg daily, lisinopril 20mg daily, metformin 1000mg BID, aspirin 81mg daily. No allergies. Vital signs: BP 100/65, HR 95, RR 26, SpO2 91% on room air. Physical exam: JVD, bilateral crackles on lung auscultation, 3+ pitting edema bilaterally. BNP: 1250 pg/mL (elevated). Chest X-ray: cardiomegaly with bilateral pleural effusions.",
+    "expected_diagnosis": "Acute Decompensated Heart Failure",
+    "expected_icd10": "I50.9"
+  },
+  "pipeline_output": {
+    "patient_info": {
+      "patient_id": null,
+      "name": "Unknown",
+      "age": 55,
+      "gender": "male",
+      "chief_complaint": "worsening shortness of breath on exertion",
+      "symptoms": [
+        {
+          "name": "shortness of breath on exertion",
+          "duration_days": 30,
+          "severity": "severe",
+          "description": "now occurring with minimal activity"
+        },
+        {
+          "name": "bilateral lower extremity edema",
+          "duration_days": null,
+          "severity": "severe",
+          "description": "3+ pitting edema bilaterally"
+        },
+        {
+          "name": "orthopnea",
+          "duration_days": null,
+          "severity": "moderate",
+          "description": "requiring 3 pillows"
+        },
+        {
+          "name": "paroxysmal nocturnal dyspnea",
+          "duration_days": null,
+          "severity": "moderate",
+          "description": "not specified"
+        }
+      ],
+      "medical_history": [
+        "coronary artery disease",
+        "type 2 diabetes",
+        "hypertension"
+      ],
+      "family_history": [],
+      "allergies": [],
+      "current_medications": [
+        {
+          "name": "carvedilol",
+          "dosage": "25mg",
+          "frequency": "BID",
+          "start_date": null
+        },
+        {
+          "name": "furosemide",
+          "dosage": "40mg",
+          "frequency": "daily",
+          "start_date": null
+        },
+        {
+          "name": "lisinopril",
+          "dosage": "20mg",
+          "frequency": "daily",
+          "start_date": null
+        },
+        {
+          "name": "metformin",
+          "dosage": "1000mg",
+          "frequency": "BID",
+          "start_date": null
+        },
+        {
+          "name": "aspirin",
+          "dosage": "81mg",
+          "frequency": "daily",
+          "start_date": null
+        }
+      ],
+      "vital_signs": {
+        "temperature": null,
+        "heart_rate": 95,
+        "blood_pressure_systolic": 100,
+        "blood_pressure_diastolic": 65,
+        "respiratory_rate": 26,
+        "oxygen_saturation": 91.0
+      },
+      "lab_results": [
+        {
+          "test_name": "BNP",
+          "value": "1250",
+          "unit": "pg/mL",
+          "reference_range": "normal range typically <100 pg/mL",
+          "is_abnormal": true
+        }
+      ],
+      "raw_input": null,
+      "created_at": "2026-07-12T19:49:50.006189"
+    },
+    "diagnosis": {
+      "primary_diagnosis": {
+        "disease_name": "Congestive Heart Failure (CHF)",
+        "icd10_hint": "I50.9",
+        "confidence": 0.85,
+        "evidence": [
+          "Worsening shortness of breath on exertion with minimal activity",
+          "Bilateral lower extremity edema (3+ pitting)",
+          "Orthopnea requiring 3 pillows",
+          "Paroxysmal nocturnal dyspnea",
+          "Elevated BNP level of 1250 pg/mL (normal <100 pg/mL)",
+          "History of coronary artery disease, hypertension, and diabetes"
+        ],
+        "reasoning": "The constellation of symptoms including dyspnea on exertion, orthopnea, paroxysmal nocturnal dyspnea, and bilateral edema, along with an elevated BNP level, strongly suggests congestive heart failure. The patient's history of coronary artery disease, hypertension, and diabetes further supports this diagnosis as risk factors for heart failure."
+      },
+      "differential_list": [
+        {
+          "disease_name": "Chronic Obstructive Pulmonary Disease (COPD) exacerbation",
+          "icd10_hint": "J44.9",
+          "confidence": 0.6,
+          "evidence": [
+            "Shortness of breath on exertion",
+            "Elevated respiratory rate (26 breaths per minute)"
+          ],
+          "reasoning": "COPD exacerbation can present with dyspnea and elevated respiratory rate. However, the presence of orthopnea, paroxysmal nocturnal dyspnea, and edema is more consistent with heart failure than COPD."
+        },
+        {
+          "disease_name": "Renal insufficiency with fluid overload",
+          "icd10_hint": "N18.5",
+          "confidence": 0.55,
+          "evidence": [
+            "Bilateral lower extremity edema",
+            "Use of furosemide"
+          ],
+          "reasoning": "Renal insufficiency can lead to fluid retention and edema. However, the presence of dyspnea, orthopnea, and elevated BNP supports a cardiac etiology over renal insufficiency."
+        },
+        {
+          "disease_name": "Pulmonary hypertension",
+          "icd10_hint": "I27.2",
+          "confidence": 0.5,
+          "evidence": [
+            "Shortness of breath on exertion",
+            "Elevated respiratory rate"
+          ],
+          "reasoning": "Pulmonary hypertension can cause dyspnea and elevated respiratory rate. However, the presence of orthopnea, paroxysmal nocturnal dyspnea, and edema is more indicative of heart failure."
+        }
+      ],
+      "recommended_tests": [
+        "Echocardiogram to assess ejection fraction and cardiac function",
+        "Chest X-ray to evaluate for pulmonary congestion or cardiomegaly",
+        "Electrocardiogram (ECG) to assess for arrhythmias or ischemia",
+        "Renal function tests (serum creatinine, BUN) to evaluate for renal insufficiency"
+      ],
+      "clinical_notes": "The patient presents with classic signs and symptoms of heart failure, including dyspnea on exertion, orthopnea, paroxysmal nocturnal dyspnea, and bilateral edema. The elevated BNP level further supports this diagnosis. Given the patient's history of coronary artery disease, hypertension, and diabetes, heart failure is a likely diagnosis. Additional tests are recommended to confirm the diagnosis and assess the severity of the condition.",
+      "knowledge_sources": [
+        "UpToDate: Heart Failure in Adults",
+        "Merck Manual: Heart Failure",
+        "ICD-10-CM Official Guidelines for Coding and Reporting"
+      ],
+      "knowledge_graph_candidates": []
+    },
+    "treatment_plan": {
+      "diagnosis_addressed": "Congestive Heart Failure (CHF)",
+      "medications": [
+        {
+          "drug_name": "Carvedilol",
+          "generic_name": "Carvedilol",
+          "dosage": "25mg",
+          "route": "oral",
+          "frequency": "twice daily",
+          "duration": "ongoing",
+          "contraindications": [
+            "severe bradycardia",
+            "heart block",
+            "hypotension"
+          ],
+          "side_effects": [
+            "hypotension",
+            "fatigue",
+            "dyspnea",
+            "peripheral edema"
+          ]
+        },
+        {
+          "drug_name": "Furosemide",
+          "generic_name": "Furosemide",
+          "dosage": "40mg",
+          "route": "oral",
+          "frequency": "daily",
+          "duration": "ongoing",
+          "contraindications": [
+            "hypovolemia",
+            "severe hepatic impairment"
+          ],
+          "side_effects": [
+            "hypokalemia",
+            "hypotension",
+            "dizziness",
+            "electrolyte imbalance"
+          ]
+        },
+        {
+          "drug_name": "Lisinopril",
+          "generic_name": "Lisinopril",
+          "dosage": "20mg",
+          "route": "oral",
+          "frequency": "daily",
+          "duration": "ongoing",
+          "contraindications": [
+            "hyperkalemia",
+            "angioedema history",
+            "pregnancy"
+          ],
+          "side_effects": [
+            "cough",
+            "hypotension",
+            "dizziness",
+            "hyperkalemia"
+          ]
+        },
+        {
+          "drug_name": "Metformin",
+          "generic_name": "Metformin",
+          "dosage": "1000mg",
+          "route": "oral",
+          "frequency": "twice daily",
+          "duration": "ongoing",
+          "contraindications": [
+            "renal insufficiency (eGFR <30)",
+            "lactic acidosis"
+          ],
+          "side_effects": [
+            "gastrointestinal upset",
+            "lactic acidosis (rare)",
+            "hypoglycemia"
+          ]
+        },
+        {
+          "drug_name": "Aspirin",
+          "generic_name": "Aspirin",
+          "dosage": "81mg",
+          "route": "oral",
+          "frequency": "daily",
+          "duration": "ongoing",
+          "contraindications": [
+            "peptic ulcer disease",
+            "active bleeding",
+            "allergy to NSAIDs"
+          ],
+          "side_effects": [
+            "gastrointestinal irritation",
+            "bleeding risk",
+            "tinnitus"
+          ]
+        },
+        {
+          "drug_name": "Spironolactone",
+          "generic_name": "Spironolactone",
+          "dosage": "25mg",
+          "route": "oral",
+          "frequency": "daily",
+          "duration": "ongoing",
+          "contraindications": [
+            "hyperkalemia",
+            "renal insufficiency",
+            "pregnancy"
+          ],
+          "side_effects": [
+            "hyperkalemia",
+            "gynecomastia",
+            "drowsiness",
+            "nausea"
+          ]
+        }
+      ],
+      "drug_interactions": [
+        {
+          "drug_a": "Lisinopril",
+          "drug_b": "Spironolactone",
+          "severity": "moderate",
+          "description": "Both drugs can cause hyperkalemia. The risk is increased when used together, especially in patients with renal impairment.",
+          "recommendation": "Monitor serum potassium levels closely and consider dose adjustments if hyperkalemia develops."
+        },
+        {
+          "drug_a": "Furosemide",
+          "drug_b": "Spironolactone",
+          "severity": "moderate",
+          "description": "Combination of loop diuretic and potassium-sparing diuretic may increase the risk of hyperkalemia.",
+          "recommendation": "Monitor potassium levels and adjust doses as needed."
+        },
+        {
+          "drug_a": "Metformin",
+          "drug_b": "Furosemide",
+          "severity": "minor",
+          "description": "Furosemide may increase the risk of lactic acidosis in patients on metformin, especially with renal impairment.",
+          "recommendation": "Monitor renal function and consider metformin discontinuation if significant diuresis or renal function decline occurs."
+        },
+        {
+          "drug_a": "Aspirin",
+          "drug_b": "Lisinopril",
+          "severity": "minor",
+          "description": "Aspirin may reduce the antihypertensive effect of ACE inhibitors like lisinopril.",
+          "recommendation": "Monitor blood pressure and adjust lisinopril dosage if needed."
+        }
+      ],
+      "non_drug_treatments": [
+        "Dietary sodium restriction to <2000 mg/day",
+        "Fluid restriction as per clinical guidelines",
+        "Referral for cardiac rehabilitation"
+      ],
+      "lifestyle_recommendations": [
+        "Engage in moderate-intensity exercise as tolerated",
+        "Maintain a healthy weight",
+        "Avoid alcohol and smoking",
+        "Practice good sleep hygiene"
+      ],
+      "follow_up_plan": "Follow up in 1 week for reassessment of symptoms, vital signs, and lab work (including BNP, electrolytes, and renal function). Repeat echocardiogram in 2 weeks if no improvement.",
+      "warnings": [
+        "Monitor for signs of hyperkalemia (e.g., weakness, arrhythmias) due to combination of spironolactone, lisinopril, and furosemide.",
+        "Watch for worsening heart failure symptoms or signs of lactic acidosis with metformin use.",
+        "Ensure adequate hydration to prevent hypotension with diuretic use."
+      ],
+      "evidence_references": [
+        "UpToDate: Heart Failure in Adults",
+        "Merck Manual: Heart Failure",
+        "ACC/AHA Guideline for the Management of Heart Failure: A Report of the American College of Cardiology/American Heart Association Task Force on Clinical Practice Guidelines"
+      ],
+      "allergy_alerts": [],
+      "ddi_engine": {
+        "checked": true,
+        "proposed_drugs_checked": [
+          "Carvedilol",
+          "Furosemide",
+          "Lisinopril",
+          "Metformin",
+          "Aspirin",
+          "Spironolactone"
+        ],
+        "current_medications_checked": [
+          "carvedilol",
+          "furosemide",
+          "lisinopril",
+          "metformin",
+          "aspirin"
+        ],
+        "allergies_checked": [],
+        "engine_flagged_interactions": 0,
+        "engine_flagged_allergy_alerts": 0
+      }
+    },
+    "coding_result": {
+      "primary_icd10": {
+        "code": "I50.9",
+        "description": "Heart failure, unspecified",
+        "confidence": 0.92,
+        "category": "Cardiovascular"
+      },
+      "secondary_icd10_codes": [
+        {
+          "code": "I10",
+          "description": "Essential (primary) hypertension",
+          "confidence": 0.85,
+          "category": "Cardiovascular"
+        },
+        {
+          "code": "E11.9",
+          "description": "Type 2 diabetes mellitus without complications",
+          "confidence": 0.8,
+          "category": "Endocrine"
+        },
+        {
+          "code": "I25.1",
+          "description": "Atherosclerotic heart disease of native coronary artery",
+          "confidence": 0.75,
+          "category": "Cardiovascular"
+        },
+        {
+          "code": "R05.2",
+          "description": "Dyspnea",
+          "confidence": 0.7,
+          "category": "Respiratory"
+        },
+        {
+          "code": "R61.0",
+          "description": "Edema",
+          "confidence": 0.7,
+          "category": "General"
+        }
+      ],
+      "drg_group": {
+        "drg_code": "193",
+        "description": "Heart failure and shock with major complications or comorbidities",
+        "weight": 1.2,
+        "mean_los": 4.5
+      },
+      "coding_notes": "The primary diagnosis of congestive heart failure (CHF) is supported by clinical symptoms such as dyspnea on exertion, orthopnea, paroxysmal nocturnal dyspnea, and bilateral edema, along with an elevated BNP level. The patient's history of coronary artery disease, hypertension, and diabetes further supports the diagnosis. Secondary codes include hypertension (I10), type 2 diabetes (E11.9), atherosclerotic heart disease (I25.1), dyspnea (R05.2), and edema (R61.0). The DRG group 193 is appropriate for heart failure with major complications or comorbidities, reflecting the severity of the condition and the presence of multiple comorbidities.",
+      "coding_confidence": 0.9
+    },
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": false,
+          "detail": "Found 1 PHI types: name"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": true,
+          "detail": "Verified"
+        }
+      ],
+      "phi_fields_found": [
+        "name"
+      ],
+      "phi_fields_masked": [
+        "name"
+      ],
+      "audit_trail": [
+        {
+          "timestamp": "2026-07-13T00:50:17.808379+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 4 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:50:17.811294+00:00",
+          "user_id": "system",
+          "action": "data_masking",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Masked 1 PHI types",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:50:17.811404+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Ensure all PHI is masked before external transmission",
+        "Review failed compliance checks and remediate",
+        "Maintain audit logs for minimum 6 years per HIPAA requirements"
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": null,
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 33.62
+}

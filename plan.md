@@ -3,7 +3,7 @@
 ## 一、项目定位与目标
 
 面向求职面试的企业级多Agent医疗临床辅助决策系统，提供：
-- 三种语言（Python/Java/Go）的完整实现
+- Python 完整实现（LangGraph + FastAPI）
 - 从零到面试的全链路学习材料
 - 详细的代码讲解 + 面试八股文 + 简历模板 + STAR法回答
 
@@ -20,16 +20,12 @@
 | multi-agent-clinical-decision-support-system | GitHub 2025 | 6个专业Agent + PubMed/OpenTargets集成 |
 | Healthcare AI Clinical Decision Support | LangGraph + GPT-4o-mini | 实时风险分层 + 药物安全验证 |
 | MediGenius | GitHub 2025 | 90%+准确率，完整前后端 + Docker部署 + CI/CD |
-| LangGraph4j | v1.8.11, 2026 | Java版LangGraph，Spring AI集成 |
-| LangGraphGo | GitHub 2025 | Go原生多Agent框架，17+预建Agent架构 |
 
 ### 2.2 技术栈选型
 
 ```
-Python版: LangGraph + FastAPI + GraphRAG + PostgreSQL + Docker
-Java版:   LangGraph4j + Spring Boot + Spring AI + PostgreSQL + Docker
-Go版:     LangGraphGo + Gin + PostgreSQL + Docker
-通用:      FHIR R4 API + Neo4j (知识图谱) + Redis (缓存) + MinIO (文件)
+LangGraph + FastAPI + GraphRAG + PostgreSQL + Docker
+FHIR R4 API + Neo4j (知识图谱) + Redis (缓存) + MinIO (文件)
 ```
 
 ---
@@ -120,11 +116,6 @@ medical-clinical-decision-system/
 │   ├── src/models/                    # 数据模型
 │   ├── src/api/                       # FastAPI接口
 │   └── src/config/                    # 配置管理
-├── java/                              # Java实现
-│   └── src/main/java/com/medical/    # Spring Boot + LangGraph4j
-├── go/                                # Go实现
-│   ├── cmd/server/                    # 入口
-│   └── internal/                      # Agent + Pipeline + Service
 └── docker/                            # 通用Docker配置
     └── init-db.sql
 ```
@@ -133,7 +124,7 @@ medical-clinical-decision-system/
 
 ## 五、核心代码实现要点
 
-### 5.1 Python版 - LangGraph Pipeline（核心）
+### 5.1 LangGraph Pipeline（核心）
 
 ```python
 from langgraph.graph import StateGraph, END
@@ -155,42 +146,6 @@ def build_clinical_pipeline():
     workflow.add_edge("audit", END)
 
     return workflow.compile()
-```
-
-### 5.2 Java版 - Spring Boot + LangGraph4j
-
-```java
-@Component
-public class ClinicalPipeline {
-    public ClinicalState invoke(String rawInput) {
-        state = intakeAgent.process(state);
-        do {
-            state = diagnosisAgent.process(state);
-            if (state.isNeedsMoreInfo()) state = intakeAgent.process(state);
-        } while (state.isNeedsMoreInfo() && retries <= MAX_RETRIES);
-        state = treatmentAgent.process(state);
-        state = codingAgent.process(state);
-        state = auditAgent.process(state);
-        return state;
-    }
-}
-```
-
-### 5.3 Go版 - Gin + go-openai
-
-```go
-func (p *Pipeline) Execute(rawInput string) *model.ClinicalState {
-    state = p.intakeAgent.Process(state)
-    for retries < maxRetries {
-        state = p.diagnosisAgent.Process(state)
-        if !state.NeedsMoreInfo { break }
-        state = p.intakeAgent.Process(state)
-    }
-    state = p.treatmentAgent.Process(state)
-    state = p.codingAgent.Process(state)
-    state = p.auditAgent.Process(state)
-    return state
-}
 ```
 
 ---
@@ -221,7 +176,7 @@ func (p *Pipeline) Execute(rawInput string) *model.ClinicalState {
 
 ## 七、实施步骤
 
-### 阶段一：核心实现（Python版优先）✅
+### 阶段一：核心实现 ✅
 1. 初始化项目结构 + Git仓库
 2. 实现共享状态定义和LangGraph Pipeline
 3. 逐个实现5个Agent
@@ -229,13 +184,8 @@ func (p *Pipeline) Execute(rawInput string) *model.ClinicalState {
 5. FastAPI接口层
 6. Docker化部署
 
-### 阶段二：多语言扩展 ✅
-7. Java版实现（Spring Boot + LangGraph4j）
-8. Go版实现（Gin + go-openai）
-9. 统一Docker Compose基础设施
-
-### 阶段三：文档与面试材料 ✅
-10. 编写超详细README.md
-11. 编写docs/目录下7篇技术文档
-12. 编写interview/目录下7篇面试材料
-13. 上传至GitHub
+### 阶段二：文档与面试材料 ✅
+7. 编写超详细README.md
+8. 编写docs/目录下7篇技术文档
+9. 编写interview/目录下7篇面试材料
+10. 上传至GitHub

@@ -158,9 +158,7 @@ Pipeline模式（Agent串行编排）、Strategy模式（不同Agent不同策略
 | **Pipeline/Chain of Responsibility** | 5个Agent串行处理，每个Agent处理后传递给下一个 |
 | **Strategy** | Diagnosis用LLM+GraphRAG，Audit用规则引擎，不同Agent使用不同的决策策略 |
 | **State** | ClinicalState作为共享状态对象，驱动整个Pipeline的流转 |
-| **Template Method** | Go版的Agent接口定义了Process方法模板，子类实现具体逻辑 |
-| **Factory** | Python版通过LangGraph的add_node注册Agent，编译时统一创建 |
-| **Builder** | Java版ClinicalState使用@Builder构造，支持灵活初始化 |
+| **Factory** | 通过LangGraph的add_node注册Agent，编译时统一创建 |
 | **Decorator** | 错误处理和日志记录可以看作对Agent执行的装饰 |
 
 **答题技巧**：不要只列模式名称，每个模式都要对应到项目中的具体代码。面试官更看重你能否在实际项目中识别和应用设计模式。
@@ -236,7 +234,7 @@ Supervisor模式：
 
 **详细版**：
 
-**Python版实现（LangGraph）**：
+**LangGraph实现**：
 
 ```python
 def _route_after_diagnosis(state: ClinicalState) -> str:
@@ -254,48 +252,16 @@ workflow.add_conditional_edges(
 )
 ```
 
-**Java版实现（手动编排）**：
+**关键设计点**：
 
-```java
-int retries = 0;
-do {
-    state = diagnosisAgent.process(state);
-    if (state.isNeedsMoreInfo() && retries < MAX_DIAGNOSIS_RETRIES) {
-        state = intakeAgent.process(state);
-    }
-    retries++;
-} while (state.isNeedsMoreInfo() && retries <= MAX_DIAGNOSIS_RETRIES);
-```
+| 维度 | 说明 |
+|------|------|
+| 实现方式 | 声明式（add_conditional_edges） |
+| 可读性 | 高（声明式意图明确） |
+| 调试 | LangGraph提供图结构可视化 |
+| 重试限制 | 通过LangGraph的递归深度限制兜底，也可以在State中加retry计数显式控制 |
 
-**Go版实现（接口抽象）**：
-
-```go
-retries := 0
-for {
-    if err := p.runAgent(ctx, p.diagnosis, state); err != nil {
-        break
-    }
-    if state.NeedsMoreInfo && retries < maxDiagnosisRetries {
-        retries++
-        if err := p.runAgent(ctx, p.intake, state); err != nil {
-            break
-        }
-        continue
-    }
-    break
-}
-```
-
-**三种实现的对比**：
-
-| 维度 | Python (LangGraph) | Java | Go |
-|------|-------------------|------|-----|
-| 实现方式 | 声明式（add_conditional_edges） | 命令式（do-while） | 命令式（for loop） |
-| 可读性 | 高（声明式意图明确） | 中等 | 中等 |
-| 调试 | LangGraph提供可视化 | 需打断点 | 需打断点 |
-| 重试限制 | 无（需额外处理） | MAX=2 | MAX=2 |
-
-**答题技巧**：如果面试的是Python岗位，重点讲LangGraph的声明式API；如果是Java/Go岗位，重点讲命令式实现中的细节（重试计数、错误处理）。
+**答题技巧**：重点讲LangGraph的声明式API——路由函数只负责"看状态决定去哪"，路由映射由图结构静态声明，清晰又可追踪。
 
 ---
 
@@ -380,24 +346,14 @@ Audit → [audit_result] (依赖全部上游输出)
 
 假设新增一个"影像分析Agent"（Imaging Agent）：
 
-**Python版扩展步骤**：
+**扩展步骤**：
 1. 创建 `imaging_agent.py`，实现接收和返回 `ClinicalState` 的函数
 2. 在 `ClinicalState` 中添加 `imaging_result` 字段
 3. 在 `clinical_pipeline.py` 中 `add_node("imaging", imaging_agent)`
 4. 添加相应的边 `add_edge("intake", "imaging")` 等
+5. （可选）写单元测试验证新Agent输入输出
 
-**Java版扩展步骤**：
-1. 创建 `ImagingAgent.java`，实现 `process(ClinicalState)` 方法
-2. 在 `ClinicalState` 中添加 `imagingResult` 字段
-3. 在 `ClinicalPipeline.run()` 中添加调用
-4. 用 `@Component` 注解让Spring自动注入
-
-**Go版扩展步骤**：
-1. 创建 `imaging.go`，实现 `Agent` 接口的 `Process(ctx, state)` 方法
-2. 在 `State` 结构体中添加 `ImagingResult` 字段
-3. 在 `Pipeline` 中注册新Agent
-
-**答题技巧**：展示你理解**开闭原则**（Open/Closed Principle）——对扩展开放、对修改关闭。新增Agent时不需要修改现有Agent的代码。
+**答题技巧**：展示你理解**开闭原则**（Open/Closed Principle）——对扩展开放、对修改关闭。新增Agent时不需要修改现有Agent的代码，只需注册新节点和定义新的边。
 
 ---
 
@@ -450,7 +406,7 @@ class ClinicalState(BaseModel):
 
 1. **完备性**：ClinicalState包含Pipeline全流程需要的所有字段，任何Agent都能从中获取需要的信息。
 
-2. **类型安全**：Python版使用Pydantic BaseModel，自带运行时校验。Java版使用Lombok @Data + @Builder。Go版使用struct + JSON tag。
+2. **类型安全**：使用Pydantic BaseModel，字段类型声明在类定义里，运行时自动校验；配合mypy可以做静态类型检查。
 
 3. **状态合并**：`messages`字段使用`Annotated[list[BaseMessage], add_messages]`，新消息自动追加而非覆盖。这是LangGraph的核心机制。
 
@@ -608,7 +564,7 @@ def parse_llm_json(content: str) -> dict:
 | 策略 | 实现方式 | 触发条件 |
 |------|---------|---------|
 | **重试** | 指数退避重试（1s, 2s, 4s） | API超时或5xx错误 |
-| **超时** | Go: context.WithTimeout / Python: httpx timeout | 单次调用>30s |
+| **超时** | httpx timeout + asyncio.wait_for | 单次调用>30s |
 | **输出校验** | Pydantic模型校验 | JSON格式错误/字段缺失 |
 | **降级** | 使用默认值或缓存结果 | 多次重试仍失败 |
 | **熔断** | 连续失败N次后停止调用 | 避免雪崩 |
@@ -665,7 +621,7 @@ Closed（正常）→ 失败次数达阈值 → Open（断开）
 | 层级 | 机制 | 对应代码 |
 |------|------|---------|
 | **L1: Prompt约束** | 明确定义"需要补充信息"的条件 | System Prompt |
-| **L2: 重试上限** | `MAX_DIAGNOSIS_RETRIES = 2` | Java do-while / Go for loop |
+| **L2: 重试上限** | 最大重试2次 | LangGraph递归深度限制 / 状态retry计数 |
 | **L3: 状态检查** | 如果两次回退的输入相同，强制跳出 | 可通过对比state哈希实现 |
 
 **答题技巧**：这题在面试中非常高频，因为它展示了你处理LLM不确定性的经验。重点讲"三层防御"的思路。

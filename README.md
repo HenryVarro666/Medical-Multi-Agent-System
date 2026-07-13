@@ -5,25 +5,33 @@
 **Multi-Agent Clinical Decision Support System**
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](python/)
-[![Java](https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](java/)
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](go/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2+-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)](python/src/graph/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](java/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](python/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker/)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-green?style=for-the-badge)]()
 [![FHIR R4](https://img.shields.io/badge/FHIR-R4-FF6B6B?style=for-the-badge)]()
 
+
+> **📌 About this copy (Chao Cao, 2026-07)**
+> Started from the open-source scaffold [bcefghj/medical-multi-agent-system](https://github.com/bcefghj/medical-multi-agent-system) and made the pipeline *measurable and real* — see the second commit for the full diff:
+> - **GraphRAG wired into the diagnosis path** (`_retrieve_kg_candidates()` → candidates injected into the prompt, retrieval trace stored per run)
+> - **DDI rule engine reconciliation** in the treatment agent ("LLM proposes, deterministic layer disposes"), with per-plan verification stamps
+> - **Bounded retry guard** on the intake↔diagnosis loop (guaranteed termination)
+> - **Eval harness + real measured results**: `eval/run_eval.py`, 5 labeled vignettes × 2 repeats on a locally served Qwen3-14B (vLLM, H100) — per-case raw outputs in `eval/results/`; diagnosis top-1 clinically-correct 10/10 (strict 6/10), ICD-10 chapter 10/10 (exact 5/10), mean end-to-end latency 28.2s
+> - **Fully local LLM backend** (`src/config/llm.py` factory, OpenAI↔vLLM switch by env) — zero external API, PHI never leaves the box
+> - Scaffold README below is unchanged; its illustrative metrics (88%, QPS>50, +30% etc.) are the template's marketing copy, **not** measured claims of this fork.
+
+
 ---
 
 🎯 **面向面试的企业级多Agent医疗临床辅助决策系统**
 
-覆盖 **接诊 → 诊断 → 治疗 → 编码 → 审计** 全流程，Python / Java / Go 三种语言实现
+覆盖 **接诊 → 诊断 → 治疗 → 编码 → 审计** 全流程，基于 Python + LangGraph + FastAPI 实现
 
 > 💡 **适合人群**：正在求职的开发者、想要学习多Agent系统的工程师、对医疗AI感兴趣的同学
 >
-> 📋 **配套资源**：7篇深度技术文档 + 7篇面试准备材料 + 3种简历模板 + 50道高频面试题
+> 📋 **配套资源**：7篇深度技术文档 + 7篇面试准备材料 + 简历模板 + 50道高频面试题
 
 </div>
 
@@ -35,12 +43,10 @@
 - [🏗️ 系统架构](#️-系统架构)
   - [Pipeline 总体流程](#pipeline-总体流程)
   - [架构分层图](#架构分层图)
-- [🔧 技术栈对比](#-技术栈对比)
+- [🔧 技术栈](#-技术栈)
 - [🚀 快速开始（5分钟跑通）](#-快速开始5分钟跑通)
   - [前置条件](#前置条件)
   - [Python 版启动](#-python-版启动langgraph--fastapi)
-  - [Java 版启动](#-java-版启动spring-boot--langgraph4j)
-  - [Go 版启动](#-go-版启动gin--go-openai)
   - [验证系统运行](#-验证系统运行)
 - [🤖 五个Agent详细说明](#-五个agent详细说明)
   - [Agent 1: Intake Agent（接诊Agent）](#agent-1-intake-agent接诊agent)
@@ -73,7 +79,6 @@
 | 亮点 | 说明 |
 |:---:|:---|
 | 🤖 **5个专业Agent** | Intake（接诊）→ Diagnosis（诊断）→ Treatment（治疗）→ Coding（编码）→ Audit（审计），Pipeline 架构 + 条件路由 |
-| 🌐 **三种语言实现** | Python（LangGraph + FastAPI）、Java（Spring Boot + LangGraph4j）、Go（Gin + go-openai），同一套架构 |
 | 🧠 **GraphRAG 知识图谱** | 基于 Neo4j 的医学知识图谱，支持症状→疾病→治疗的多跳推理，比传统 RAG 准确率高 30%+ |
 | 🏥 **FHIR R4 标准** | 完整对接 HL7 FHIR R4，Patient / Condition / MedicationRequest 资源转换，可直接接入医院 HIS 系统 |
 | 📋 **ICD-10 自动编码** | 自动将诊断映射为 ICD-10-CM 编码，并进行 MS-DRGs 分组，覆盖 50+ 常见病种 |
@@ -155,7 +160,7 @@ graph LR
 ```mermaid
 graph TB
     subgraph API["📡 API 层"]
-        REST["REST API<br/>(FastAPI / Spring Boot / Gin)"]
+        REST["REST API<br/>(FastAPI)"]
         Health["Health Check"]
         Docs["Swagger/OpenAPI 文档"]
     end
@@ -212,23 +217,23 @@ graph TB
 
 ---
 
-## 🔧 技术栈对比
+## 🔧 技术栈
 
-| 维度 | 🐍 Python 版 | ☕ Java 版 | 🔵 Go 版 |
-|:---|:---|:---|:---|
-| **Web 框架** | FastAPI 0.115+ | Spring Boot 3.3 | Gin 1.10 |
-| **Agent 编排** | LangGraph (StateGraph) | LangGraph4j 1.8 | 手写 Pipeline（Agent 接口） |
-| **LLM 集成** | langchain-openai | Spring AI (OpenAI) | go-openai |
-| **状态管理** | Pydantic BaseModel | Lombok @Builder | Go struct |
-| **数据库 ORM** | SQLAlchemy 2.0 | Spring Data JPA | 原生 database/sql |
-| **数据校验** | Pydantic v2 | Jakarta Validation | Gin Binding |
-| **日志框架** | structlog | SLF4J + Logback | 标准 log 包 |
-| **FHIR 支持** | fhir.resources | 手动 JSON 映射 | 手动 JSON 映射 |
-| **PHI 检测** | Presidio + 正则 | 正则引擎 | 正则引擎 |
-| **依赖管理** | pip + requirements.txt | Maven (pom.xml) | Go Modules |
-| **容器化** | Dockerfile + docker-compose | Dockerfile + docker-compose | Dockerfile + docker-compose |
-| **默认端口** | 8000 | 8080 | 8090 |
-| **适合人群** | AI/ML 工程师、数据科学家 | 后端工程师、企业级开发者 | 高性能服务、微服务开发者 |
+| 维度 | 🐍 Python 实现 |
+|:---|:---|
+| **Web 框架** | FastAPI 0.115+ |
+| **Agent 编排** | LangGraph (StateGraph) |
+| **LLM 集成** | langchain-openai |
+| **状态管理** | Pydantic BaseModel |
+| **数据库 ORM** | SQLAlchemy 2.0 |
+| **数据校验** | Pydantic v2 |
+| **日志框架** | structlog |
+| **FHIR 支持** | fhir.resources |
+| **PHI 检测** | Presidio + 正则 |
+| **依赖管理** | pip + requirements.txt |
+| **容器化** | Dockerfile + docker-compose |
+| **默认端口** | 8000 |
+| **适合人群** | AI/ML 工程师、Python 后端工程师、对 LangGraph 感兴趣的学习者 |
 
 ### 核心技术概念解释（给小白）
 
@@ -349,50 +354,11 @@ sudo apt update && sudo apt install python3.11 python3.11-venv python3-pip
 
 </details>
 
-<details>
-<summary>☕ <strong>Java 版额外依赖</strong></summary>
-
-| 工具 | 版本要求 | 安装检查 |
-|:---|:---|:---|
-| JDK | 17+ | `java -version` |
-| Maven | 3.9+ | `mvn -version` |
-
-**安装 JDK 17（macOS）：**
-```bash
-brew install openjdk@17
-```
-
-**安装 JDK 17（Ubuntu）：**
-```bash
-sudo apt install openjdk-17-jdk
-```
-
-</details>
-
-<details>
-<summary>🔵 <strong>Go 版额外依赖</strong></summary>
-
-| 工具 | 版本要求 | 安装检查 |
-|:---|:---|:---|
-| Go | 1.22+ | `go version` |
-
-**安装 Go（macOS）：**
-```bash
-brew install go
-```
-
-**安装 Go（Ubuntu）：**
-```bash
-sudo snap install go --classic
-```
-
-</details>
-
 ---
 
 ### 环境变量配置详解
 
-不管你选择哪种语言版本，都需要配置环境变量。下面详细解释每个变量的含义：
+下面详细解释每个环境变量的含义：
 
 ```bash
 # ============== LLM 配置 ==============
@@ -440,7 +406,7 @@ LOG_LEVEL=INFO                          # 日志级别（DEBUG/INFO/WARNING/ERRO
 
 ---
 
-### 🐍 Python 版启动（LangGraph + FastAPI）
+### 🐍 Python 启动（LangGraph + FastAPI）
 
 ```bash
 # ① 克隆仓库
@@ -480,75 +446,14 @@ uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-### ☕ Java 版启动（Spring Boot + LangGraph4j）
-
-```bash
-# ① 克隆仓库（如果已克隆则跳过）
-git clone https://github.com/your-username/clinical-decision-system.git
-cd clinical-decision-system
-
-# ② 进入 Java 目录
-cd java
-
-# ③ 设置环境变量
-export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-export POSTGRES_PASSWORD=postgres
-
-# ④ 启动基础设施
-cd ../python && docker compose up -d postgres neo4j redis && cd ../java
-# 或者使用 docker/ 目录下的通用基础设施
-
-# ⑤ 编译并启动（Maven 会自动下载依赖，首次约3-5分钟）
-mvn spring-boot:run
-
-# ✅ 看到以下输出说明启动成功：
-#   Started ClinicalDecisionApplication in X.XX seconds
-#   Tomcat started on port 8080
-```
-
-**访问健康检查**：http://localhost:8080/api/v1/clinical/health
-
----
-
-### 🔵 Go 版启动（Gin + go-openai）
-
-```bash
-# ① 克隆仓库（如果已克隆则跳过）
-git clone https://github.com/your-username/clinical-decision-system.git
-cd clinical-decision-system
-
-# ② 进入 Go 目录
-cd go
-
-# ③ 设置环境变量
-export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-export OPENAI_MODEL=gpt-4o-mini
-export SERVER_PORT=8090
-
-# ④ 启动基础设施
-docker compose up -d postgres redis
-
-# ⑤ 下载依赖并启动
-go mod download
-go run cmd/server/main.go
-
-# ✅ 看到以下输出说明启动成功：
-#   [GIN-debug] Listening and serving HTTP on :8090
-```
-
-**访问健康检查**：http://localhost:8090/health
-
----
-
 ### 🧪 验证系统运行
 
-选择你启动的版本对应的端口，运行以下 curl 命令进行测试：
+启动后可以运行以下 curl 命令进行测试：
 
 <details>
 <summary>📋 <strong>测试1：完整 Pipeline（最核心的接口）</strong></summary>
 
 ```bash
-# 根据你启动的版本替换端口：Python=8000, Java=8080, Go=8090
 curl -X POST http://localhost:8000/api/v1/clinical/analyze \
   -H "Content-Type: application/json" \
   -d '{
@@ -793,8 +698,6 @@ def intake_agent(state) -> dict:
 
 **关键代码文件**：
 - Python: [`python/src/agents/intake_agent.py`](python/src/agents/intake_agent.py)
-- Java: [`java/src/main/java/com/medical/agent/IntakeAgent.java`](java/src/main/java/com/medical/agent/IntakeAgent.java)
-- Go: [`go/internal/agent/intake.go`](go/internal/agent/intake.go)
 
 ---
 
@@ -881,13 +784,10 @@ workflow.add_conditional_edges(
 
 > 💡 **面试要点**：
 > - 条件路由是 LangGraph 区别于简单链式调用的核心能力
-> - Go 版本因为没有 LangGraph 库，用 `for` 循环 + `maxRetries` 手动实现了同等逻辑
-> - 最大重试次数设为 2，防止 Agent 之间无限循环
+> - 最大重试次数设为 2（通过 LangGraph 递归深度限制或 State 中的 retry 计数控制），防止 Agent 之间无限循环
 
 **关键代码文件**：
 - Python: [`python/src/agents/diagnosis_agent.py`](python/src/agents/diagnosis_agent.py)
-- Java: [`java/src/main/java/com/medical/agent/DiagnosisAgent.java`](java/src/main/java/com/medical/agent/DiagnosisAgent.java)
-- Go: [`go/internal/agent/diagnosis.go`](go/internal/agent/diagnosis.go)
 
 ---
 
@@ -960,8 +860,6 @@ def check_interactions(new_drugs: list[str], current_drugs: list[str]) -> list[d
 
 **关键代码文件**：
 - Python: [`python/src/agents/treatment_agent.py`](python/src/agents/treatment_agent.py)
-- Java: [`java/src/main/java/com/medical/agent/TreatmentAgent.java`](java/src/main/java/com/medical/agent/TreatmentAgent.java)
-- Go: [`go/internal/agent/treatment.go`](go/internal/agent/treatment.go)
 - 药物交互数据库: [`python/src/services/drug_interaction.py`](python/src/services/drug_interaction.py)
 
 ---
@@ -1043,8 +941,6 @@ def get_drg_group(icd10_code: str) -> dict | None:
 
 **关键代码文件**：
 - Python: [`python/src/agents/coding_agent.py`](python/src/agents/coding_agent.py)
-- Java: [`java/src/main/java/com/medical/agent/CodingAgent.java`](java/src/main/java/com/medical/agent/CodingAgent.java)
-- Go: [`go/internal/agent/coding.go`](go/internal/agent/coding.go)
 - ICD-10 数据库: [`python/src/services/icd10_service.py`](python/src/services/icd10_service.py)
 
 ---
@@ -1133,8 +1029,6 @@ def _mask_phi(data: dict) -> dict:
 
 **关键代码文件**：
 - Python: [`python/src/agents/audit_agent.py`](python/src/agents/audit_agent.py)
-- Java: [`java/src/main/java/com/medical/agent/AuditAgent.java`](java/src/main/java/com/medical/agent/AuditAgent.java)
-- Go: [`go/internal/agent/audit.go`](go/internal/agent/audit.go)
 - HIPAA 服务: [`python/src/services/hipaa_service.py`](python/src/services/hipaa_service.py)
 
 ---
@@ -1165,48 +1059,6 @@ class ClinicalState(BaseModel):
 
 </details>
 
-<details>
-<summary>☕ <strong>Java 版 — Lombok @Builder</strong></summary>
-
-```java
-// java/src/main/java/com/medical/model/ClinicalState.java
-@Data
-@Builder
-public class ClinicalState {
-    private String rawInput;
-    private Map<String, Object> patientInfo;
-    private Map<String, Object> diagnosis;
-    private boolean needsMoreInfo;
-    private Map<String, Object> treatmentPlan;
-    private Map<String, Object> codingResult;
-    private Map<String, Object> auditResult;
-    private List<String> errors;
-    private String currentAgent;
-}
-```
-
-</details>
-
-<details>
-<summary>🔵 <strong>Go 版 — Struct</strong></summary>
-
-```go
-// go/internal/model/state.go
-type ClinicalState struct {
-    RawInput      string                 `json:"raw_input"`
-    PatientInfo   map[string]interface{} `json:"patient_info"`
-    Diagnosis     map[string]interface{} `json:"diagnosis"`
-    NeedsMoreInfo bool                   `json:"needs_more_info"`
-    TreatmentPlan map[string]interface{} `json:"treatment_plan"`
-    CodingResult  map[string]interface{} `json:"coding_result"`
-    AuditResult   map[string]interface{} `json:"audit_result"`
-    Errors        []string               `json:"errors"`
-    CurrentAgent  string                 `json:"current_agent"`
-}
-```
-
-</details>
-
 **数据流向图**：
 
 ```
@@ -1230,10 +1082,7 @@ type ClinicalState struct {
                     └──────────────────────────────────────────────┘
 ```
 
-### Pipeline 三语言实现对比
-
-<details>
-<summary>🐍 <strong>Python — 声明式（LangGraph StateGraph）</strong></summary>
+### Pipeline 实现（LangGraph StateGraph）
 
 ```python
 # python/src/graph/clinical_pipeline.py
@@ -1261,74 +1110,13 @@ def build_clinical_pipeline():
 
 优点：声明式定义，直观清晰；支持 Checkpoint 断点恢复
 
-</details>
-
-<details>
-<summary>☕ <strong>Java — 命令式（方法链式调用）</strong></summary>
-
-```java
-// java/src/main/java/com/medical/graph/ClinicalPipeline.java
-public ClinicalState invoke(String rawInput) {
-    ClinicalState state = ClinicalState.builder().rawInput(rawInput).build();
-
-    state = intakeAgent.process(state);
-
-    int retries = 0;
-    do {
-        state = diagnosisAgent.process(state);
-        if (state.isNeedsMoreInfo() && retries < MAX_DIAGNOSIS_RETRIES) {
-            state = intakeAgent.process(state);
-        }
-        retries++;
-    } while (state.isNeedsMoreInfo() && retries <= MAX_DIAGNOSIS_RETRIES);
-
-    state = treatmentAgent.process(state);
-    state = codingAgent.process(state);
-    state = auditAgent.process(state);
-    return state;
-}
-```
-
-优点：Spring 生态集成好；do-while 循环实现条件路由直观
-
-</details>
-
-<details>
-<summary>🔵 <strong>Go — 命令式（Pipeline 结构体）</strong></summary>
-
-```go
-// go/internal/graph/pipeline.go
-func (p *Pipeline) Run(ctx context.Context, state *model.ClinicalState) error {
-    p.runAgent(ctx, p.intake, state)
-
-    retries := 0
-    for {
-        p.runAgent(ctx, p.diagnosis, state)
-        if state.NeedsMoreInfo && retries < maxDiagnosisRetries {
-            retries++
-            p.runAgent(ctx, p.intake, state)
-            continue
-        }
-        break
-    }
-
-    p.runAgent(ctx, p.treatment, state)
-    p.runAgent(ctx, p.coding, state)
-    p.runAgent(ctx, p.audit, state)
-    return nil
-}
-```
-
-优点：Go 的 Agent 接口设计（`type Agent interface { Process(ctx, state); Name() string }`）简洁优雅
-
-</details>
-
-> 💡 **面试常问**："三种实现方式哪种更好？"
+> 💡 **面试常问**："为什么选择 LangGraph 而不是 LangChain Agent 或手写循环？"
 >
-> **回答要点**：没有绝对的好坏，取决于团队和场景：
-> - Python 版最适合**原型快速验证**（LangGraph 原生，功能最全）
-> - Java 版最适合**企业级生产**（Spring 生态、DI、事务管理）
-> - Go 版最适合**高性能微服务**（编译为二进制、低内存、高并发）
+> **回答要点**：
+> - LangGraph 支持循环（非 DAG），能优雅表达 Diagnosis → Intake 回环场景
+> - 声明式 API 让图结构一目了然，可以直接可视化
+> - 内置 Checkpointer 支持状态持久化和断点恢复
+> - 配合 Pydantic 的 ClinicalState 有完整的类型校验
 
 ---
 
@@ -2012,67 +1800,11 @@ clinical-decision-system/
 │   ├── docker-compose.yml             # 完整运行环境（API + PG + Neo4j + Redis）
 │   └── README.md                      # Python版说明文档
 │
-├── 📁 java/                            # ☕ Java版实现
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/medical/
-│   │   │   │   ├── ClinicalDecisionApplication.java  # Spring Boot主启动类
-│   │   │   │   ├── agent/                            # 五个Agent
-│   │   │   │   │   ├── IntakeAgent.java              # 接诊Agent
-│   │   │   │   │   ├── DiagnosisAgent.java           # 诊断Agent
-│   │   │   │   │   ├── TreatmentAgent.java           # 治疗Agent
-│   │   │   │   │   ├── CodingAgent.java              # 编码Agent
-│   │   │   │   │   └── AuditAgent.java               # 审计Agent
-│   │   │   │   ├── controller/
-│   │   │   │   │   └── ClinicalController.java       # REST Controller
-│   │   │   │   ├── graph/
-│   │   │   │   │   └── ClinicalPipeline.java         # Pipeline编排
-│   │   │   │   ├── model/
-│   │   │   │   │   └── ClinicalState.java            # 共享状态
-│   │   │   │   ├── service/                           # 业务服务
-│   │   │   │   └── config/                            # 配置类
-│   │   │   └── resources/
-│   │   │       └── application.yml                   # Spring配置
-│   │   └── test/                                     # 测试目录
-│   ├── pom.xml                         # Maven依赖（Spring Boot 3.3 + LangGraph4j）
-│   └── README.md                      # Java版说明文档
-│
-├── 📁 go/                              # 🔵 Go版实现
-│   ├── cmd/
-│   │   └── server/
-│   │       └── main.go                 # Gin服务启动入口
-│   ├── internal/
-│   │   ├── agent/                      # 五个Agent实现
-│   │   │   ├── base.go                 # Agent接口定义
-│   │   │   ├── intake.go              # 接诊Agent
-│   │   │   ├── diagnosis.go           # 诊断Agent
-│   │   │   ├── treatment.go           # 治疗Agent
-│   │   │   ├── coding.go             # 编码Agent
-│   │   │   └── audit.go              # 审计Agent
-│   │   ├── graph/
-│   │   │   └── pipeline.go            # Pipeline编排（含条件路由循环）
-│   │   ├── handler/
-│   │   │   └── clinical.go            # HTTP Handler（Gin路由注册）
-│   │   ├── model/
-│   │   │   └── state.go               # ClinicalState + 请求/响应结构体
-│   │   ├── service/                    # 业务服务
-│   │   │   ├── icd10.go               # ICD-10编码服务
-│   │   │   ├── drug_interaction.go    # 药物交互检查
-│   │   │   ├── fhir.go               # FHIR资源转换
-│   │   │   └── hipaa.go              # HIPAA合规服务
-│   │   └── config/
-│   │       └── config.go              # 环境变量配置
-│   ├── go.mod                          # Go Modules（Gin 1.10 + go-openai）
-│   ├── go.sum                          # 依赖校验和
-│   ├── Dockerfile                      # Go容器镜像
-│   ├── docker-compose.yml             # 运行环境
-│   └── README.md                      # Go版说明文档
-│
 ├── 📁 docker/                          # 🐳 通用基础设施
 │   └── init-db.sql                    # PostgreSQL初始化（审计日志表 + 会话表）
 │
 ├── 📁 docs/                            # 📖 技术文档（7篇）
-│   ├── 00-项目概览.md                  # 项目背景、多Agent概念、三语言对比
+│   ├── 00-项目概览.md                  # 项目背景、多Agent概念
 │   ├── 01-环境搭建指南.md              # 从零搭建开发环境的详细步骤
 │   ├── 02-架构设计详解.md              # 分层架构、Pipeline模式、LangGraph核心
 │   ├── 03-Agent设计原理.md             # 5个Agent的设计思路和实现细节
@@ -2082,7 +1814,7 @@ clinical-decision-system/
 │   └── 07-部署运维指南.md              # Docker/K8s部署、监控、日志、性能调优
 │
 ├── 📁 interview/                       # 🎯 面试准备材料（7篇）
-│   ├── 01-简历写法模板.md              # 3种级别 × 3种语言的简历模板
+│   ├── 01-简历写法模板.md              # 3种级别的 Python 简历模板
 │   ├── 02-STAR法回答模板.md            # 5个STAR法面试场景回答脚本
 │   ├── 03-八股文-多Agent系统.md         # 多Agent系统30题（简洁版+详细版）
 │   ├── 04-八股文-LangGraph核心.md       # LangGraph框架核心知识点
@@ -2104,7 +1836,7 @@ clinical-decision-system/
 ```mermaid
 graph TB
     subgraph DockerCompose["docker-compose.yml"]
-        API["🐍 API 服务<br/>FastAPI / Spring Boot / Gin<br/>Port: 8000/8080/8090"]
+        API["🐍 API 服务<br/>FastAPI<br/>Port: 8000"]
         PG["🐘 PostgreSQL 16<br/>审计日志 + 会话存储<br/>Port: 5432"]
         Neo["🔵 Neo4j 5<br/>医学知识图谱<br/>Port: 7474 (HTTP) / 7687 (Bolt)"]
         Redis["🔴 Redis 7<br/>缓存 + 限流<br/>Port: 6379"]
@@ -2127,8 +1859,6 @@ graph TB
 | 服务 | 端口 | 访问地址 | 用途 |
 |:---|:---|:---|:---|
 | Python API | 8000 | http://localhost:8000/docs | FastAPI Swagger UI |
-| Java API | 8080 | http://localhost:8080/api/v1/clinical/health | Spring Boot |
-| Go API | 8090 | http://localhost:8090/health | Gin |
 | PostgreSQL | 5432 | `psql -h localhost -U postgres -d clinical_decision` | 数据库 |
 | Neo4j Browser | 7474 | http://localhost:7474 | 知识图谱可视化 |
 | Neo4j Bolt | 7687 | `bolt://localhost:7687` | 程序连接 |
@@ -2178,8 +1908,6 @@ docker compose down -v
 | DDI 检查 | < 5ms | 内存匹配 |
 | 健康检查 | < 1ms | — |
 | 内存占用（Python） | ~200MB | 包含 LangGraph 运行时 |
-| 内存占用（Java） | ~300MB | JVM 堆内存 |
-| 内存占用（Go） | ~50MB | Go 二进制 |
 
 > 💡 **优化方向**：
 > - 使用 Redis 缓存重复查询结果，减少 LLM 调用
@@ -2192,7 +1920,7 @@ docker compose down -v
 
 | # | 文件 | 说明 | 适用场景 |
 |:---:|:---|:---|:---|
-| 1 | 📝 [简历写法模板](interview/01-简历写法模板.md) | 初级/中级/高级 × Python/Java/Go 共 9 套简历模板，逐条解析每个 bullet point 的亮点 | 写简历时参考 |
+| 1 | 📝 [简历写法模板](interview/01-简历写法模板.md) | 初级/中级/高级 3 套 Python 简历模板，逐条解析每个 bullet point 的亮点 | 写简历时参考 |
 | 2 | 🎤 [STAR法回答模板](interview/02-STAR法回答模板.md) | 5 个常见面试场景的完整回答脚本（300-500字），可直接练习朗读 | 行为面试准备 |
 | 3 | 🤖 [八股文 — 多Agent系统](interview/03-八股文-多Agent系统.md) | 30 题，每题提供简洁版（30秒）和详细版（2分钟）答案，结合项目代码 | 技术面试准备 |
 | 4 | 🔗 [八股文 — LangGraph核心](interview/04-八股文-LangGraph核心.md) | LangGraph 框架的 StateGraph、条件路由、Checkpoint 等核心概念 | 技术面试准备 |
@@ -2208,8 +1936,8 @@ docker compose down -v
 
 | # | 文件 | 说明 | 阅读时长 |
 |:---:|:---|:---|:---:|
-| 0 | 🌐 [项目概览](docs/00-项目概览.md) | 项目背景、多Agent概念、单Agent vs 多Agent 对比、三语言实现对照 | ~15min |
-| 1 | 🛠️ [环境搭建指南](docs/01-环境搭建指南.md) | 从零搭建 Python/Java/Go 开发环境、Docker 基础设施、.env 配置详解 | ~20min |
+| 0 | 🌐 [项目概览](docs/00-项目概览.md) | 项目背景、多Agent概念、单Agent vs 多Agent 对比 | ~15min |
+| 1 | 🛠️ [环境搭建指南](docs/01-环境搭建指南.md) | 从零搭建 Python 开发环境、Docker 基础设施、.env 配置详解 | ~20min |
 | 2 | 🏗️ [架构设计详解](docs/02-架构设计详解.md) | 分层架构、Pipeline 模式 vs 其他编排模式、LangGraph 核心概念、状态设计 | ~25min |
 | 3 | 🤖 [Agent设计原理](docs/03-Agent设计原理.md) | 5 个 Agent 的设计思路、Prompt 工程、输入输出规范、错误处理策略 | ~30min |
 | 4 | 🧠 [GraphRAG知识图谱](docs/04-GraphRAG知识图谱.md) | RAG → GraphRAG 的演进、三层知识图谱结构、Neo4j Cypher 查询、性能优化 | ~25min |
@@ -2247,7 +1975,7 @@ docker compose down -v
 **核心策略**：强调架构设计和技术深度
 
 ```
-多Agent医疗临床辅助决策系统（Python / Java / Go 三语言实现）
+多Agent医疗临床辅助决策系统（Python 实现）
 
 • 主导设计并实现基于 LangGraph 的 5-Agent Pipeline 架构，采用 StateGraph + 条件路由
   编排模式，处理接诊/诊断/治疗/编码/审计全流程，支撑日均 5000+ 次临床辅助决策
@@ -2269,7 +1997,7 @@ docker compose down -v
 多Agent医疗临床辅助决策系统（技术负责人 / 0→1 全栈交付）
 
 • 从 0 到 1 设计并交付企业级多 Agent 临床决策系统，采用 Pipeline + 条件路由架构，
-  Python/Java/Go 三语言实现，单系统覆盖接诊-诊断-治疗-编码-审计全链路，
+  基于 Python + LangGraph + FastAPI 实现，单系统覆盖接诊-诊断-治疗-编码-审计全链路，
   为医院节省 40% 编码人力成本
 • 设计高可用 Agent 编排框架：基于 LangGraph StateGraph 的共享状态 + 条件路由 +
   断点恢复，Agent 级故障隔离，单 Agent 异常不影响 Pipeline 整体，系统可用性 99.9%
@@ -2354,19 +2082,19 @@ docker compose down -v
 </details>
 
 <details>
-<summary><strong>Q3: 三种语言版本功能完全一样吗？</strong></summary>
+<summary><strong>Q3: Python 实现包含了哪些能力？</strong></summary>
 
-核心功能一致（5-Agent Pipeline + 条件路由 + API 接口），但有细微差别：
+核心能力一览（5-Agent Pipeline + 条件路由 + API 接口）：
 
-| 特性 | Python | Java | Go |
-|:---|:---:|:---:|:---:|
-| LangGraph 原生支持 | ✅ | ✅ (LangGraph4j) | ❌ (手写) |
-| GraphRAG 知识图谱 | ✅ 完整 | ⚙️ 基础 | ⚙️ 基础 |
-| FHIR 资源转换 | ✅ (fhir.resources) | ✅ (手动) | ✅ (手动) |
-| Presidio PHI 检测 | ✅ | ❌ | ❌ |
-| Swagger 文档 | ✅ (自动) | ✅ (Actuator) | ❌ (需手动) |
+| 特性 | Python |
+|:---|:---:|
+| LangGraph 原生支持 | ✅ |
+| GraphRAG 知识图谱 | ✅ 完整 |
+| FHIR 资源转换 | ✅ (fhir.resources) |
+| Presidio PHI 检测 | ✅ |
+| Swagger 文档 | ✅ (自动) |
 
-**推荐**：面试时优先展示 Python 版（功能最完整），然后用 Java/Go 版展示"同一架构多语言实现"的能力。
+**推荐**：面试时重点展示 LangGraph 编排、GraphRAG 集成、HIPAA 合规设计这三个亮点——它们覆盖了"AI 工程化 + 知识图谱 + 医疗合规"三个大方向。
 
 </details>
 
@@ -2614,44 +2342,6 @@ pytest tests/ --cov=src --cov-report=html
 
 </details>
 
-<details>
-<summary>☕ <strong>Java 测试</strong></summary>
-
-```bash
-cd java
-
-# 运行所有测试
-mvn test
-
-# 运行特定测试类
-mvn test -Dtest=ClinicalPipelineTest
-
-# 生成测试报告
-mvn surefire-report:report
-# 报告在 target/site/surefire-report.html
-```
-
-</details>
-
-<details>
-<summary>🔵 <strong>Go 测试</strong></summary>
-
-```bash
-cd go
-
-# 运行所有测试
-go test ./... -v
-
-# 运行特定包的测试
-go test ./internal/service/ -v
-
-# 带覆盖率
-go test ./... -coverprofile=coverage.out
-go tool cover -html=coverage.out
-```
-
-</details>
-
 ### 手动集成测试
 
 除了单元测试，你还可以用以下脚本做端到端的集成测试：
@@ -2660,7 +2350,7 @@ go tool cover -html=coverage.out
 #!/bin/bash
 # 简单的集成测试脚本
 
-BASE_URL="http://localhost:8000"  # 根据你的版本修改端口
+BASE_URL="http://localhost:8000"
 
 echo "=== 测试 1: 健康检查 ==="
 curl -s "$BASE_URL/health" | python3 -m json.tool
@@ -2749,8 +2439,7 @@ echo "=== 测试完成 ==="
 | 资源 | 类型 | 说明 |
 |:---|:---|:---|
 | [FastAPI 官方教程](https://fastapi.tiangolo.com/tutorial/) | 文档 | Python Web 框架 |
-| [Spring Boot 指南](https://spring.io/guides) | 文档 | Java 生态 |
-| [Gin 框架文档](https://gin-gonic.com/docs/) | 文档 | Go Web 框架 |
+| [Pydantic 文档](https://docs.pydantic.dev/) | 文档 | 数据校验与模型 |
 | [Neo4j 入门](https://neo4j.com/docs/getting-started/) | 文档 | 图数据库 |
 
 ---
@@ -2778,19 +2467,12 @@ git checkout -b feature/你的功能名
 3. **编写代码**
    - 遵循现有代码风格
    - 添加必要的注释和文档
-   - 如果添加新功能，请同步更新三种语言版本（至少更新一种）
+   - 新功能请同步补充单元测试
 
 4. **运行测试**
 
 ```bash
-# Python
 cd python && pytest tests/
-
-# Java
-cd java && mvn test
-
-# Go
-cd go && go test ./...
 ```
 
 5. **提交 PR**
@@ -2805,9 +2487,7 @@ git push origin feature/你的功能名
 
 | 语言 | 格式化工具 | 代码检查 |
 |:---|:---|:---|
-| Python | `black` + `isort` | `ruff` |
-| Java | Google Java Format | SpotBugs |
-| Go | `gofmt` | `golint` + `go vet` |
+| Python | `black` + `isort` | `ruff` + `mypy` |
 
 ### Commit Message 格式
 
@@ -2844,7 +2524,7 @@ git push origin feature/你的功能名
 
 ## 环境信息
 - OS: macOS / Linux / Windows
-- Python/Java/Go 版本:
+- Python 版本:
 - Docker 版本:
 ```
 
@@ -2902,12 +2582,6 @@ git add .env  # 千万不要这样做！
 # Python：检查依赖的已知漏洞
 pip install safety
 safety check -r requirements.txt
-
-# Java：Maven 依赖检查
-mvn dependency:analyze
-
-# Go：检查已知漏洞
-govulncheck ./...
 ```
 
 ---
@@ -2950,8 +2624,8 @@ SOFTWARE.
 
 | 指标 | 数值 | 说明 |
 |:---|:---|:---|
-| 源代码文件数 | 50+ | 跨 Python / Java / Go 三种语言 |
-| 总代码行数 | 5,000+ | 不含空行和注释 |
+| 源代码文件数 | 20+ | Python 实现 |
+| 总代码行数 | 3,000+ | 不含空行和注释 |
 | Agent 数量 | 5 个 | Intake / Diagnosis / Treatment / Coding / Audit |
 | API 端点数 | 5 个 | analyze / icd10-search / icd10-lookup / ddi / health |
 | ICD-10 编码覆盖 | 50+ 病种 | 覆盖 11 个编码章节 |
@@ -2976,13 +2650,10 @@ SOFTWARE.
 
 | 项目/标准 | 用途 |
 |:---|:---|
-| [LangGraph](https://github.com/langchain-ai/langgraph) | Agent 编排框架（Python 版核心） |
-| [LangGraph4j](https://github.com/bsorrentino/langgraph4j) | LangGraph 的 Java 移植 |
+| [LangGraph](https://github.com/langchain-ai/langgraph) | Agent 编排框架（核心） |
 | [FastAPI](https://fastapi.tiangolo.com/) | Python Web 框架 |
-| [Spring Boot](https://spring.io/projects/spring-boot) | Java Web 框架 |
-| [Gin](https://gin-gonic.com/) | Go Web 框架 |
-| [go-openai](https://github.com/sashabaranov/go-openai) | Go OpenAI SDK |
-| [Spring AI](https://spring.io/projects/spring-ai) | Spring 生态 AI 集成 |
+| [Pydantic](https://docs.pydantic.dev/) | 数据校验与模型 |
+| [langchain-openai](https://python.langchain.com/docs/integrations/chat/openai/) | OpenAI LLM 集成 |
 | [Neo4j](https://neo4j.com/) | 图数据库（知识图谱） |
 | [HL7 FHIR](https://www.hl7.org/fhir/) | 医疗信息交换标准 |
 | [WHO ICD-10](https://www.who.int/classifications/icd/) | 国际疾病分类编码 |

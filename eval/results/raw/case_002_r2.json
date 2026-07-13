@@ -1,0 +1,477 @@
+{
+  "case": {
+    "id": "case_002",
+    "description": "62-year-old female with sudden onset of crushing chest pain radiating to the left arm for 2 hours, associated with diaphoresis, nausea, and shortness of breath. History of hyperlipidemia, smoking (30 pack-years, quit 2 years ago), and family history of MI (father at age 55). Current medications: atorvastatin 40mg daily, aspirin 81mg daily. No known allergies. Vital signs: BP 160/95, HR 110, RR 24, SpO2 96%. ECG shows ST elevation in leads V1-V4. Troponin I: 4.5 ng/mL (markedly elevated).",
+    "expected_diagnosis": "ST-Elevation Myocardial Infarction (STEMI)",
+    "expected_icd10": "I21.0"
+  },
+  "pipeline_output": {
+    "patient_info": {
+      "patient_id": null,
+      "name": "Unknown",
+      "age": 62,
+      "gender": "female",
+      "chief_complaint": "sudden onset of crushing chest pain radiating to the left arm",
+      "symptoms": [
+        {
+          "name": "crushing chest pain",
+          "duration_days": 2,
+          "severity": "severe",
+          "description": "radiating to the left arm"
+        },
+        {
+          "name": "diaphoresis",
+          "duration_days": 2,
+          "severity": "moderate",
+          "description": "associated with chest pain"
+        },
+        {
+          "name": "nausea",
+          "duration_days": 2,
+          "severity": "moderate",
+          "description": "associated with chest pain"
+        },
+        {
+          "name": "shortness of breath",
+          "duration_days": 2,
+          "severity": "moderate",
+          "description": "associated with chest pain"
+        }
+      ],
+      "medical_history": [
+        "hyperlipidemia",
+        "smoking (30 pack-years, quit 2 years ago)"
+      ],
+      "family_history": [
+        "myocardial infarction (MI) in father at age 55"
+      ],
+      "allergies": [],
+      "current_medications": [
+        {
+          "name": "atorvastatin",
+          "dosage": "40mg",
+          "frequency": "daily",
+          "start_date": null
+        },
+        {
+          "name": "aspirin",
+          "dosage": "81mg",
+          "frequency": "daily",
+          "start_date": null
+        }
+      ],
+      "vital_signs": {
+        "temperature": null,
+        "heart_rate": 110,
+        "blood_pressure_systolic": 160,
+        "blood_pressure_diastolic": 95,
+        "respiratory_rate": 24,
+        "oxygen_saturation": 96.0
+      },
+      "lab_results": [
+        {
+          "test_name": "Troponin I",
+          "value": "4.5",
+          "unit": "ng/mL",
+          "reference_range": "0.0 - 0.4",
+          "is_abnormal": true
+        }
+      ],
+      "raw_input": null,
+      "created_at": "2026-07-12T19:48:51.773035"
+    },
+    "diagnosis": {
+      "primary_diagnosis": {
+        "disease_name": "Acute myocardial infarction",
+        "icd10_hint": "I21.9",
+        "confidence": 0.85,
+        "evidence": [
+          "sudden onset of crushing chest pain radiating to the left arm",
+          "diaphoresis associated with chest pain",
+          "nausea associated with chest pain",
+          "shortness of breath associated with chest pain",
+          "elevated troponin I level (4.5 ng/mL, reference range 0.0 - 0.4)",
+          "history of hyperlipidemia and smoking",
+          "family history of myocardial infarction"
+        ],
+        "reasoning": "The patient presents with classic symptoms of acute myocardial infarction (chest pain radiating to the left arm, diaphoresis, nausea, and shortness of breath). The elevated troponin I level is a strong biomarker for myocardial injury. The patient's risk factors, including hyperlipidemia, smoking history, and family history of MI, further support this diagnosis."
+      },
+      "differential_list": [
+        {
+          "disease_name": "Pericarditis",
+          "icd10_hint": "I30.0",
+          "confidence": 0.45,
+          "evidence": [
+            "chest pain radiating to the left arm",
+            "associated diaphoresis and nausea"
+          ],
+          "reasoning": "Pericarditis can present with chest pain that may radiate, but it is typically sharp and relieved by sitting forward. The presence of elevated troponin and the absence of pericardial friction rub or other pericarditis-specific findings make this less likely."
+        },
+        {
+          "disease_name": "Pulmonary embolism",
+          "icd10_hint": "I26.0",
+          "confidence": 0.55,
+          "evidence": [
+            "shortness of breath",
+            "chest pain",
+            "elevated heart rate and blood pressure"
+          ],
+          "reasoning": "Pulmonary embolism can cause chest pain and dyspnea, but it is less commonly associated with diaphoresis and nausea. The absence of risk factors for deep vein thrombosis and the presence of elevated troponin make MI more likely."
+        },
+        {
+          "disease_name": "Gastroesophageal reflux disease (GERD)",
+          "icd10_hint": "K21.9",
+          "confidence": 0.3,
+          "evidence": [
+            "chest pain"
+          ],
+          "reasoning": "GERD can cause chest pain, but it is typically described as burning and not associated with radiation to the arm, diaphoresis, or nausea. The presence of elevated troponin and risk factors for MI makes this less likely."
+        }
+      ],
+      "recommended_tests": [
+        "Electrocardiogram (ECG) to assess for ST-segment changes or other ischemic findings",
+        "Repeat troponin levels to confirm the trend",
+        "Chest X-ray to rule out other causes of chest pain",
+        "Echocardiogram to assess cardiac function and wall motion abnormalities"
+      ],
+      "clinical_notes": "The patient presents with a high suspicion for acute myocardial infarction due to classic symptoms, elevated troponin, and significant risk factors. Immediate evaluation and intervention are warranted.",
+      "knowledge_sources": [
+        "UpToDate: Acute Myocardial Infarction",
+        "ICD-10-CM Official Guidelines for Coding and Reporting",
+        "GraphRAG knowledge graph (symptom->disease retrieval)"
+      ],
+      "knowledge_graph_candidates": [
+        {
+          "disease": "Gastroenteritis",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Pregnancy",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Appendicitis",
+          "symptom_match_count": 1,
+          "icd10_code": "K35.80",
+          "icd10_description": "Unspecified acute appendicitis"
+        },
+        {
+          "disease": "Migraine",
+          "symptom_match_count": 1,
+          "icd10_code": "G43.909",
+          "icd10_description": "Migraine, unspecified, not intractable"
+        },
+        {
+          "disease": "Hepatitis",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        }
+      ]
+    },
+    "treatment_plan": {
+      "diagnosis_addressed": "Acute myocardial infarction",
+      "medications": [
+        {
+          "drug_name": "Aspirin",
+          "generic_name": "Aspirin",
+          "dosage": "325mg",
+          "route": "oral",
+          "frequency": "once",
+          "duration": "as needed for acute MI",
+          "contraindications": [
+            "known allergy to aspirin",
+            "active peptic ulcer disease",
+            "hemophilia"
+          ],
+          "side_effects": [
+            "gastrointestinal bleeding",
+            "nausea",
+            "tinnitus"
+          ]
+        },
+        {
+          "drug_name": "Clopidogrel",
+          "generic_name": "Clopidogrel",
+          "dosage": "75mg",
+          "route": "oral",
+          "frequency": "daily",
+          "duration": "at least 12 months",
+          "contraindications": [
+            "known allergy to clopidogrel",
+            "active bleeding",
+            "severe liver disease"
+          ],
+          "side_effects": [
+            "bleeding",
+            "gastrointestinal upset",
+            "rash"
+          ]
+        },
+        {
+          "drug_name": "Metoprolol",
+          "generic_name": "Metoprolol",
+          "dosage": "50mg",
+          "route": "oral",
+          "frequency": "twice daily",
+          "duration": "as needed for heart rate control",
+          "contraindications": [
+            "severe bradycardia",
+            "heart block",
+            "asthma"
+          ],
+          "side_effects": [
+            "bradycardia",
+            "fatigue",
+            "hypotension"
+          ]
+        },
+        {
+          "drug_name": "Enoxaparin",
+          "generic_name": "Enoxaparin",
+          "dosage": "40mg",
+          "route": "subcutaneous",
+          "frequency": "every 12 hours",
+          "duration": "until transition to oral anticoagulant",
+          "contraindications": [
+            "active bleeding",
+            "severe renal impairment",
+            "heparin-induced thrombocytopenia"
+          ],
+          "side_effects": [
+            "bleeding",
+            "thrombocytopenia",
+            "hypertension"
+          ]
+        },
+        {
+          "drug_name": "Nitroglycerin",
+          "generic_name": "Nitroglycerin",
+          "dosage": "0.4mg",
+          "route": "sublingual",
+          "frequency": "as needed for chest pain",
+          "duration": "as needed",
+          "contraindications": [
+            "hypotension",
+            "head injury",
+            "severe anemia"
+          ],
+          "side_effects": [
+            "headache",
+            "hypotension",
+            "dizziness"
+          ]
+        }
+      ],
+      "drug_interactions": [
+        {
+          "drug_a": "Aspirin",
+          "drug_b": "Clopidogrel",
+          "severity": "moderate",
+          "description": "Aspirin may reduce the antiplatelet effect of clopidogrel, potentially increasing the risk of thrombotic events.",
+          "recommendation": "Use with caution and consider alternative antiplatelet agents if necessary."
+        },
+        {
+          "drug_a": "Metoprolol",
+          "drug_b": "Aspirin",
+          "severity": "minor",
+          "description": "Metoprolol may increase the risk of bradycardia when used with aspirin, especially in patients with preexisting heart conditions.",
+          "recommendation": "Monitor heart rate and blood pressure closely."
+        },
+        {
+          "drug_a": "Enoxaparin",
+          "drug_b": "Aspirin",
+          "severity": "major",
+          "description": "Combination of enoxaparin and aspirin increases the risk of bleeding, including gastrointestinal and intracranial hemorrhage.",
+          "recommendation": "Use with caution and monitor for signs of bleeding."
+        },
+        {
+          "drug_a": "Enoxaparin",
+          "drug_b": "Clopidogrel",
+          "severity": "major",
+          "description": "Concomitant use of enoxaparin and clopidogrel significantly increases the risk of bleeding.",
+          "recommendation": "Avoid if possible; if necessary, closely monitor for bleeding and adjust dosages as needed."
+        }
+      ],
+      "non_drug_treatments": [
+        "Cardiac rehabilitation",
+        "Pain management with non-pharmacological methods (e.g., relaxation techniques)"
+      ],
+      "lifestyle_recommendations": [
+        "Quit smoking (already quit, but reinforce importance)",
+        "Adopt a heart-healthy diet (low in saturated fats, high in fiber)",
+        "Engage in moderate physical activity as tolerated",
+        "Maintain a healthy weight",
+        "Manage stress through mindfulness or counseling"
+      ],
+      "follow_up_plan": "Follow-up with a cardiologist within 24-48 hours for ECG and echocardiogram. Repeat troponin levels in 6-8 hours. Schedule a cardiac rehabilitation program and follow-up in 1 week for reassessment of symptoms and medication review.",
+      "warnings": [
+        "Monitor for signs of bleeding (e.g., bruising, hematuria, melena) due to anticoagulant and antiplatelet therapy.",
+        "Watch for signs of heart failure (e.g., dyspnea, edema, fatigue).",
+        "Avoid nonsteroidal anti-inflammatory drugs (NSAIDs) due to increased risk of bleeding and renal impairment."
+      ],
+      "evidence_references": [
+        "UpToDate: Acute Myocardial Infarction",
+        "ACC/AHA Guideline for the Management of Patients With ST-Elevation Myocardial Infarction",
+        "ESC Guidelines for the Management of Acute Myocardial Infarction in Patients Presenting with ST-Segment Elevation"
+      ],
+      "allergy_alerts": [],
+      "ddi_engine": {
+        "checked": true,
+        "proposed_drugs_checked": [
+          "Aspirin",
+          "Clopidogrel",
+          "Metoprolol",
+          "Enoxaparin",
+          "Nitroglycerin"
+        ],
+        "current_medications_checked": [
+          "atorvastatin",
+          "aspirin"
+        ],
+        "allergies_checked": [],
+        "engine_flagged_interactions": 0,
+        "engine_flagged_allergy_alerts": 0
+      }
+    },
+    "coding_result": {
+      "primary_icd10": {
+        "code": "I21.9",
+        "description": "Acute myocardial infarction, unspecified",
+        "confidence": 0.92,
+        "category": "Cardiovascular Diseases"
+      },
+      "secondary_icd10_codes": [
+        {
+          "code": "I25.1",
+          "description": "Atherosclerotic heart disease of native coronary artery",
+          "confidence": 0.88,
+          "category": "Cardiovascular Diseases"
+        },
+        {
+          "code": "Z82.0",
+          "description": "Family history of myocardial infarction",
+          "confidence": 0.85,
+          "category": "Factors influencing health status and contact with health services"
+        },
+        {
+          "code": "Z71.0",
+          "description": "Tobacco use",
+          "confidence": 0.82,
+          "category": "Factors influencing health status and contact with health services"
+        },
+        {
+          "code": "E78.5",
+          "description": "Hyperlipidemia",
+          "confidence": 0.8,
+          "category": "Endocrine, nutritional and metabolic diseases"
+        }
+      ],
+      "drg_group": {
+        "drg_code": "193",
+        "description": "Acute myocardial infarction with cardiac catheterization and coronary artery bypass grafting",
+        "weight": 1.2,
+        "mean_los": 4.5
+      },
+      "coding_notes": "The primary diagnosis of acute myocardial infarction is supported by the patient's symptoms, elevated troponin levels, and risk factors. Secondary codes include atherosclerotic heart disease, family history of MI, tobacco use, and hyperlipidemia. DRG 193 was selected based on the acute MI diagnosis and potential for cardiac catheterization or bypass surgery.",
+      "coding_confidence": 0.9
+    },
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": false,
+          "detail": "Found 1 PHI types: name"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": true,
+          "detail": "Verified"
+        }
+      ],
+      "phi_fields_found": [
+        "name"
+      ],
+      "phi_fields_masked": [
+        "name"
+      ],
+      "audit_trail": [
+        {
+          "timestamp": "2026-07-13T00:49:17.359009+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 4 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:49:17.361899+00:00",
+          "user_id": "system",
+          "action": "data_masking",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Masked 1 PHI types",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:49:17.362009+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Ensure all PHI is masked before external transmission",
+        "Review failed compliance checks and remediate",
+        "Maintain audit logs for minimum 6 years per HIPAA requirements"
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": null,
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 30.52
+}

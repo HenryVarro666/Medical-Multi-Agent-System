@@ -8,6 +8,19 @@ class Settings(BaseSettings):
     # LLM
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
+    # Optional OpenAI-compatible endpoint (e.g. local vLLM: http://localhost:8000/v1).
+    # Empty string = use the real OpenAI API.
+    openai_base_url: str = ""
+    # For Qwen3-style hybrid reasoning models served locally: skip the <think>
+    # phase so agents get fast, clean structured output. Only applied when
+    # openai_base_url is set (the real OpenAI API rejects this parameter).
+    llm_disable_thinking: bool = True
+    llm_timeout_seconds: float = 180.0
+
+    # Pipeline
+    # Max number of diagnosis->intake loop-backs before proceeding to
+    # treatment on a low-confidence path (guarantees loop termination).
+    max_diagnosis_retries: int = 2
 
     # PostgreSQL
     postgres_host: str = "localhost"

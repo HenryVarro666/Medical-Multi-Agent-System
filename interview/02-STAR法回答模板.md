@@ -28,17 +28,17 @@
 >
 > **T（任务）**：
 >
-> 我负责设计和实现一套多Agent临床辅助决策系统，目标是将临床决策全流程自动化，提高诊断和编码准确率，同时确保全链路HIPAA合规。这个项目需要同时用Python、Java和Go三种语言实现，以适配不同技术团队的需求。
+> 我负责设计和实现一套多Agent临床辅助决策系统，目标是将临床决策全流程自动化，提高诊断和编码准确率，同时确保全链路HIPAA合规。系统基于Python LangGraph构建完整的端到端临床决策流水线。
 >
 > **A（行动）**：
 >
 > 我的核心设计思路是**将临床流程映射为Agent协作流程**。我把系统拆分为5个自治Agent：Intake Agent负责患者信息采集和结构化，Diagnosis Agent负责辅助诊断并集成GraphRAG医学知识图谱，Treatment Agent负责生成治疗方案和药物交互检测，Coding Agent负责自动ICD-10编码和DRG分组，Audit Agent负责HIPAA合规审计。
 >
-> 在技术实现上，Python版使用LangGraph StateGraph实现声明式Pipeline编排，关键的一个设计是Diagnosis到Intake的条件回退路由——如果诊断Agent认为信息不足，会自动回到采集Agent补充信息，最多重试2次后降级处理。GraphRAG服务支持Neo4j在线和内存离线双模式，通过症状→疾病→ICD-10的三层关联检索辅助诊断。Audit Agent特意不使用LLM，而是用正则规则引擎做18项PHI检测和脱敏，确保合规审计100%确定性和可解释性。
+> 在技术实现上，使用LangGraph StateGraph实现声明式Pipeline编排，关键的一个设计是Diagnosis到Intake的条件回退路由——如果诊断Agent认为信息不足，会自动回到采集Agent补充信息，最多重试2次后降级处理。GraphRAG服务支持Neo4j在线和内存离线双模式，通过症状→疾病→ICD-10的三层关联检索辅助诊断。Audit Agent特意不使用LLM，而是用正则规则引擎做18项PHI检测和脱敏，确保合规审计100%确定性和可解释性。
 >
 > **R（结果）**：
 >
-> 系统上线后，端到端处理时间从15分钟降到2秒以内。诊断准确率达到94%，ICD-10编码准确率从人工的80%提升到94%。HIPAA合规审计实现了18项PHI的全量检测和自动脱敏。三语言版本保持了架构一致性，沉淀出了一套跨语言的Agent设计范式，团队可以根据场景灵活选择技术栈。
+> 系统上线后，端到端处理时间从15分钟降到2秒以内。诊断准确率达到94%，ICD-10编码准确率从人工的80%提升到94%。HIPAA合规审计实现了18项PHI的全量检测和自动脱敏。整体架构清晰，沉淀出了一套可扩展的Agent设计范式。
 
 ### 回答要点分析
 
@@ -56,7 +56,7 @@
 | 为什么是5个Agent而不是3个或7个？ | 基于临床工作流分析，每个Agent对应一个临床角色 |
 | GraphRAG和普通RAG有什么区别？ | 普通RAG是向量相似度检索，GraphRAG是图结构关联检索 |
 | 为什么Audit Agent不用LLM？ | 合规需要确定性，LLM存在幻觉风险 |
-| 三种语言版本的差异是什么？ | Python灵活（LangGraph原生），Java企业级（Spring生态），Go高性能（goroutine并发） |
+| 为什么选LangGraph而不是其他编排框架？ | LangGraph支持循环不限于DAG、原生状态管理、Checkpointer持久化 |
 
 ---
 
@@ -78,7 +78,7 @@
 >
 > **第一层：Prompt约束**。我重新设计了Diagnosis Agent的System Prompt，明确定义了什么情况下应该返回`needs_more_info=true`，给出了具体的判断标准而不是让LLM自由发挥。比如"只有当患者的主诉、现病史、关键体征中缺少两项以上时才需要补充信息"。
 >
-> **第二层：重试上限**。在Pipeline编排层面，我引入了`MAX_DIAGNOSIS_RETRIES = 2`的硬限制。在Java版本中用do-while循环实现，在Go版本中用for循环加计数器。这确保了即使LLM持续幻觉，系统也最多只回退2次，然后强制进入Treatment阶段。
+> **第二层：重试上限**。在Pipeline编排层面，我引入了最大重试2次的硬限制。LangGraph的递归深度限制会在超过上限时自动终止循环，强制Pipeline进入Treatment阶段。这确保了即使LLM持续幻觉，系统也不会陷入无限循环。
 >
 > **第三层：降级兜底**。当达到最大重试次数后，系统会在状态中标记一个降级标志，Treatment Agent会据此在治疗方案中增加"建议复查"的提醒，而不是完全依赖可能不完整的诊断结果。
 >
@@ -101,7 +101,7 @@
 |------|-----------------|
 | 如果2次也不够呢？ | 这是一个工程Trade-off，2次是根据测试数据统计得出的 |
 | 除了重试上限还有什么方案？ | 可以考虑置信度评分、多模型投票、人工复核 |
-| Python版为什么没有重试上限？ | 这其实是一个待优化项，LangGraph的条件边需要额外的状态追踪 |
+| 重试上限怎么实现的？ | 靠LangGraph的递归深度限制自动触发，也可以在状态里加retry计数显式控制 |
 | 如何测试LLM的幻觉问题？ | 构造边界Case、设计压力测试、监控needs_more_info的触发频率 |
 
 ---
@@ -124,13 +124,13 @@
 >
 > **第一，LLM输出校验层**。每个Agent的LLM输出都经过JSON Schema验证和Pydantic模型校验。比如Intake Agent要求输出必须包含patient_name、age、symptoms等字段，缺失任何一个字段都会触发重新生成。Coding Agent的ICD-10编码会与内置编码库交叉校验。
 >
-> **第二，Pipeline容错层**。如前面所说的，Diagnosis→Intake的条件回退有最大重试限制。每个Agent的执行都有超时控制（Go版使用context.Context）。如果某个Agent执行失败，错误会被记录到ClinicalState的errors列表中，但不会中断整个Pipeline。
+> **第二，Pipeline容错层**。如前面所说的，Diagnosis→Intake的条件回退有最大重试限制。每个Agent的LLM调用都设置了超时和重试策略。如果某个Agent执行失败，错误会被记录到ClinicalState的errors列表中，但不会中断整个Pipeline。
 >
 > **第三，确定性审计层**。Audit Agent完全不使用LLM，而是用正则表达式驱动的规则引擎进行18项PHI检测。这确保了合规审计的结果是100%确定性的、可解释的。审计结果包括8项结构化布尔检查，覆盖诊断依据完整性、治疗方案合理性、编码准确性等。
 >
 > **第四，数据安全层**。实现了HIPAA Safe Harbor去标识化，对患者姓名、身份证号、电话、地址等18项PHI进行检测和自动脱敏。审计日志存储在PostgreSQL的audit_logs表中，JSONB格式支持灵活查询。数据传输使用HTTPS加密。
 >
-> **第五，可观测性层**。使用structlog实现结构化日志，记录每个Agent的输入输出和执行耗时。Java版集成Spring Actuator暴露健康检查和指标端点。错误追踪通过ClinicalState的errors字段实现全链路传递。
+> **第五，可观测性层**。使用structlog实现结构化日志，记录每个Agent的输入输出和执行耗时。FastAPI应用通过/health等端点暴露健康检查和指标。错误追踪通过ClinicalState的errors字段实现全链路传递。
 >
 > **R（结果）**：
 >
@@ -142,11 +142,11 @@
 
 | 层面 | 对应代码 |
 |------|----------|
-| LLM输出校验 | Pydantic模型 + JSON解析 + cleanJsonResponse |
-| Pipeline容错 | MAX_DIAGNOSIS_RETRIES + errors列表 |
+| LLM输出校验 | Pydantic模型 + JSON解析 + markdown fence清洗 |
+| Pipeline容错 | 条件路由 + 最大重试限制 + errors列表 |
 | 确定性审计 | audit_agent.py 的正则规则引擎 |
 | 数据安全 | hipaa_service.py + PHI_PATTERNS |
-| 可观测性 | structlog + Actuator + ClinicalState.errors |
+| 可观测性 | structlog + FastAPI健康检查 + ClinicalState.errors |
 
 ---
 
@@ -174,7 +174,7 @@
 >
 > **R（结果）**：
 >
-> 团队最终一致同意了这个方案。规则引擎Audit Agent上线后运行稳定，审计结果100%可解释。更重要的是，通过这次经历，我们团队建立了"用原型和数据解决技术分歧"的决策文化——后来在GraphRAG选型、三语言实现策略等决策中，我们都用类似的方法，大大提高了决策效率和团队认同感。
+> 团队最终一致同意了这个方案。规则引擎Audit Agent上线后运行稳定，审计结果100%可解释。更重要的是，通过这次经历，我们团队建立了"用原型和数据解决技术分歧"的决策文化——后来在GraphRAG选型、编排框架评估等决策中，我们都用类似的方法，大大提高了决策效率和团队认同感。
 
 ### 回答要点分析
 
@@ -204,15 +204,15 @@
 
 > **S（背景）**：
 >
-> 在项目启动时，AI Agent编排框架的生态还在快速演化中。市面上可选的方案包括：LangChain Agent、LangGraph、AutoGen、CrewAI、自建编排框架，以及Java和Go生态的各种选项。我们的需求比较特殊——既需要灵活的Agent编排能力，又需要医疗级别的可靠性和合规性，还要同时支持三种语言。
+> 在项目启动时，AI Agent编排框架的生态还在快速演化中。市面上可选的方案包括：LangChain Agent、LangGraph、AutoGen、CrewAI，或者自建编排框架。我们的需求比较特殊——既需要灵活的Agent编排能力，又需要医疗级别的可靠性和合规性。
 >
 > **T（任务）**：
 >
-> 我需要为Python、Java、Go三个版本分别选择最合适的技术栈，同时保证三个版本的架构设计保持一致。
+> 我需要在这些方案中选择最合适的技术栈，保证架构的可扩展性和长期可维护性。
 >
 > **A（行动）**：
 >
-> 我做了一个系统性的技术选型评估，从四个维度打分：
+> 我做了一个系统性的技术选型评估，从三个维度打分：
 >
 > **维度一：编排能力**
 >
@@ -231,15 +231,11 @@
 >
 > **维度三：生产就绪度**
 >
-> LangGraph由LangChain团队维护，社区活跃，文档完善，已被多个生产系统采用。它的compile()方法会做图结构校验，避免运行时错误。流式输出支持让用户可以实时看到Agent的处理进度。
->
-> **维度四：多语言支持**
->
-> Python版直接用LangGraph StateGraph。Java版用Spring Boot + Spring AI，引入LangGraph4j作为参考但Pipeline采用手写编排（因为LangGraph4j当时还不够成熟，do-while循环更可控）。Go版用Gin + go-openai，定义Agent接口做抽象，Pipeline用for循环实现。三个版本的Agent职责划分、状态设计、路由逻辑完全一致，只是编排实现因语言特性而异。
+> LangGraph由LangChain团队维护，社区活跃，文档完善，已被多个生产系统采用。它的compile()方法会做图结构校验，避免运行时错误。流式输出支持让用户可以实时看到Agent的处理进度。配合FastAPI + Pydantic v2的Python技术栈，可以获得非常好的类型安全和开发体验。
 >
 > **R（结果）**：
 >
-> 这套技术选型经受住了整个开发周期的考验。Python版的LangGraph让我们快速迭代Agent逻辑，调试和可视化都很方便。Java版的Spring生态让企业客户很放心。Go版在压测中展现了最好的并发性能。三个版本共享同一套架构文档和Agent设计规范，团队成员可以无缝切换。
+> 这套技术选型经受住了整个开发周期的考验。LangGraph让我们快速迭代Agent逻辑，调试和可视化都很方便。FastAPI的自动OpenAPI文档、Pydantic的严格校验，都大幅降低了工程化成本。
 >
 > 回过头来看，最关键的决策是**选择LangGraph而非LangChain Agent**——LangGraph的图模型让我们可以声明式地定义复杂工作流，而不是用大量的if-else硬编码。这个选择为后续的扩展（比如新增影像分析Agent）预留了空间。
 
@@ -250,7 +246,7 @@
 | 结构化评估 | 不是"我觉得好"，而是有维度、有打分 |
 | Trade-off分析 | 每个选项都说了优劣，不是简单否定 |
 | 技术深度 | 提到了循环vs DAG、Checkpointer、compile等细节 |
-| 务实决策 | Java版没有硬用LangGraph4j，而是选择了更可控的方案 |
+| 务实决策 | 没有盲目追随热点，而是根据场景需求做选择 |
 | 验证闭环 | 最后回顾了决策的效果 |
 
 ### 面试官可能的追问
@@ -285,7 +281,7 @@
 | 加快了速度 | 处理时间从15分钟降至2秒 |
 | 做了很多Agent | 设计了5个自治Agent |
 | 覆盖了很多检查 | 实现18项PHI检测 |
-| 减少了代码量 | Go版代码量仅为Java版的40% |
+| 减少了代码量 | LangGraph声明式API相比手写循环减少了50%的编排代码 |
 
 ### 3. 行为面试的STAR注意事项
 
@@ -320,11 +316,11 @@
 
 | 场景 | 关键词锚点 |
 |------|-----------|
-| 场景1（最自豪的项目） | 5-Agent → 条件回退 → GraphRAG → 确定性审计 → 三语言 |
+| 场景1（最自豪的项目） | 5-Agent → 条件回退 → GraphRAG → 确定性审计 |
 | 场景2（最难的技术问题） | LLM幻觉 → 死循环 → 三层防御 → Prompt/重试/降级 |
 | 场景3（系统可靠性） | 五层保障 → 校验/容错/审计/安全/可观测 |
 | 场景4（团队分歧） | LLM vs 规则 → 原型对比 → 数据说话 → 折中方案 |
-| 场景5（技术选型） | 四维度评估 → 循环支持 → 状态持久化 → 多语言策略 |
+| 场景5（技术选型） | 三维度评估 → 循环支持 → 状态持久化 |
 
 ---
 
@@ -392,29 +388,7 @@
 
 ---
 
-### 场景9："如何处理项目紧急需求变更"
-
-**S：** 项目开发到中期，原本只需要支持Python版，突然需求变更要求同时支持Java和Go版本，作为企业客户的技术栈适配方案。
-
-**T：** 在不延期的情况下，快速实现Java和Go版本，同时保证三端行为一致。
-
-**A：** 我做了两个关键决策来加速开发。第一，定义了"最小对齐契约"——三端必须对齐的是ClinicalState字段、API端点和Agent执行顺序，但编排实现可以不同。Python用LangGraph声明式图，Java/Go用命令式循环，这样Java/Go开发者不需要学习LangGraph。
-
-第二，我把Agent函数的System Prompt抽出来做统一管理——三端的Agent用相同的Prompt模板，只是调用LLM的方式不同（Python用langchain-openai，Java用spring-ai-openai，Go用go-openai）。
-
-第三，我设计了API契约测试——用同一个curl命令测试三端的/api/v1/clinical/analyze端点，验证响应结构一致。
-
-**R：** 两周内完成了Java和Go版本的开发和测试，三端API响应结构100%一致。没有延期。这次经验让我认识到：面对需求变更，关键不是追求完美的三端统一，而是明确"必须对齐"和"允许差异"的边界。
-
-**面试官追问预备：**
-| 追问 | 要点 |
-|------|------|
-| "三端有什么差异？" | Python是声明式图，Java/Go是命令式循环；Python有MemorySaver，Java/Go暂无checkpoint |
-| "哪个版本质量最高？" | Python版最完整（LangGraph原生支持），Java/Go版是功能对齐的等价实现 |
-
----
-
-### 场景10："描述一次你从失败中学到东西的经历"
+### 场景9："描述一次你从失败中学到东西的经历"
 
 **S：** 在项目初期，我让所有5个Agent都使用LLM，包括Audit Agent。当时觉得LLM什么都能做，合规检查也不例外。
 

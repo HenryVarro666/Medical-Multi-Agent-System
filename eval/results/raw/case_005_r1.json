@@ -1,0 +1,389 @@
+{
+  "case": {
+    "id": "case_005",
+    "description": "35-year-old male presenting to the ER with severe right lower quadrant abdominal pain for 12 hours, initially periumbilical then migrating to RLQ. Associated nausea, one episode of vomiting, anorexia, and low-grade fever (37.8\u00b0C). No significant medical history. No current medications. No allergies. Vital signs: BP 125/80, HR 92, Temp 37.8\u00b0C. Physical exam: McBurney's point tenderness, positive Rovsing's sign, rebound tenderness. Labs: WBC 14,200/\u03bcL with left shift, CRP 45 mg/L. CT abdomen: inflamed appendix with periappendiceal fat stranding, no perforation.",
+    "expected_diagnosis": "Acute Appendicitis",
+    "expected_icd10": "K35.80"
+  },
+  "pipeline_output": {
+    "patient_info": {
+      "patient_id": null,
+      "name": "Unknown",
+      "age": 35,
+      "gender": "male",
+      "chief_complaint": "Severe right lower quadrant abdominal pain for 12 hours",
+      "symptoms": [
+        {
+          "name": "Abdominal pain",
+          "duration_days": 12,
+          "severity": "severe",
+          "description": "Initially periumbilical, then migrated to right lower quadrant"
+        },
+        {
+          "name": "Nausea",
+          "duration_days": 12,
+          "severity": "moderate",
+          "description": "Associated with abdominal pain"
+        },
+        {
+          "name": "Vomiting",
+          "duration_days": 12,
+          "severity": "mild",
+          "description": "One episode"
+        },
+        {
+          "name": "Anorexia",
+          "duration_days": 12,
+          "severity": "moderate",
+          "description": "Associated with abdominal pain"
+        },
+        {
+          "name": "Fever",
+          "duration_days": 12,
+          "severity": "mild",
+          "description": "Low-grade fever (37.8\u00b0C)"
+        }
+      ],
+      "medical_history": [],
+      "family_history": [],
+      "allergies": [],
+      "current_medications": [],
+      "vital_signs": {
+        "temperature": 37.8,
+        "heart_rate": 92,
+        "blood_pressure_systolic": 125,
+        "blood_pressure_diastolic": 80,
+        "respiratory_rate": null,
+        "oxygen_saturation": null
+      },
+      "lab_results": [
+        {
+          "test_name": "White Blood Cell Count",
+          "value": "14,200",
+          "unit": "/\u03bcL",
+          "reference_range": "4,500\u201311,000",
+          "is_abnormal": true
+        },
+        {
+          "test_name": "C-Reactive Protein",
+          "value": "45",
+          "unit": "mg/L",
+          "reference_range": "<10",
+          "is_abnormal": true
+        }
+      ],
+      "raw_input": null,
+      "created_at": "2026-07-12T19:47:59.993477"
+    },
+    "diagnosis": {
+      "primary_diagnosis": {
+        "disease_name": "Appendicitis",
+        "icd10_hint": "K35.80",
+        "confidence": 0.85,
+        "evidence": [
+          "Severe right lower quadrant abdominal pain that migrated from the periumbilical region",
+          "Nausea, anorexia, and low-grade fever associated with the pain",
+          "Elevated white blood cell count and C-reactive protein, indicating inflammation"
+        ],
+        "reasoning": "The classic presentation of appendicitis includes periumbilical pain that migrates to the right lower quadrant, accompanied by nausea, anorexia, and low-grade fever. The elevated WBC and CRP further support an inflammatory process, consistent with appendicitis."
+      },
+      "differential_list": [
+        {
+          "disease_name": "Cholecystitis",
+          "icd10_hint": "K81.0",
+          "confidence": 0.35,
+          "evidence": [
+            "Nausea and low-grade fever"
+          ],
+          "reasoning": "Cholecystitis can present with right upper quadrant pain, nausea, and fever. However, the pain location and migration pattern are more consistent with appendicitis than cholecystitis."
+        },
+        {
+          "disease_name": "Peptic Ulcer",
+          "icd10_hint": "K25.9",
+          "confidence": 0.25,
+          "evidence": [
+            "Nausea and anorexia"
+          ],
+          "reasoning": "Peptic ulcer disease can cause epigastric pain with associated nausea and anorexia. However, the pain migration and location are not typical for a peptic ulcer."
+        },
+        {
+          "disease_name": "Pancreatitis",
+          "icd10_hint": "K85.9",
+          "confidence": 0.2,
+          "evidence": [
+            "Nausea and low-grade fever"
+          ],
+          "reasoning": "Pancreatitis can present with epigastric pain radiating to the back, nausea, and fever. However, the pain location and migration pattern are not consistent with pancreatitis."
+        }
+      ],
+      "recommended_tests": [
+        "Abdominal ultrasound or CT scan to evaluate for appendicitis",
+        "Urinalysis to rule out urinary tract infection or kidney stones",
+        "Lactate level to assess for systemic inflammation or sepsis"
+      ],
+      "clinical_notes": "The patient presents with a classic history of appendicitis, including pain migration, nausea, anorexia, and low-grade fever. Laboratory findings of elevated WBC and CRP support an inflammatory process. While other conditions such as cholecystitis, peptic ulcer, and pancreatitis are considered, the clinical picture is most consistent with appendicitis. Further imaging is recommended to confirm the diagnosis.",
+      "knowledge_sources": [
+        "Appendicitis (ICD-10 K35.80): matched 2 of the patient's symptoms",
+        "Cholecystitis: matched 1 of the patient's symptoms",
+        "Pancreatitis: matched 1 of the patient's symptoms",
+        "Peptic Ulcer: matched 1 of the patient's symptoms",
+        "GraphRAG knowledge graph (symptom->disease retrieval)"
+      ],
+      "knowledge_graph_candidates": [
+        {
+          "disease": "Appendicitis",
+          "symptom_match_count": 2,
+          "icd10_code": "K35.80",
+          "icd10_description": "Unspecified acute appendicitis"
+        },
+        {
+          "disease": "Cholecystitis",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Pancreatitis",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Peptic Ulcer",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "IBS",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        }
+      ]
+    },
+    "treatment_plan": {
+      "diagnosis_addressed": "Appendicitis",
+      "medications": [
+        {
+          "drug_name": "Ceftriaxone",
+          "generic_name": "Ceftriaxone",
+          "dosage": "1 gram",
+          "route": "intravenous",
+          "frequency": "once daily",
+          "duration": "24\u201348 hours (pending imaging and surgical decision)",
+          "contraindications": [
+            "hypersensitivity to cephalosporins",
+            "severe renal impairment"
+          ],
+          "side_effects": [
+            "diarrhea",
+            "rash",
+            "nausea",
+            "hypersensitivity reactions"
+          ]
+        },
+        {
+          "drug_name": "Metoclopramide",
+          "generic_name": "Metoclopramide",
+          "dosage": "10 mg",
+          "route": "intravenous",
+          "frequency": "every 4\u20136 hours as needed",
+          "duration": "as needed for nausea",
+          "contraindications": [
+            "Parkinson's disease",
+            "seizure disorders",
+            "gastrointestinal obstruction"
+          ],
+          "side_effects": [
+            "drowsiness",
+            "extrapyramidal symptoms",
+            "constipation"
+          ]
+        }
+      ],
+      "drug_interactions": [
+        {
+          "drug_a": "Ceftriaxone",
+          "drug_b": "Calcium-containing solutions",
+          "severity": "major",
+          "description": "Ceftriaxone can form a precipitate with calcium, leading to potential complications such as cholestatic jaundice or gallstones.",
+          "recommendation": "Avoid concurrent administration of calcium-containing solutions (e.g., calcium gluconate) with ceftriaxone."
+        },
+        {
+          "drug_a": "Metoclopramide",
+          "drug_b": "Antipsychotics",
+          "severity": "moderate",
+          "description": "Metoclopramide may increase the risk of extrapyramidal symptoms when used with antipsychotics.",
+          "recommendation": "Monitor for signs of extrapyramidal symptoms and consider dose adjustment if antipsychotics are being used."
+        }
+      ],
+      "non_drug_treatments": [
+        "Imaging (abdominal ultrasound or CT scan) to confirm appendicitis",
+        "Surgical consultation for possible appendectomy"
+      ],
+      "lifestyle_recommendations": [
+        "Maintain hydration",
+        "Avoid solid foods until nausea resolves",
+        "Rest and avoid strenuous activity"
+      ],
+      "follow_up_plan": "Reassess after 24\u201348 hours with repeat imaging and lab tests. If appendicitis is confirmed, proceed with surgical intervention. Monitor for signs of sepsis or worsening symptoms.",
+      "warnings": [
+        "Appendicitis can progress to perforation if untreated; prompt surgical evaluation is critical.",
+        "Monitor for signs of anaphylaxis or severe allergic reactions to antibiotics."
+      ],
+      "evidence_references": [
+        "UpToDate: Management of Acute Appendicitis in Adults",
+        "CDC: Antibiotic Use in the Treatment of Appendicitis",
+        "ACG Clinical Guideline: Diagnosis and Management of Acute Appendicitis"
+      ],
+      "allergy_alerts": [],
+      "ddi_engine": {
+        "checked": true,
+        "proposed_drugs_checked": [
+          "Ceftriaxone",
+          "Metoclopramide"
+        ],
+        "current_medications_checked": [],
+        "allergies_checked": [],
+        "engine_flagged_interactions": 0,
+        "engine_flagged_allergy_alerts": 0
+      }
+    },
+    "coding_result": {
+      "primary_icd10": {
+        "code": "K35.80",
+        "description": "Unspecified acute appendicitis",
+        "confidence": 0.92,
+        "category": "Infectious and parasitic diseases"
+      },
+      "secondary_icd10_codes": [
+        {
+          "code": "R17.10",
+          "description": "Nausea, unspecified",
+          "confidence": 0.85,
+          "category": "Symptoms, signs, and abnormal clinical and laboratory findings, not elsewhere classified"
+        },
+        {
+          "code": "R09.21",
+          "description": "Fever, unspecified",
+          "confidence": 0.8,
+          "category": "Symptoms, signs, and abnormal clinical and laboratory findings, not elsewhere classified"
+        },
+        {
+          "code": "D72.81",
+          "description": "Elevated C-reactive protein",
+          "confidence": 0.75,
+          "category": "Other disorders of white blood cells"
+        },
+        {
+          "code": "R79.0",
+          "description": "Elevated white blood cell count",
+          "confidence": 0.78,
+          "category": "Symptoms, signs, and abnormal clinical and laboratory findings, not elsewhere classified"
+        }
+      ],
+      "drg_group": {
+        "drg_code": "193",
+        "description": "Appendectomy with major complications",
+        "weight": 1.2,
+        "mean_los": 4.5
+      },
+      "coding_notes": "The primary diagnosis of appendicitis is supported by the classic clinical presentation of pain migration, nausea, anorexia, and low-grade fever, along with elevated WBC and CRP. The ICD-10 code K35.80 was selected as the most specific code for unspecified acute appendicitis. Secondary codes were added for associated symptoms and laboratory findings. DRG 193 was selected based on the anticipated surgical intervention (appendectomy) and potential for complications.",
+      "coding_confidence": 0.9
+    },
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": false,
+          "detail": "Found 1 PHI types: name"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": true,
+          "detail": "Verified"
+        }
+      ],
+      "phi_fields_found": [
+        "name"
+      ],
+      "phi_fields_masked": [
+        "name"
+      ],
+      "audit_trail": [
+        {
+          "timestamp": "2026-07-13T00:48:19.354337+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 4 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:48:19.357383+00:00",
+          "user_id": "system",
+          "action": "data_masking",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Masked 1 PHI types",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:48:19.357490+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Ensure all PHI is masked before external transmission",
+        "Review failed compliance checks and remediate",
+        "Maintain audit logs for minimum 6 years per HIPAA requirements"
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": null,
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 24.29
+}

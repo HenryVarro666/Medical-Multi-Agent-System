@@ -1,0 +1,386 @@
+{
+  "case": {
+    "id": "case_003",
+    "description": "28-year-old female presenting with progressive fatigue, weight gain of 8kg over 6 months, cold intolerance, constipation, and dry skin. She also reports hair thinning and difficulty concentrating. No significant past medical history. Family history: mother has Hashimoto's thyroiditis. No current medications. No allergies. Vital signs: BP 105/70, HR 58, Temp 36.2\u00b0C. Labs: TSH 15.2 mIU/L (elevated), Free T4 0.4 ng/dL (low), Anti-TPO antibodies positive.",
+    "expected_diagnosis": "Hypothyroidism (Hashimoto's Thyroiditis)",
+    "expected_icd10": "E03.9"
+  },
+  "pipeline_output": {
+    "patient_info": {
+      "patient_id": null,
+      "name": "Unknown",
+      "age": 28,
+      "gender": "female",
+      "chief_complaint": "progressive fatigue, weight gain, cold intolerance, constipation, dry skin, hair thinning, and difficulty concentrating",
+      "symptoms": [
+        {
+          "name": "fatigue",
+          "duration_days": null,
+          "severity": "moderate",
+          "description": "progressive"
+        },
+        {
+          "name": "weight gain",
+          "duration_days": 180,
+          "severity": "moderate",
+          "description": "8kg over 6 months"
+        },
+        {
+          "name": "cold intolerance",
+          "duration_days": null,
+          "severity": "mild",
+          "description": "present"
+        },
+        {
+          "name": "constipation",
+          "duration_days": null,
+          "severity": "mild",
+          "description": "present"
+        },
+        {
+          "name": "dry skin",
+          "duration_days": null,
+          "severity": "mild",
+          "description": "present"
+        },
+        {
+          "name": "hair thinning",
+          "duration_days": null,
+          "severity": "mild",
+          "description": "present"
+        },
+        {
+          "name": "difficulty concentrating",
+          "duration_days": null,
+          "severity": "mild",
+          "description": "present"
+        }
+      ],
+      "medical_history": [],
+      "family_history": [
+        "Hashimoto's thyroiditis"
+      ],
+      "allergies": [],
+      "current_medications": [],
+      "vital_signs": {
+        "temperature": 36.2,
+        "heart_rate": 58,
+        "blood_pressure_systolic": 105,
+        "blood_pressure_diastolic": 70,
+        "respiratory_rate": null,
+        "oxygen_saturation": null
+      },
+      "lab_results": [
+        {
+          "test_name": "TSH",
+          "value": "15.2",
+          "unit": "mIU/L",
+          "reference_range": "0.4-4.0",
+          "is_abnormal": true
+        },
+        {
+          "test_name": "Free T4",
+          "value": "0.4",
+          "unit": "ng/dL",
+          "reference_range": "0.8-1.8",
+          "is_abnormal": true
+        },
+        {
+          "test_name": "Anti-TPO antibodies",
+          "value": "positive",
+          "unit": null,
+          "reference_range": "negative",
+          "is_abnormal": true
+        }
+      ],
+      "raw_input": null,
+      "created_at": "2026-07-12T19:47:00.664182"
+    },
+    "diagnosis": {
+      "primary_diagnosis": {
+        "disease_name": "Hypothyroidism",
+        "icd10_hint": "E03.9",
+        "confidence": 0.95,
+        "evidence": [
+          "Elevated TSH (15.2 mIU/L, reference range 0.4-4.0)",
+          "Low Free T4 (0.4 ng/dL, reference range 0.8-1.8)",
+          "Positive Anti-TPO antibodies",
+          "Symptoms of fatigue, weight gain, cold intolerance, constipation, dry skin, hair thinning, and difficulty concentrating"
+        ],
+        "reasoning": "The patient presents with classic symptoms of hypothyroidism, including fatigue, weight gain, cold intolerance, constipation, dry skin, hair thinning, and difficulty concentrating. Laboratory findings show elevated TSH and low Free T4, which are consistent with hypothyroidism. The presence of Anti-TPO antibodies suggests an autoimmune etiology, such as Hashimoto's thyroiditis, which is also present in the family history."
+      },
+      "differential_list": [
+        {
+          "disease_name": "Depression (ICD-10 F32.9)",
+          "icd10_hint": "F32.9",
+          "confidence": 0.65,
+          "evidence": [
+            "Symptoms of fatigue and difficulty concentrating"
+          ],
+          "reasoning": "Depression can present with fatigue and difficulty concentrating, which are also seen in this patient. However, the presence of other hypothyroidism-specific symptoms and abnormal thyroid function tests make this less likely as the primary diagnosis."
+        },
+        {
+          "disease_name": "Anemia (ICD-10 D64.9)",
+          "icd10_hint": "D64.9",
+          "confidence": 0.55,
+          "evidence": [
+            "Fatigue"
+          ],
+          "reasoning": "Fatigue is a common symptom of anemia. However, the presence of other hypothyroidism-specific symptoms and abnormal thyroid function tests makes anemia less likely as the primary diagnosis."
+        },
+        {
+          "disease_name": "Diabetes (ICD-10 E11.9)",
+          "icd10_hint": "E11.9",
+          "confidence": 0.45,
+          "evidence": [
+            "Weight gain"
+          ],
+          "reasoning": "Weight gain can be seen in type 2 diabetes, but the constellation of symptoms and abnormal thyroid function tests are more consistent with hypothyroidism."
+        }
+      ],
+      "recommended_tests": [
+        "Thyroid ultrasound to assess for structural abnormalities",
+        "Complete blood count (CBC) to rule out anemia",
+        "Fasting blood glucose and HbA1c to rule out diabetes"
+      ],
+      "clinical_notes": "The patient presents with a strong clinical and laboratory profile for hypothyroidism, likely autoimmune in nature given the family history of Hashimoto's thyroiditis and positive Anti-TPO antibodies. Further testing is recommended to confirm the diagnosis and rule out other potential conditions.",
+      "knowledge_sources": [
+        "Endocrine Society Clinical Practice Guidelines for Hypothyroidism",
+        "UpToDate: Hypothyroidism in Adults",
+        "GraphRAG knowledge graph (symptom->disease retrieval)"
+      ],
+      "knowledge_graph_candidates": [
+        {
+          "disease": "Anemia",
+          "symptom_match_count": 1,
+          "icd10_code": "D64.9",
+          "icd10_description": "Anemia, unspecified"
+        },
+        {
+          "disease": "Hypothyroidism",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Depression",
+          "symptom_match_count": 1,
+          "icd10_code": "F32.9",
+          "icd10_description": "Major depressive disorder, single episode, unspecified"
+        },
+        {
+          "disease": "Diabetes",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Heart Failure",
+          "symptom_match_count": 1,
+          "icd10_code": "I50.9",
+          "icd10_description": "Heart failure, unspecified"
+        }
+      ]
+    },
+    "treatment_plan": {
+      "diagnosis_addressed": "Hypothyroidism",
+      "medications": [
+        {
+          "drug_name": "Levothyroxine",
+          "generic_name": "levothyroxine",
+          "dosage": "50 mcg",
+          "route": "oral",
+          "frequency": "once daily",
+          "duration": "long-term",
+          "contraindications": [
+            "hypersensitivity to levothyroxine",
+            "uncontrolled adrenal insufficiency",
+            "thyrotoxicosis"
+          ],
+          "side_effects": [
+            "palpitations",
+            "tremors",
+            "insomnia",
+            "weight loss",
+            "heat intolerance"
+          ]
+        }
+      ],
+      "drug_interactions": [
+        {
+          "drug_a": "levothyroxine",
+          "drug_b": "iron supplements",
+          "severity": "moderate",
+          "description": "Iron can bind to levothyroxine and reduce its absorption. It is recommended to take iron at least 4 hours apart from levothyroxine.",
+          "recommendation": "Administer iron supplements at least 4 hours before or after levothyroxine."
+        },
+        {
+          "drug_a": "levothyroxine",
+          "drug_b": "calcium supplements",
+          "severity": "moderate",
+          "description": "Calcium can interfere with the absorption of levothyroxine. It is recommended to take calcium at least 4 hours apart from levothyroxine.",
+          "recommendation": "Administer calcium supplements at least 4 hours before or after levothyroxine."
+        },
+        {
+          "drug_a": "levothyroxine",
+          "drug_b": "seizure medications (e.g., phenytoin, carbamazepine)",
+          "severity": "moderate",
+          "description": "These medications can increase the metabolism of levothyroxine, potentially requiring higher doses.",
+          "recommendation": "Monitor thyroid function tests and adjust levothyroxine dosage as needed."
+        }
+      ],
+      "non_drug_treatments": [
+        "Thyroid ultrasound to assess for structural abnormalities",
+        "Complete blood count (CBC) to rule out anemia",
+        "Fasting blood glucose and HbA1c to rule out diabetes"
+      ],
+      "lifestyle_recommendations": [
+        "Maintain a balanced diet rich in iodine (e.g., seafood, dairy), avoid excessive soy consumption, and ensure adequate hydration",
+        "Engage in regular physical activity to support metabolic health",
+        "Ensure 7-9 hours of quality sleep per night"
+      ],
+      "follow_up_plan": "Recheck TSH and Free T4 levels in 6-8 weeks after starting levothyroxine. Adjust dosage based on results. Repeat thyroid function tests every 6-12 months or as needed.",
+      "warnings": [
+        "Monitor for signs of overtreatment (e.g., palpitations, anxiety, weight loss) and adjust dosage accordingly. Avoid abrupt discontinuation of levothyroxine, as this can lead to worsening hypothyroidism."
+      ],
+      "evidence_references": [
+        "Endocrine Society Clinical Practice Guidelines for Hypothyroidism",
+        "UpToDate: Hypothyroidism in Adults"
+      ],
+      "allergy_alerts": [],
+      "ddi_engine": {
+        "checked": true,
+        "proposed_drugs_checked": [
+          "levothyroxine"
+        ],
+        "current_medications_checked": [],
+        "allergies_checked": [],
+        "engine_flagged_interactions": 0,
+        "engine_flagged_allergy_alerts": 0
+      }
+    },
+    "coding_result": {
+      "primary_icd10": {
+        "code": "E03.9",
+        "description": "Hypothyroidism, unspecified",
+        "confidence": 0.95,
+        "category": "Endocrine, nutritional and metabolic diseases"
+      },
+      "secondary_icd10_codes": [
+        {
+          "code": "Z88.0",
+          "description": "Family history of endocrine disorder",
+          "confidence": 0.85,
+          "category": "Factors influencing health status and contact with health services"
+        },
+        {
+          "code": "R53.9",
+          "description": "Fatigue, unspecified",
+          "confidence": 0.75,
+          "category": "Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified"
+        }
+      ],
+      "drg_group": {
+        "drg_code": "193",
+        "description": "Endocrine and metabolic disorders with CC",
+        "weight": 1.2,
+        "mean_los": 4.5
+      },
+      "coding_notes": "The primary diagnosis of hypothyroidism is supported by clinical symptoms, laboratory findings (elevated TSH and low Free T4), and the presence of Anti-TPO antibodies, which are consistent with autoimmune hypothyroidism. The family history of Hashimoto's thyroiditis supports the inclusion of Z88.0. Fatigue is included as a secondary code due to its prominence in the patient's presentation. DRG 193 is selected as it aligns with endocrine and metabolic disorders with a comorbidity.",
+      "coding_confidence": 0.9
+    },
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": false,
+          "detail": "Found 1 PHI types: name"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": true,
+          "detail": "Verified"
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": true,
+          "detail": "Verified"
+        }
+      ],
+      "phi_fields_found": [
+        "name"
+      ],
+      "phi_fields_masked": [
+        "name"
+      ],
+      "audit_trail": [
+        {
+          "timestamp": "2026-07-13T00:47:19.136979+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 4 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:47:19.139385+00:00",
+          "user_id": "system",
+          "action": "data_masking",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Masked 1 PHI types",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-07-13T00:47:19.139498+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Ensure all PHI is masked before external transmission",
+        "Review failed compliance checks and remediate",
+        "Maintain audit logs for minimum 6 years per HIPAA requirements"
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": null,
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 24.38
+}

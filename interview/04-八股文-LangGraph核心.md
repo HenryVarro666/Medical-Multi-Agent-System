@@ -10,7 +10,7 @@
 - [第一部分：核心概念（Q1-Q5）](#第一部分核心概念q1-q5)
 - [第二部分：API与实现（Q6-Q10）](#第二部分api与实现q6-q10)
 - [第三部分：高级特性（Q11-Q15）](#第三部分高级特性q11-q15)
-- [第四部分：多语言与生态（Q16-Q20）](#第四部分多语言与生态q16-q20)
+- [第四部分：生态与展望（Q16-Q17）](#第四部分生态与展望q16-q17)
 
 ---
 
@@ -729,176 +729,12 @@ class MemorySaver:
 
 ---
 
-## 第四部分：多语言与生态（Q16-Q20）
+## 第四部分：生态与展望（Q16-Q17）
 
-### Q16: LangGraph4j（Java版）有什么特点？
-
-**简洁版**：
-LangGraph4j是LangGraph的Java移植版，提供类似的StateGraph API，但生态和功能完善度不如Python版。我们项目的Java版引入了LangGraph4j依赖，但Pipeline实际用手写编排实现。
-
-**详细版**：
-
-**LangGraph4j现状**：
-
-| 维度 | Python LangGraph | LangGraph4j |
-|------|-----------------|-------------|
-| 成熟度 | 高（生产就绪） | 中（快速迭代中） |
-| API覆盖 | 完整 | 核心功能 |
-| Checkpointer | 多种实现 | 基础实现 |
-| 文档 | 丰富 | 有限 |
-| 社区 | 活跃 | 小但增长中 |
-
-**我们Java版的技术决策**：
-
-```java
-// 我们没有直接使用LangGraph4j的StateGraph
-// 而是用Spring风格的手动编排
-
-@Service
-public class ClinicalPipeline {
-    private static final int MAX_DIAGNOSIS_RETRIES = 2;
-
-    public ClinicalState run(ClinicalState state) {
-        state = intakeAgent.process(state);
-        
-        int retries = 0;
-        do {
-            state = diagnosisAgent.process(state);
-            if (state.isNeedsMoreInfo() && retries < MAX_DIAGNOSIS_RETRIES) {
-                state = intakeAgent.process(state);
-            }
-            retries++;
-        } while (state.isNeedsMoreInfo() && retries <= MAX_DIAGNOSIS_RETRIES);
-        
-        state = treatmentAgent.process(state);
-        state = codingAgent.process(state);
-        state = auditAgent.process(state);
-        return state;
-    }
-}
-```
-
-**为什么不直接用LangGraph4j的StateGraph？**
-
-1. LangGraph4j当时成熟度不够，生产可靠性未经验证
-2. Spring的DI + do-while循环已经足够表达我们的逻辑
-3. 手写编排更可控（明确的重试计数）
-4. 减少外部依赖风险
-
-**答题技巧**：诚实地说"我们引入了但没有重度使用"，然后解释原因。这展示了你的技术判断力——不是盲目追新，而是根据实际需求选择合适的方案。
-
----
-
-### Q17: Go版本如何实现类似LangGraph的编排？
+### Q16: LangGraph的未来发展方向？
 
 **简洁版**：
-Go没有LangGraph的官方实现。我们通过定义Agent接口 + Pipeline结构体 + for循环实现了等效的编排逻辑。
-
-**详细版**：
-
-**Agent接口定义**：
-
-```go
-// internal/agent/base.go
-type Agent interface {
-    Process(ctx context.Context, state *model.ClinicalState) error
-}
-```
-
-**Pipeline实现**：
-
-```go
-// internal/graph/pipeline.go
-type Pipeline struct {
-    intake    Agent
-    diagnosis Agent
-    treatment Agent
-    coding    Agent
-    audit     Agent
-}
-
-func (p *Pipeline) Run(ctx context.Context, state *model.ClinicalState) error {
-    // Intake
-    if err := p.runAgent(ctx, p.intake, state); err != nil {
-        return err
-    }
-    
-    // Diagnosis with retry
-    retries := 0
-    for {
-        if err := p.runAgent(ctx, p.diagnosis, state); err != nil {
-            break
-        }
-        if state.NeedsMoreInfo && retries < maxDiagnosisRetries {
-            retries++
-            if err := p.runAgent(ctx, p.intake, state); err != nil {
-                break
-            }
-            continue
-        }
-        break
-    }
-    
-    // Treatment → Coding → Audit
-    for _, agent := range []Agent{p.treatment, p.coding, p.audit} {
-        if err := p.runAgent(ctx, agent, state); err != nil {
-            return err
-        }
-    }
-    return nil
-}
-```
-
-**Go版的优势**：
-1. **接口抽象**：Go的隐式接口让Agent扩展非常简单
-2. **context传递**：原生支持超时控制和取消
-3. **零依赖**：不需要额外的编排框架
-4. **性能**：goroutine轻量，编译后二进制小
-
-**Go版的劣势**：
-1. 没有声明式的图定义
-2. 没有内置的Checkpointer
-3. 条件路由需要手写if/for逻辑
-4. 缺少可视化支持
-
-**答题技巧**：Go版的实现展示了"框架 vs 手写"的Trade-off。面试Go岗位时，强调Go的接口抽象和性能优势；面试架构岗位时，讨论何时用框架何时手写。
-
----
-
-### Q18: 三种语言的Agent实现有什么异同？
-
-**简洁版**：
-架构相同（5-Agent Pipeline + 条件回退），实现不同（Python声明式 / Java Spring DI / Go接口组合）。
-
-**详细版**：
-
-| 维度 | Python | Java | Go |
-|------|--------|------|-----|
-| **编排方式** | LangGraph StateGraph（声明式） | do-while循环（命令式） | for循环（命令式） |
-| **状态定义** | Pydantic BaseModel | Lombok @Data @Builder | struct + JSON tag |
-| **Agent抽象** | 函数（Node） | Spring @Component类 | interface Agent |
-| **LLM调用** | langchain-openai ChatOpenAI | Spring AI ChatClient | go-openai |
-| **DI方式** | 无（函数式） | Spring IoC容器 | 构造函数注入 |
-| **错误处理** | try-except + errors列表 | try-catch + 状态更新 | error返回值 + 状态更新 |
-| **重试上限** | 无（需额外处理） | MAX=2 | MAX=2 |
-| **JSON解析** | json.loads | Jackson ObjectMapper | encoding/json |
-| **Markdown清理** | 字符串split | cleanJsonResponse方法 | stripMarkdownFences |
-
-**一致的部分**：
-1. 5个Agent的职责划分完全一致
-2. ClinicalState的字段设计完全一致
-3. 条件路由的业务逻辑（needs_more_info）一致
-4. Audit Agent都不使用LLM（规则引擎）
-5. System Prompt的内容基本一致
-
-**答题技巧**：用对比表格展示异同，然后说明"架构统一、实现各取所长"的设计理念。
-
----
-
-### Q19: LangGraph的未来发展方向？
-
-**简洁版**：
-LangGraph Platform（云服务）、更好的可视化工具、更多语言支持、与LangSmith深度集成。
+LangGraph Platform（云服务）、更好的可视化工具、与LangSmith深度集成。
 
 **详细版**：
 
@@ -908,13 +744,12 @@ LangGraph Platform（云服务）、更好的可视化工具、更多语言支�
 | **LangGraph Studio** | 可视化调试工具 | 更方便调试条件路由和状态变化 |
 | **LangSmith集成** | 监控、追踪、评估 | 可观测性提升 |
 | **更多Checkpointer** | Redis、DynamoDB等 | 生产部署更灵活 |
-| **多语言SDK** | 官方Java/Go SDK | 统一三种语言的编排API |
 
 **答题技巧**：关注LangGraph的发展动态展示你持续学习的态度。但不要过度展望，聚焦于已经发布的功能。
 
 ---
 
-### Q20: 如果让你重新选型，还会选LangGraph吗？
+### Q17: 如果让你重新选型，还会选LangGraph吗？
 
 **简洁版**：
 会。LangGraph在Agent编排领域目前仍是最佳选择——支持循环、状态管理完善、社区活跃。但会考虑补充可观测性工具（LangSmith）。
@@ -932,7 +767,7 @@ LangGraph Platform（云服务）、更好的可视化工具、更多语言支�
 
 | 当前状态 | 改进方向 |
 |---------|---------|
-| Python版无重试上限 | 在路由函数中加入重试计数 |
+| 重试上限依赖递归深度 | 在路由函数中加入显式重试计数 |
 | MemorySaver（内存） | 生产环境用PostgresSaver |
 | 无LangSmith集成 | 接入LangSmith做全链路追踪 |
 | 无并行执行 | 评估Treatment和部分Coding是否可以并行 |

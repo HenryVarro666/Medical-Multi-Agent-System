@@ -56,6 +56,14 @@ class ClinicalState(BaseModel):
         default=False,
         description="Flag set by DiagnosisAgent when more info is needed",
     )
+    diagnosis_attempts: int = Field(
+        default=0,
+        description=(
+            "Number of times the Diagnosis Agent has run for this thread. "
+            "Guards the diagnosis->intake loop against infinite retries "
+            "(see settings.max_diagnosis_retries)."
+        ),
+    )
 
     # ---- Treatment Agent output ----
     treatment_plan: Optional[dict] = Field(
