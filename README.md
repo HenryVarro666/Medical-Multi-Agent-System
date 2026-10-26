@@ -104,17 +104,47 @@ Retries reprocess the same narrative; the API does not collect new information f
 
 ## Evaluation
 
-The [historical run from July 13, 2026](evaluation/results/historical-2026-07-13/eval_results.md) contains ten recorded runs of five synthetic cases with `Qwen/Qwen3-14B`:
+### Recorded results
 
-| Recorded measure | Historical result |
-|---|---:|
-| Top-1 diagnosis, strict alias tier | 6/10 |
-| Top-1 diagnosis, either alias tier | 10/10 |
-| Exact ICD-10 match | 5/10 |
-| ICD-10 category match | 10/10 |
-| Mean pipeline latency | 28.22 s |
+The original July 13, 2026 run used `Qwen/Qwen3-14B` through a local OpenAI-compatible endpoint. Five synthetic cases were run twice, producing ten recorded pipeline outputs. The original results remain displayed below and are preserved in the [full report](evaluation/results/historical-2026-07-13/eval_results.md), [machine-readable summary](evaluation/results/historical-2026-07-13/eval_results.json), and [raw outputs](evaluation/results/historical-2026-07-13/raw/).
+
+| Recorded measure | Original field | Result |
+|---|---|---:|
+| Top-1 diagnosis, strict alias tier | `diagnosis_top1_strict` | 6/10 (60%) |
+| Top-1 diagnosis, either alias tier | `diagnosis_top1_any` | 10/10 (100%) |
+| Top-3 diagnosis, either alias tier | `diagnosis_top3_any` | 10/10 (100%) |
+| Exact ICD-10 match | `icd10_exact` | 5/10 (50%) |
+| ICD-10 category match | `icd10_category` | 10/10 (100%) |
+| Treatment structure complete | `treatment_ok` | 10/10 (100%) |
+| Deterministic DDI check executed | `ddi_engine_checked` | 10/10 (100%) |
+| Audit report produced | `audit_completed` | 10/10 (100%) |
+| Mean pipeline latency | `mean_latency_seconds` | 28.22 s |
+
+`treatment_ok` measures the presence of medications and a DDI execution stamp. `audit_completed` measures whether a report exists. These fields do not assess treatment safety or establish compliance.
+
+<details>
+<summary>Show all ten original per-case results</summary>
+
+Each case links to its original raw pipeline output. “Plan” is the historical `treatment_ok` structural check; “DDI” and “Audit” indicate execution/report completion.
+
+| Case | Expected diagnosis | Predicted diagnosis | Top-1 tier | Top-3 | Expected ICD | Predicted ICD | ICD exact | ICD category | Plan | DDI | Audit | Latency (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---:|
+| [case_001 r1](evaluation/results/historical-2026-07-13/raw/case_001_r1.json) | Community-Acquired Pneumonia | Community-acquired pneumonia | strict | yes | J18.1 | J18.9 | no | yes | yes | yes | yes | 27.10 |
+| [case_002 r1](evaluation/results/historical-2026-07-13/raw/case_002_r1.json) | ST-Elevation Myocardial Infarction (STEMI) | Acute myocardial infarction | compatible | yes | I21.0 | I21.9 | no | yes | yes | yes | yes | 29.16 |
+| [case_003 r1](evaluation/results/historical-2026-07-13/raw/case_003_r1.json) | Hypothyroidism (Hashimoto's Thyroiditis) | Hypothyroidism | strict | yes | E03.9 | E03.9 | yes | yes | yes | yes | yes | 24.38 |
+| [case_004 r1](evaluation/results/historical-2026-07-13/raw/case_004_r1.json) | Acute Decompensated Heart Failure | Heart Failure with Reduced Ejection Fraction (HFrEF) | compatible | yes | I50.9 | I50.21 | no | yes | yes | yes | yes | 35.92 |
+| [case_005 r1](evaluation/results/historical-2026-07-13/raw/case_005_r1.json) | Acute Appendicitis | Appendicitis | strict | yes | K35.80 | K35.80 | yes | yes | yes | yes | yes | 24.29 |
+| [case_001 r2](evaluation/results/historical-2026-07-13/raw/case_001_r2.json) | Community-Acquired Pneumonia | Community-acquired pneumonia | strict | yes | J18.1 | J18.9 | no | yes | yes | yes | yes | 27.48 |
+| [case_002 r2](evaluation/results/historical-2026-07-13/raw/case_002_r2.json) | ST-Elevation Myocardial Infarction (STEMI) | Acute myocardial infarction | compatible | yes | I21.0 | I21.9 | no | yes | yes | yes | yes | 30.52 |
+| [case_003 r2](evaluation/results/historical-2026-07-13/raw/case_003_r2.json) | Hypothyroidism (Hashimoto's Thyroiditis) | Hypothyroidism | strict | yes | E03.9 | E03.9 | yes | yes | yes | yes | yes | 26.83 |
+| [case_004 r2](evaluation/results/historical-2026-07-13/raw/case_004_r2.json) | Acute Decompensated Heart Failure | Congestive Heart Failure (CHF) | compatible | yes | I50.9 | I50.9 | yes | yes | yes | yes | yes | 33.62 |
+| [case_005 r2](evaluation/results/historical-2026-07-13/raw/case_005_r2.json) | Acute Appendicitis | Appendicitis | strict | yes | K35.80 | K35.80 | yes | yes | yes | yes | yes | 22.90 |
+
+</details>
 
 These are historical demo measurements, not results for the current refactor. Diagnosis scoring uses substring aliases; it does not assess clinical correctness. Repeats reuse the same five cases, labels have not been independently validated, and there is no baseline comparison or demonstrated GraphRAG improvement. The historical files retain their original wording and outputs for traceability.
+
+### Run a new evaluation
 
 After configuring a backend, create a new run:
 
