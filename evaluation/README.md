@@ -56,6 +56,20 @@ The historical metadata does not pin the model revision, dependency versions, se
 
 ## Offline verification
 
+### README figures
+
+The README embeds aggregate metric and paired latency charts generated directly from the preserved JSON. PNG files provide the inline previews; SVG files provide vector versions. The figures retain the historical date, model, case count, repeat count, and interpretation limits.
+
+Regenerate them without calling an LLM:
+
+```bash
+uv run --locked --extra plots python -m evaluation.plot_results
+```
+
+The optional `plots` extra supplies Matplotlib. Outputs go to `docs/assets/evaluation/`; `--results` and `--output-dir` select a different evaluation JSON and destination. Original result files are read only. The first five bars represent label matching; the final three represent output structure and stage execution.
+
+### Evaluation tests
+
 ```bash
 python -m pytest tests/test_evaluation.py
 ```

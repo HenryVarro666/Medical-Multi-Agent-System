@@ -22,6 +22,9 @@ jobs:
       - run: uv sync --locked --extra dev
       - run: uv run --locked --extra dev ruff check .
       - run: uv run --locked --extra dev pytest
+      - name: Render evaluation figures
+        if: matrix.python-version == '3.12'
+        run: uv run --locked --extra dev --extra plots python -m evaluation.plot_results --output-dir /tmp/evaluation-charts
       - run: uv build
 
   container:

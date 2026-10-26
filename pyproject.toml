@@ -23,6 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 neo4j = ["neo4j>=5.25,<7"]
+plots = ["matplotlib>=3.9,<4"]
 dev = ["build>=1.2,<2", "pytest>=8.3,<10", "ruff>=0.9,<1"]
 
 [project.urls]

@@ -108,6 +108,12 @@ Retries reprocess the same narrative; the API does not collect new information f
 
 The original July 13, 2026 run used `Qwen/Qwen3-14B` through a local OpenAI-compatible endpoint. Five synthetic cases were run twice, producing ten recorded pipeline outputs. The original results remain displayed below and are preserved in the [full report](evaluation/results/historical-2026-07-13/eval_results.md), [machine-readable summary](evaluation/results/historical-2026-07-13/eval_results.json), and [raw outputs](evaluation/results/historical-2026-07-13/raw/).
 
+[![Historical evaluation metrics: strict diagnosis alias matches 6/10, either-tier top-1 and top-3 matches 10/10, exact ICD-10 matches 5/10, category matches 10/10, and three structure/execution checks 10/10.](docs/assets/evaluation/historical-metrics.png)](docs/assets/evaluation/historical-metrics.svg)
+
+[![Paired end-to-end latency for five synthetic cases over two repeats, with an overall mean of 28.22 seconds.](docs/assets/evaluation/historical-latency.png)](docs/assets/evaluation/historical-latency.svg)
+
+The charts are generated from the preserved JSON. Click either chart for its vector version; see [figure regeneration](evaluation/README.md#readme-figures) for the command. Exact values and all ten raw runs remain below.
+
 | Recorded measure | Original field | Result |
 |---|---|---:|
 | Top-1 diagnosis, strict alias tier | `diagnosis_top1_strict` | 6/10 (60%) |
