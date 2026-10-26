@@ -85,6 +85,18 @@ The historical alias rules remain explicit in `run_eval.py`. Substring matching 
 
 Treatment structure checks do not evaluate drug selection, dosage, contraindication coverage, or overall safety. Audit completion does not prove de-identification or HIPAA compliance. There is no single-agent baseline, retrieval ablation, held-out evaluation, or demonstrated performance improvement from GraphRAG.
 
+## Interpreting the two-case exact ICD-10 score
+
+The recorded 0/2 exact matches per model are correct under the frozen string-comparison rule. Both models generate `J18.9` versus the case_001 label `J18.1`, and `I21.09` versus the case_002 label `I21.0`. Normalizing case and outer whitespace does not make either pair equal. Category-prefix matching yields 2/2, but does not validate code existence, specificity, or clinical equivalence.
+
+A documentation review on October 26, 2026 checked the [CMS FY 2027 Code Descriptions in Tabular Order archive](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip), listed on the [CMS ICD-10 page](https://www.cms.gov/medicare/coding-billing/icd-10-codes). In `Code Descriptions/icd10cm_order_2027.txt`, `I210` has the header indicator 0 and children `I2101`, `I2102`, and `I2109` have indicator 1. The complete-code file `icd10cm_codes_2027.txt` includes those children and omits `I210`. `J181` and `J189` are separate complete-code entries. This confirms a label-granularity defect; it does not adjudicate the correct code for either vignette.
+
+The reviewed ZIP SHA-256 was `91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965`. This was a post-run catalog review, not a catalog/version recorded by the original model evaluations. The fixtures do not pin encounter setting, code-set year, acceptable alternatives, or an independent coding review. Coding's prompt requests specific codes, while its context omits the original patient record and its output is not catalog-validated. The bundled lookup validator only checks a small subset; absence there is not proof that an official code is invalid.
+
+For case_001, the bundled retrieval hint supplies `J18.9` and both models carry it into Coding. Anchoring is a hypothesis requiring a retrieval/hint ablation; it is not an established explanation for every coding mismatch.
+
+Preserve the archived outputs, figures and original exact score. A future evaluation should version reviewed labels and encounter/catalog assumptions, validate complete-code membership, and report separately: exact label agreement, hierarchy-aware agreement using the real catalog, catalog validity/specificity, and expert-adjudicated acceptability. A richer valid code must not be accepted solely because it shares a prefix, nor should labels be changed to match existing predictions.
+
 ## Historical July 13, 2026 run
 
 The original files are preserved byte-for-byte in [results/historical-2026-07-13](results/historical-2026-07-13/), including the summary and ten raw outputs. They record `Qwen/Qwen3-14B` at `http://localhost:8000/v1`, five cases, two repeats, strict alias matches of 6/10, either-tier matches of 10/10, exact ICD-10 matches of 5/10, and mean latency of 28.22 seconds.

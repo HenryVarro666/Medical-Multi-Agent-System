@@ -62,7 +62,8 @@ def _retrieve_kg_candidates(patient_info: dict) -> list[dict]:
     """
     GraphRAG retrieval step: query the knowledge-graph service with the
     patient's symptom list and return ranked candidate diseases.
-    Deterministic, runs locally (Neo4j when configured, in-memory fallback).
+    Deterministic lookup in the bundled in-memory maps. The optional Neo4j
+    query helper is not connected to this retrieval path.
     """
     try:
         symptoms = [

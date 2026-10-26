@@ -1,10 +1,12 @@
 """
-ICD-10 coding service — Automated medical code assignment.
+Illustrative ICD-10 lookup and simplified DRG reference helpers.
 
 Provides:
-  - Text-to-ICD-10 code mapping
-  - Code validation and hierarchy lookup
-  - DRGs grouping logic based on ICD-10 + procedure codes
+  - Keyword search and membership checks in a small bundled code subset
+  - Demonstration DRG lookup by diagnosis-code prefix
+
+The standalone API endpoints use these tables. The Coding Agent does not
+call this service to validate its model-generated codes or DRG estimates.
 """
 
 from __future__ import annotations
@@ -13,7 +15,7 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-# Comprehensive ICD-10-CM code database (subset for demonstration)
+# Hand-maintained demonstration subset; not a complete, versioned code catalog.
 ICD10_DATABASE = {
     "A00-B99": {
         "name": "Certain infectious and parasitic diseases",

@@ -48,6 +48,34 @@ ICD-10 lookup and DRG grouping use small illustrative mappings. They are not a c
 
 FHIR helpers convert dictionaries and can submit resources to a configured server if explicitly called. They are outside the default workflow. Current outputs have known limitations, including estimated birth dates and unvalidated medication dose values. No hospital integration or FHIR conformance result is claimed.
 
+## Retrieval backend compatibility
+
+The current active backend is the in-memory map. No SQLite, PostgreSQL, Qdrant, vector embedding, or Neo4j retrieval adapter is implemented. A database connection alone does not change the retrieval algorithm or supply a medical corpus.
+
+### Current call and result contract
+
+`Diagnosis` calls the synchronous `find_diseases_by_symptoms(symptoms: list[str]) -> list[dict]`. Each map result has `disease`, an integer `symptom_match_count`, `icd10_code`, and `icd10_description`. Diagnosis takes up to five candidates, formats overlap-count hints, and records the candidates in `diagnosis.knowledge_graph_candidates` with a `knowledge_sources` entry.
+
+The evaluation reads candidate count and the leading `disease`; the prompt formatter also reads `symptom_match_count`. Thus a vector client cannot replace the backend by returning a cosine score in the count field, or raw document hits without a disease mapping. Neo4j queries likewise need an explicit graph-to-candidate mapping.
+
+### Proposed adapter boundary
+
+This is a design for future implementation, not a ready-to-use configuration option:
+
+| Boundary | Required behavior |
+|---|---|
+| Selection and lifecycle | Add an explicit retrieval factory/backend setting, initialize and close clients deliberately, and keep the bundled offline backend as the default. |
+| Candidate identity | Retain disease and code/description fields and the existing API trace key for compatibility; map document/graph evidence to candidates explicitly. |
+| Scores and evidence | Keep real lexical overlap counts separate from similarity/distance and reranker scores. Include method, score type, source IDs, source/catalog versions, and evidence excerpts. Use unknown/absent counts where no overlap count is measured; update the formatter and schema before enabling that result type. |
+| Model context | Make prompt wording method-aware: lexical counts, semantic matches, and graph paths are different evidence. Preserve provenance and avoid asserting a citation supports a model claim merely because a hit was retrieved. |
+| Execution model | A synchronous client fits the current node boundary. An async Neo4j/Qdrant client requires awaiting in the retrieval/node path and compatible graph/API invocation; returning a coroutine through the present synchronous method will not work. |
+| Embeddings | Add a separately configured and versioned embedding provider, dimensions, chunking/ingestion and index metadata. The current text-generation factory/Codex adapter supplies no embedding interface. |
+| Failure and migration | Define timeout/unavailable-store behavior, explicit fallbacks, schema migrations and export parity. Record fallback use instead of silently treating it as the configured backend. |
+
+Patient/session persistence, retrieval knowledge, checkpoints, and evaluation archives are separate storage responsibilities. A single SQL service may host several of them, but swapping the retriever does not automatically add durable API sessions, audit retention, or FHIR integration.
+
+Before enabling a new backend, test result schema/trace compatibility, corpus and source-version reproducibility, failures/fallbacks, and retrieval relevance under a fixed model/context budget. The [README roadmap](../README.md#upgrade-and-extension-roadmap) prioritizes label and handoff repair before claiming backend quality improvements.
+
 ## Privacy and audit boundaries
 
 The audit node scans selected structured outputs using a limited regex set. It may flag ordinary clinical phrases or miss identifiers. It does not scan and redact all data before LLM transmission, and it does not replace pipeline outputs with redacted versions.

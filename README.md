@@ -11,6 +11,7 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 ## Contents
 
 - [Overview](#overview)
+- [Data storage and retrieval](#data-storage-and-retrieval)
 - [Quick start](#quick-start)
 - [Model configuration](#model-configuration)
 - [Try the API](#try-the-api)
@@ -23,6 +24,8 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 - [Scope and attribution](#scope-and-attribution)
+- [Current limitations](#current-limitations)
+- [Upgrade and extension roadmap](#upgrade-and-extension-roadmap)
 
 ## Overview
 
@@ -35,6 +38,29 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 | Evaluation | Five synthetic fixtures, preserved historical runs, and reproducible figures |
 
 The API and offline tools require no model server, GPU, or database. Full analysis requires a configured OpenAI-compatible backend or a locally installed, authenticated Codex CLI. Neo4j/FHIR helpers are outside the default workflow.
+
+## Data storage and retrieval
+
+**The default pipeline uses in-memory Python objects and explicit JSON files. It does not use a running database or vector index.**
+
+| Data | Current location | Lifetime / persistence |
+|---|---|---|
+| Synthetic input fixtures | [data/sample_patients.json](data/sample_patients.json) | Five version-controlled examples |
+| Patient information and Agent outputs | [ClinicalState](src/medical_multi_agent/graph/state.py) | Memory during one invocation; the API returns the result without saving a patient/session record |
+| Retrieval knowledge | [graphrag_service.py](src/medical_multi_agent/services/graphrag_service.py) | Python dictionaries with 10 symptom keys and 15 disease/code hints; exact normalized symptom overlap |
+| ICD-10 / DRG and medication rules | [ICD/DRG tables](src/medical_multi_agent/services/icd10_service.py), [DDI/allergy rules](src/medical_multi_agent/services/drug_interaction.py) | Small bundled Python mappings; not a complete clinical knowledge base |
+| Evaluation outputs and model-call traces | [evaluation/results/](evaluation/results/) | Runner explicitly writes raw JSON and JSON/Markdown summaries; local `runs/` are Git-ignored, reviewed archives are committed |
+| Audit result | Returned inside the pipeline result | No durable audit database in the default API; evaluation archives retain a copy |
+
+Checkpoint retention is disabled by default. Library callers can pass a checkpointer to `build_clinical_pipeline(checkpointer=...)`; its persistence depends on the supplied implementation. JSON evaluation archives are separate from API session storage.
+
+### What the Neo4j code currently does
+
+[Neo4j uses a property graph model](https://neo4j.com/docs/getting-started/appendix/graphdb-concepts/) and also supports [vector indexes](https://neo4j.com/docs/cypher-manual/current/indexes/search-indexes/). Graph traversal and embedding similarity search are different retrieval mechanisms.
+
+This project currently uses neither through Neo4j. `get_graphrag_service()` explicitly sets `use_neo4j=False`; `find_diseases_by_symptoms()` always reads the bundled dictionaries. Installing the optional `neo4j` extra or setting `NEO4J_*` variables does not switch Diagnosis to a database. The asynchronous `connect()` / `query_neo4j()` helpers must be integrated explicitly. FHIR helpers are also outside the default workflow.
+
+The legacy component name `GraphRAGService` describes a retrieval hint service here: there is no ingested medical graph, embedding model, vector index, document retrieval, or multi-hop graph reasoning. See [backend alternatives and compatibility](#storage-and-retrieval-alternatives) for proposed extensions.
 
 ## Quick start
 
@@ -745,6 +771,12 @@ The matched protocol uses **medium reasoning**, a **600-second per-call timeout*
 
 Both models produced `J18.9` for the pneumonia case and `I21.09` for the STEMI case; the original labels are `J18.1` and `I21.0`. These are exact-label mismatches with matching code categories. The evaluation does not adjudicate which code is clinically correct.
 
+**Why is exact matching 0%?** [`icd10_scores()`](evaluation/run_eval.py) trims outer whitespace, uppercases both strings, and compares the complete codes. `J18.1 != J18.9` and `I21.0 != I21.09`, so both models have **0 exact matches out of 2**. The category check compares only the portion before the decimal (`J18` / `I21`), giving 2/2; it does not validate code existence or clinical equivalence.
+
+There is also a label-quality problem. The [CMS FY 2027 code files](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip) list `I21.0` as a parent/header with more specific children including `I21.09`; it is absent from the complete-code list. Yet the Coding prompt asks for the most specific code. The fixtures do not specify a coding-year or encounter-setting contract, and their labels have not been independently adjudicated. This structural mismatch does not establish that `I21.09` is the correct code for this vignette.
+
+For pneumonia, the retrieval map supplies `J18.9`, which both models retain, while the fixture expects `J18.1`. That suggests a possible anchoring effect, not a proven cause; an ablation is needed. **Keep the recorded 0% as fixture-label agreement, not clinical coding accuracy.** A future, versioned evaluation should review the labels, validate catalog membership and specificity, and report expert-adjudicated acceptability separately. The bundled validator checks only a small demonstration subset, so simply wiring it into Coding would not provide authoritative validation.
+
 | Complete raw trace | Model | Expected → generated ICD-10 | More information requested | Elapsed time |
 |---|---|---|---|---:|
 | [case_001](evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/raw/case_001_r1.json) | `gpt-6.1-sol` | `J18.1` → `J18.9` | no | 144.33 s |
@@ -899,3 +931,48 @@ The audit stage runs after model calls and does not redact returned patient data
 Bundled medical mappings and rules are incomplete. FHIR helpers are experimental and outside the pipeline. Historical evidence does not validate clinical accuracy, safety, throughput, FHIR conformance, or HIPAA compliance.
 
 Adapted from [bcefghj/medical-multi-agent-system](https://github.com/bcefghj/medical-multi-agent-system) under [MIT](LICENSE). See [attribution and project history](ATTRIBUTION.md) for provenance.
+
+## Current limitations
+
+The recorded runs establish that the demo can execute and archive its outputs. The following gaps remain in the current implementation; no database or model-quality upgrade below has been implemented or benchmarked.
+
+| Area | Observed limitation | Consequence |
+|---|---|---|
+| Coding labels and validation | A single unreviewed fixture code is the target; labels mix specificity levels and have no coding-year/encounter contract. Coding uses LLM JSON directly and never invokes the bundled catalog validator. | Exact label agreement is not coding correctness. Category-prefix agreement can also accept an invalid suffix. Generated DRG values are not produced by an authoritative grouper. |
+| Information between Agents | Coding receives Diagnosis and Treatment, but not `patient_info` or the original narrative. Intake can estimate/default missing values; later stages mainly parse dictionaries rather than validate the full domain schemas. | Patient facts can be lost or inferred without an adequate source trail. In the saved runs, hypertension and smoking-cessation details present in Intake do not reach Coding. |
+| Knowledge retrieval | Ten exact symptom keys and 15 disease-to-code hints form the bundled lookup. Synonyms, negation, context, citations, graph traversal, and embeddings are not modeled. | Candidate recall is brittle. A name such as `GraphRAG` does not demonstrate evidence-backed reasoning or an improvement over a simple baseline. |
+| Missing information and retries | A loopback reruns Intake on the same narrative. At the configured cap, Treatment continues even if more information was requested; the matched comparison deliberately uses zero loopbacks. | The graph can terminate without resolving uncertainty. More complete-looking output is not proof of sufficient clinical information. |
+| Evaluation coverage | Two synthetic cases per current model, one repeat, substring diagnosis aliases without negation handling, and structural completion checks. No held-out cohort, clinician/coder review, single-model baseline, or retrieval ablation. | Tied scores and different timings on two observations do not establish comparative clinical quality, reliability, or GraphRAG benefit. |
+| Medication and audit checks | Curated DDI/allergy rules cover a small subset; medication presence and execution stamps do not assess dose or treatment appropriateness. Audit runs after model calls. | Returning a plan/audit is not a safety or compliance result. The current pipeline does not redact all data before remote inference. |
+| Persistence and serving | No default patient database, durable audit store, resumable API conversation, authentication, or distributed job queue. | JSON experiment archives do not provide a multi-user application storage or access-control layer. |
+| Latency and failure evidence | Four sequential model stages, CLI startup/transport overhead, and possible loopbacks. The earlier `ultra` pilot timed out; timeout traces lack a completed event stream. | Latency depends on the full protocol and backend. Empty timeout usage/tool fields are missing evidence; token/cost totals cannot be treated as complete. |
+
+### Storage and retrieval alternatives
+
+There is no active Neo4j deployment to replace today. The choices below would add capabilities to the current in-memory prototype. Patient/session persistence and knowledge retrieval are separate concerns, even when one database can support both.
+
+| Proposed option | Good fit | What it would add / require |
+|---|---|---|
+| SQLite + [FTS5](https://www.sqlite.org/fts5.html) | A local, single-user demo with durable structured records and lexical document search | A small local database and full-text index; no embedding provider required for lexical search. Requires a schema, ingestion, retrieval adapter, and checking FTS5 availability in the Python SQLite build. |
+| PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) | A deployed service needing relational records, metadata filters, and vector retrieval together | A PostgreSQL service, vector extension, document/embedding ingestion, and an adapter. pgvector supports exact/approximate neighbor search; embeddings and retrieval quality must be evaluated separately. |
+| [Qdrant local mode](https://qdrant.tech/documentation/frameworks/langchain/#local-mode), then a server if needed | A Python vector-search prototype or a dedicated retrieval service | In-memory or on-disk local vector storage can avoid running a server during development. Requires a client, an embedding provider, ingestion, and an adapter; application records still need a storage design. |
+| Neo4j with an ingested graph | Explicit disease/symptom/drug relationships and graph queries that the task actually needs | A graph schema, source/versioned ingestion, queries integrated into Diagnosis, and evaluation. Neo4j can combine graph and vector capabilities, but the existing connection helper provides neither automatically. |
+
+For this repository's small local demo, **SQLite + FTS5 is the first extension to evaluate**. For semantic retrieval experiments, Qdrant local mode is another lightweight development option; for a multi-user service, evaluate PostgreSQL + pgvector. Keep Neo4j for a demonstrated graph-relation requirement. This is an architectural recommendation, not an observed ranking of retrieval or model quality.
+
+A different database alone does not fix incomplete knowledge, incorrect labels, lost patient facts, or prompt bias. Compare retrieval methods on the same reviewed corpus and held-out cases, with fixed model, top-k/context and token budgets. Measure evidence recall, unsupported outputs, coding validity/acceptability, failures, and latency before claiming a gain.
+
+**Compatibility requires an adapter.** The current synchronous retrieval interface and prompt wording assume `symptom_match_count`. A vector similarity score cannot be substituted for that integer. Preserve existing result/trace fields, make scores and prompt descriptions method-aware, and explicitly integrate synchronous or asynchronous clients. Merely changing `.env` is insufficient. See the [proposed compatibility contract](docs/architecture.md#retrieval-backend-compatibility). The existing Codex adapter supplies text responses; an embedding interface is not implemented.
+
+## Upgrade and extension roadmap
+
+These are proposed steps, ordered by the evidence and engineering gaps above. Existing archived scores and raw outputs stay unchanged; new evaluations should have a new dataset/protocol version.
+
+| Priority | Upgrade / extension | Acceptance evidence |
+|---|---|---|
+| 1. Repair the evaluation contract | Pin ICD-10-CM release, encounter assumptions and label granularity; independently review acceptable codes. Add catalog membership, complete-code specificity, and adjudicated acceptability measures alongside the existing exact match. | A reviewed, versioned label set; separate error analysis for invalid codes, specificity differences, and clinically unacceptable assignments. Do not derive the answer key from current model predictions. |
+| 2. Preserve and validate clinical facts | Pass sourced patient facts to Coding, validate every stage with typed schemas, distinguish known/unknown/inferred fields, and route unresolved information to an explicit clarification/review state. | Handoff tests that preserve relevant facts, invalid-output tests, and termination/clarification cases that do not invent new observations. |
+| 3. Add local persistence and a retrieval boundary | Start with a SQLite schema for experiment/session metadata and a separately versioned knowledge corpus; retain JSON export. Introduce interchangeable lexical/vector/graph adapters and method-aware evidence traces. | Persistence across restarts, trace/export parity, adapter contract tests, and a default offline path with no external database requirement. |
+| 4. Evaluate richer retrieval and grounded coding | Normalize symptom terminology; ingest licensed/versioned sources with citations. Test lexical, dense, hybrid and graph retrieval; constrain/rank Coding candidates using a complete code catalog. Use a real grouper if DRG claims are required. | Held-out retrieval and end-to-end ablations under the same input/model/budget; catalog-valid output and reviewed coding/safety checks. More infrastructure is not an acceptance criterion. |
+| 5. Expand the benchmark | Add diverse reviewed cases, ambiguous and adversarial narratives, more repeats, model/backend settings, missing-information cases, and a simple single-model baseline. Measure latency percentiles, error recovery, and complete usage where available. | Versioned raw traces and failure-inclusive reports with appropriate denominators and uncertainty; no post-hoc label changes to improve a score. |
+| 6. Harden a deployed service | Add authentication/access boundaries, durable audit storage, pre-transmission data handling, retention controls, background jobs, timeouts/cancellation, observability, and tested FHIR integration. | Integration and failure-recovery tests, access/storage checks, and independently reviewed deployment controls before using sensitive data or making compliance claims. |
