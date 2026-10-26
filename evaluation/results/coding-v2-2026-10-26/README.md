@@ -1,6 +1,6 @@
 # Coding-validation v2 · October 26, 2026
 
-This archive retains a new real Codex-CLI comparison after patient-context, official code-validation and reference-granularity repairs. Models are gpt-6.1-sol and gpt-6-astra, each evaluated once on unchanged case_001/case_002 narratives. The selected complete batches both returned five Agent sections without pipeline/harness errors.
+This archive retains a new real Codex-CLI comparison after patient-context, official code-validation and reference-granularity repairs. The complete-stage comparison contains one repeat per model (gpt-6.1-sol and gpt-6-astra) on unchanged case_001/case_002 narratives; an earlier interrupted Sol batch is also retained below. The selected complete batches both returned five Agent sections without pipeline/harness errors.
 
 ## Shared protocol
 
@@ -23,7 +23,7 @@ Coding now receives the exact narrative, full structured patient record, Diagnos
 
 - [gpt-6.1-sol](gpt-6.1-sol/eval_results.md): 2/2 complete pipelines; v2 exact 1/2; all-code catalog validation 2/2; mean 101.79 seconds.
 - [gpt-6-astra](gpt-6-astra/eval_results.md): 2/2 complete pipelines; v2 exact 1/2; all-code catalog validation 2/2; mean 126.77 seconds.
-- [Interrupted first Sol batch](attempts/README.md): two attempted pipelines failed in native Codex transport before Coding, overlapping host sleep/wake. The full batch was repeated after recovery with unchanged source/settings; first-attempt observations and raw text remain archived.
+- [Interrupted first Sol batch](attempts/README.md): two attempted pipelines failed in native Codex transport before any Coding LLM call, overlapping host sleep/wake. The full batch was repeated after recovery with unchanged source/settings; first-attempt observations and raw text remain archived.
 
 Across all three batches, four of six pipeline attempts completed without errors. The charts compare the two complete-stage batches; they are not an all-attempt availability or unconditional latency estimate. `comparison.json` records chronological attempts and selections. Sleep-affected timestamps/active-clock durations in the interrupted cohort must not be interpreted as normal model timing.
 

@@ -58,7 +58,7 @@
       "pipeline_attempts": 2,
       "complete_stage_outputs": 0,
       "included_in_matched_effect_comparison": false,
-      "reason": "Codex transport errors before Coding; host sleep/wake overlap; original failures retained"
+      "reason": "Codex transport errors before any Coding LLM call; host sleep/wake overlap; original failures retained"
     },
     {
       "model": "gpt-6-astra",
