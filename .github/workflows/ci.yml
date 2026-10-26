@@ -25,6 +25,9 @@ jobs:
       - name: Render evaluation figures
         if: matrix.python-version == '3.12'
         run: uv run --locked --extra dev --extra plots python -m evaluation.plot_results --output-dir /tmp/evaluation-charts
+      - name: Render architecture diagrams
+        if: matrix.python-version == '3.12'
+        run: uv run --locked --extra dev --extra plots python -m evaluation.draw_architecture --output-dir /tmp/architecture-diagrams
       - run: uv build
 
   container:

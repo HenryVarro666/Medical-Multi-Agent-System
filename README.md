@@ -18,6 +18,12 @@ Adapted from [bcefghj/medical-multi-agent-system](https://github.com/bcefghj/med
 - ICD-10 lookup and simplified DRG grouping use bundled mappings. They do not replace a complete coding catalog or certified grouper.
 - Evaluation records per-run outputs, scoring, errors, and latency for five synthetic vignettes.
 
+## Architecture
+
+[![System architecture: FastAPI invokes a sequential LangGraph workflow with ClinicalState, a configured LLM backend, bundled symptom retrieval, and treatment rules. Separate endpoints expose ICD-10 and DRG lookups.](docs/assets/architecture/system-architecture.png)](docs/assets/architecture/system-architecture.svg)
+
+The four LLM stages share the model client factory; Audit runs deterministic checks. State lasts for one invocation by default. See [architecture details and diagram sources](docs/architecture.md) for the implemented boundaries and regeneration command.
+
 ## Quick start
 
 Use Python 3.11 or newer; `.python-version` selects Python 3.12 for uv. Run these commands from the repository root:
@@ -87,6 +93,13 @@ Inspect the returned `errors` list as well as the HTTP status; individual agent 
 
 ## Workflow
 
+[![Five-Agent workflow: Intake, Diagnosis, Treatment, Coding, and Audit execute in numbered order. Diagnosis retries Intake only while more information is requested and the retry budget remains; Audit runs after all model stages.](docs/assets/architecture/agent-workflow.png)](docs/assets/architecture/agent-workflow.svg)
+
+Agents read and update a shared `ClinicalState` in the numbered sequence. Intake, Diagnosis, Treatment, and Coding use the LLM; Audit is deterministic. Click either architecture diagram for its vector version.
+
+<details>
+<summary>Compact workflow in Mermaid</summary>
+
 ```mermaid
 flowchart LR
     Input["Synthetic narrative"] --> Intake
@@ -99,6 +112,8 @@ flowchart LR
     Coding --> Audit["PHI screening and control checklist"]
     Audit --> Output["Structured result and errors"]
 ```
+
+</details>
 
 Retries reprocess the same narrative; the API does not collect new information from a user. Once the retry budget is exhausted, the current workflow proceeds with the available information. See [architecture and limitations](docs/architecture.md).
 

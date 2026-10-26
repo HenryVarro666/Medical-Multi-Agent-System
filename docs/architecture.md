@@ -2,6 +2,10 @@
 
 The application is a Python package under `src/medical_multi_agent`. FastAPI accepts requests; a LangGraph `StateGraph` executes five stages over `ClinicalState`. The implementation is a sequential workflow with bounded diagnostic retries.
 
+[![Current system architecture](assets/architecture/system-architecture.png)](assets/architecture/system-architecture.svg)
+
+[![Five-Agent collaboration and bounded retry](assets/architecture/agent-workflow.png)](assets/architecture/agent-workflow.svg)
+
 ## Execution and state
 
 | Stage | Reads | Produces |
@@ -9,7 +13,7 @@ The application is a Python package under `src/medical_multi_agent`. FastAPI acc
 | Intake | Narrative | Structured patient information |
 | Diagnosis | Patient information and bundled retrieval candidates | Primary and differential diagnoses, retrieval trace, retry request |
 | Treatment | Patient information and diagnosis | LLM treatment proposal plus deterministic DDI/allergy checks |
-| Coding | Patient information, diagnosis, treatment | LLM coding result using illustrative ICD-10/DRG guidance |
+| Coding | Diagnosis and treatment | LLM coding result using illustrative ICD-10/DRG guidance |
 | Audit | Prior outputs | PHI-pattern findings, audit records, unverified deployment controls |
 
 Intake, diagnosis, treatment, and coding use the shared `config/llm.py` factory. Audit uses deterministic rules. JSON generation can fail; callers must inspect `errors` and missing output sections.
@@ -55,3 +59,15 @@ A local LLM endpoint can keep model inference on infrastructure you control, dep
 Settings load from environment variables and `.env` in the directory where the command starts. The LLM backend, timeout, reasoning-template option, and diagnostic retry budget are described in `.env.example`. Settings are cached per process; restart after changing configuration.
 
 The default runtime requires no PostgreSQL, Redis, Neo4j, or FHIR server. Docker Compose therefore starts only the API. `/health` reports process liveness and does not exercise the LLM or tools.
+
+## Diagram sources
+
+Regenerate both diagrams without model or network calls after installing the optional plotting dependencies:
+
+```bash
+uv run --locked --extra plots python -m evaluation.draw_architecture
+```
+
+The generator writes HTML previews, accessible SVGs, and PNGs to `docs/assets/architecture/`. Use `--output-dir` for another destination. The diagrams follow the evaluation figures' white background, blue accent, and offline DejaVu fonts. The HTML previews contain inline SVG and require no external assets.
+
+The architecture view summarizes components and calls. The workflow view follows the numbered execution order, separates the four model stages from deterministic Audit, and records the precise retry condition. It also distinguishes LLM coding proposals from the standalone deterministic ICD-10/DRG lookup endpoints.
