@@ -1,4 +1,4 @@
-"""Render README figures from the preserved evaluation JSON, without model calls.
+"""Render README figures from evaluation JSON, without model calls.
 
 Run from the repository root:
     uv run --locked --extra plots python -m evaluation.plot_results
@@ -48,12 +48,13 @@ def style() -> None:
     })
 
 
-def heading(fig, record: dict, title: str) -> None:
+def heading(fig, record: dict, title: str, label: str = "Historical run") -> None:
     meta = record["meta"]
+    repeat_word = "repeat" if meta["repeats"] == 1 else "repeats"
     fig.text(0.04, 0.95, title, size=21, weight="bold", va="top")
     subtitle = (
-        f"Historical run · {meta['timestamp'][:10]} · {meta['model']} · "
-        f"{meta['n_cases']} synthetic cases × {meta['repeats']} repeats"
+        f"{label} · {meta['timestamp'][:10]} · {meta['model']} · "
+        f"{meta['n_cases']} synthetic cases × {meta['repeats']} {repeat_word}"
     )
     fig.text(0.04, 0.89, subtitle, size=11.5, color=MUTED, va="top")
 
@@ -67,10 +68,11 @@ def save(fig, output_dir: Path, name: str) -> None:
     plt.close(fig)
 
 
-def plot_metrics(record: dict, output_dir: Path) -> None:
+def plot_metrics(record: dict, output_dir: Path, *, label: str = "Historical run",
+                 prefix: str = "historical") -> None:
     fig, ax = plt.subplots(figsize=(12, 8.6))
     fig.subplots_adjust(left=0.34, right=0.94, top=0.78, bottom=0.17)
-    heading(fig, record, "Recorded evaluation results")
+    heading(fig, record, "Recorded evaluation results", label)
     metrics = [
         ("Top-1 diagnosis · strict alias", "diagnosis_top1_strict", BLUE, 0),
         ("Top-1 diagnosis · either alias", "diagnosis_top1_any", BLUE, 1),
@@ -110,14 +112,17 @@ def plot_metrics(record: dict, output_dir: Path) -> None:
              size=10.5, color=MUTED)
     fig.text(0.04, 0.045, "Completion checks do not establish treatment safety or HIPAA compliance.",
              size=10.5, color=MUTED)
-    save(fig, output_dir, "historical-metrics")
+    save(fig, output_dir, f"{prefix}-metrics")
 
 
-def plot_latency(record: dict, output_dir: Path) -> None:
+def plot_latency(record: dict, output_dir: Path, *, label: str = "Historical run",
+                 prefix: str = "historical") -> None:
+    rows = record["per_case"]
+    if not rows:
+        raise ValueError("Cannot plot latency without per-case results.")
     fig, ax = plt.subplots(figsize=(12, 7))
     fig.subplots_adjust(left=0.08, right=0.96, top=0.77, bottom=0.29)
-    heading(fig, record, "End-to-end latency by case")
-    rows = record["per_case"]
+    heading(fig, record, "End-to-end latency by case", label)
     case_ids = list(dict.fromkeys(row["case_id"] for row in rows))
     repeats = sorted({row["repeat"] for row in rows})
     width = 0.72 / len(repeats)
@@ -144,23 +149,40 @@ def plot_latency(record: dict, output_dir: Path) -> None:
     ax.grid(axis="y", color=GRID)
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.01), frameon=False,
               ncol=len(repeats) + 1, fontsize=11, borderaxespad=0)
-    fig.text(0.04, 0.065, "Each pair reuses the same synthetic case. Two repeats do not estimate uncertainty.",
+    if len(repeats) == 1:
+        repeat_note = "Each bar is one run of a synthetic case. One repeat does not estimate uncertainty."
+    elif len(repeats) == 2:
+        repeat_note = "Each pair reuses the same synthetic case. Two repeats do not estimate uncertainty."
+    else:
+        repeat_note = "Each group reuses the same synthetic case. Repeats do not estimate uncertainty."
+    fig.text(0.04, 0.065, repeat_note,
              size=10.5, color=MUTED)
     fig.text(0.04, 0.035, "Recorded backend timings; no clinical validation or throughput claim.",
              size=10.5, color=MUTED)
-    save(fig, output_dir, "historical-latency")
+    save(fig, output_dir, f"{prefix}-latency")
+
+
+def filename_prefix(value: str) -> str:
+    if not value.strip() or value in (".", "..") or "/" in value or "\\" in value:
+        raise argparse.ArgumentTypeError("prefix must be a nonempty filename prefix without slashes")
+    return value
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--results", type=Path, default=DEFAULT_RESULTS)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--label", default="Historical run", help="run label shown in chart subtitles")
+    parser.add_argument("--prefix", type=filename_prefix, default="historical",
+                        help="output filename prefix (default: historical)")
     args = parser.parse_args()
     record = json.loads(args.results.read_text(encoding="utf-8"))
+    if not record["per_case"]:
+        parser.error("results must contain per-case rows")
     args.output_dir.mkdir(parents=True, exist_ok=True)
     style()
-    plot_metrics(record, args.output_dir)
-    plot_latency(record, args.output_dir)
+    plot_metrics(record, args.output_dir, label=args.label, prefix=args.prefix)
+    plot_latency(record, args.output_dir, label=args.label, prefix=args.prefix)
 
 
 if __name__ == "__main__":

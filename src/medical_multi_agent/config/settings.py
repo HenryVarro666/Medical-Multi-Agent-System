@@ -1,8 +1,9 @@
 """Application configuration loaded from environment variables."""
 
 from functools import lru_cache
+from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +13,10 @@ class Settings(BaseSettings):
     )
 
     # LLM
+    llm_backend: Literal["openai", "codex"] = "openai"
+    codex_model: str = ""
+    codex_reasoning_effort: str = Field(default="ultra", min_length=1)
+    codex_cli_path: str = Field(default="codex", min_length=1)
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
     # Optional OpenAI-compatible endpoint (e.g. local vLLM: http://localhost:8001/v1).
@@ -35,6 +40,12 @@ class Settings(BaseSettings):
 
     # FHIR
     fhir_server_url: str = "http://localhost:8080/fhir"
+
+    @model_validator(mode="after")
+    def validate_codex_model(self):
+        if self.llm_backend == "codex" and not self.codex_model.strip():
+            raise ValueError("CODEX_MODEL must be set when LLM_BACKEND=codex.")
+        return self
 
 
 @lru_cache

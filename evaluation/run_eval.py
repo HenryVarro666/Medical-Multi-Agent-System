@@ -21,6 +21,7 @@ import sys
 import tempfile
 import time
 import uuid
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -166,7 +167,7 @@ def _validate_output_dir(output_dir: Path) -> Path:
 
 
 def evaluate_case(pipeline, case: dict, repeat: int, output_dir: Path,
-                  recursion_limit: int) -> dict:
+                  recursion_limit: int, capture_calls=None) -> dict:
     """Invoke a supplied pipeline and archive its result, including failures."""
     output_dir = _validate_output_dir(Path(output_dir))
     raw_dir = output_dir / "raw"
@@ -179,13 +180,14 @@ def evaluate_case(pipeline, case: dict, repeat: int, output_dir: Path,
     start = time.perf_counter()
     result = {}
     error = None
-    try:
-        result = pipeline.invoke(
-            {"raw_input": case["description"]},
-            config={"configurable": {"thread_id": thread_id}, "recursion_limit": recursion_limit},
-        )
-    except Exception as exc:
-        error = f"{type(exc).__name__}: {exc}"
+    with capture_calls() if capture_calls else nullcontext([]) as llm_calls:
+        try:
+            result = pipeline.invoke(
+                {"raw_input": case["description"]},
+                config={"configurable": {"thread_id": thread_id}, "recursion_limit": recursion_limit},
+            )
+        except Exception as exc:
+            error = f"{type(exc).__name__}: {exc}"
     latency = time.perf_counter() - start
     try:
         row = score_output(case, result, repeat, latency, error)
@@ -204,6 +206,7 @@ def evaluate_case(pipeline, case: dict, repeat: int, output_dir: Path,
             )},
             "harness_error": error,
             "latency_seconds": row["latency_seconds"],
+            **({"llm_calls": llm_calls} if capture_calls else {}),
         }, stream, indent=2, default=str)
     return row
 
@@ -225,7 +228,7 @@ def to_markdown(meta: dict, rows: list[dict], summary: dict) -> str:
     lines = [
         "# Synthetic-vignette evaluation", "",
         f"- Run at: {meta['timestamp']}",
-        f"- Model: `{meta['model']}`; backend: `{meta['base_url'] or 'OpenAI API'}`",
+        f"- Model: `{meta['model']}`; backend: `{meta.get('backend', meta['base_url'] or 'OpenAI API')}`",
         f"- Cases: {meta['n_cases']}; repeats: {meta['repeats']}; runs: {summary['n_runs']}",
         f"- Source revision: `{meta['git_revision']}`; uncommitted changes: {meta['git_dirty']}",
         "- Raw pipeline results: `raw/`", "",
@@ -254,6 +257,41 @@ def to_markdown(meta: dict, rows: list[dict], summary: dict) -> str:
         "Latency depends on the backend and hardware; no throughput claim is made.",
     ]
     return "\n".join(lines) + "\n"
+
+
+def _backend_metadata(settings) -> dict:
+    """Record requested inference settings without credentials or CLI state."""
+    backend = getattr(settings, "llm_backend", "openai")
+    common = {
+        "llm_backend": backend,
+        "llm_timeout_seconds": getattr(settings, "llm_timeout_seconds", None),
+        "max_diagnosis_retries": settings.max_diagnosis_retries,
+        "lockfile_sha256": hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest(),
+    }
+    if backend == "codex":
+        from medical_multi_agent.config.codex import get_codex_version
+
+        return {
+            **common,
+            "model": settings.codex_model,
+            "base_url": "",
+            "backend": "Codex CLI (saved ChatGPT authentication)",
+            "codex_cli_version": get_codex_version(settings.codex_cli_path),
+            "reasoning_effort": settings.codex_reasoning_effort,
+            "temperature": "unsupported by Codex CLI; original agent temperatures not applied",
+            "prompt_transport": "original system text as model_instructions_file; original human text on stdin",
+            "model_revision": "unavailable; model name is requested, backend resolution not exposed",
+            "cli_retries": "no adapter retries; CLI transport recovery may occur internally",
+            "isolation": "fresh ephemeral exec in a temporary directory per call; user config ignored",
+        }
+    return {
+        **common,
+        "model": settings.openai_model,
+        "base_url": settings.openai_base_url,
+        "backend": settings.openai_base_url or "OpenAI API",
+        "temperature": {"intake": 0.1, "diagnosis": 0.2, "treatment": 0.2, "coding": 0.1},
+        "client_max_retries": 1,
+    }
 
 
 def _positive_int(value: str) -> int:
@@ -314,8 +352,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = get_settings()
     meta = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "model": settings.openai_model,
-        "base_url": settings.openai_base_url,
+        **_backend_metadata(settings),
         "n_cases": len(args.selected_cases),
         "repeats": args.repeats,
         "python_version": sys.version.split()[0],
@@ -324,6 +361,11 @@ def main(argv: list[str] | None = None) -> int:
     }
     print(f"[eval] model={meta['model']} cases={meta['n_cases']} repeats={args.repeats}")
     pipeline = build_clinical_pipeline()
+    capture_calls = None
+    if meta["llm_backend"] == "codex":
+        from medical_multi_agent.config.codex import capture_codex_calls
+
+        capture_calls = capture_codex_calls
     rows = []
     for repeat in range(1, args.repeats + 1):
         for case in args.selected_cases:
@@ -331,7 +373,13 @@ def main(argv: list[str] | None = None) -> int:
             rows.append(evaluate_case(
                 pipeline, case, repeat, args.output_dir,
                 recursion_limit=2 * settings.max_diagnosis_retries + 10,
+                capture_calls=capture_calls,
             ))
+            row = rows[-1]
+            print(f"[eval] completed {case['id']} r{repeat}: {row['latency_seconds']}s; "
+                  f"alias={row['diagnosis_top1']}; errors={len(row['pipeline_errors'])}; "
+                  f"harness_error={bool(row['harness_error'])}", flush=True)
+    meta["completed_at"] = datetime.now(timezone.utc).isoformat()
     summary = aggregate(rows)
     with (args.output_dir / "eval_results.json").open("x", encoding="utf-8") as stream:
         json.dump({"meta": meta, "aggregate": summary, "per_case": rows}, stream, indent=2)

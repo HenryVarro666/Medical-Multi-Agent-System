@@ -32,6 +32,16 @@ def test_thinking_options_require_explicit_opt_in():
     assert Settings(_env_file=None).llm_disable_thinking is False
 
 
+def test_codex_backend_requires_explicit_model():
+    with pytest.raises(ValidationError, match="CODEX_MODEL"):
+        Settings(_env_file=None, llm_backend="codex", codex_model="")
+
+
+def test_unknown_llm_backend_is_rejected():
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, llm_backend="unsupported")
+
+
 def test_remote_backend_requires_api_key(monkeypatch):
     settings = Settings(_env_file=None, openai_api_key="", openai_base_url="")
     monkeypatch.setattr(llm, "get_settings", lambda: settings)

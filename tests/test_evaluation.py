@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -11,6 +12,7 @@ import pytest
 
 from evaluation.run_eval import (
     METRICS,
+    _backend_metadata,
     aggregate,
     evaluate_case,
     icd10_scores,
@@ -26,6 +28,28 @@ CASE = {
     "expected_diagnosis": "Community-Acquired Pneumonia",
     "expected_icd10": "J18.1",
 }
+
+
+def test_codex_provenance_uses_codex_settings_and_discloses_protocol(monkeypatch):
+    from medical_multi_agent.config import codex
+    from medical_multi_agent.config.settings import Settings
+
+    monkeypatch.setattr(codex, "get_codex_version", lambda path: "codex-cli 0.163.0")
+    settings = Settings(
+        _env_file=None, llm_backend="codex", codex_model="test-codex-model",
+        openai_model="unused-http-model", openai_base_url="https://unused.example/v1",
+        llm_timeout_seconds=300,
+    )
+
+    meta = _backend_metadata(settings)
+
+    assert meta["model"] == "test-codex-model"
+    assert meta["base_url"] == ""
+    assert meta["reasoning_effort"] == "ultra"
+    assert meta["llm_timeout_seconds"] == 300
+    assert "unsupported" in meta["temperature"]
+    assert "requested" in meta["model_revision"]
+    assert len(meta["lockfile_sha256"]) == 64
 
 
 def test_scoring_distinguishes_alias_and_code_granularity():
@@ -82,6 +106,29 @@ def test_pipeline_failure_is_a_scored_observation(tmp_path):
     assert summary["n_runs"] == 1
     assert summary["diagnosis_top1_any"] == {"hits": 0, "n": 1, "fraction": 0.0}
     assert aggregate([])["mean_latency_seconds"] is None
+
+
+def test_captured_model_calls_survive_pipeline_failure(tmp_path):
+    calls = []
+
+    @contextmanager
+    def capture():
+        yield calls
+
+    def fail(*args, **kwargs):
+        calls.append({"status": "failed", "output_text": "original model response"})
+        raise RuntimeError("recorded failure")
+
+    pipeline = Mock()
+    pipeline.invoke.side_effect = fail
+    row = evaluate_case(
+        pipeline, CASE, repeat=1, output_dir=tmp_path,
+        recursion_limit=14, capture_calls=capture,
+    )
+
+    archived = json.loads((tmp_path / "raw" / "case_001_r1.json").read_text())
+    assert archived["llm_calls"] == calls
+    assert row["harness_error"] == "RuntimeError: recorded failure"
 
 
 def test_scoring_failure_preserves_raw_pipeline_output(tmp_path):

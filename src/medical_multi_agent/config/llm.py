@@ -13,11 +13,15 @@ server (e.g. a local vLLM instance) purely via environment variables:
 from __future__ import annotations
 
 from ipaddress import ip_address
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from langchain_openai import ChatOpenAI
 
 from .settings import get_settings
+
+if TYPE_CHECKING:
+    from .codex import CodexChatModel
 
 
 class LLMConfigurationError(ValueError):
@@ -34,9 +38,13 @@ def _is_local_endpoint(base_url: str) -> bool:
         return False
 
 
-def get_llm(temperature: float = 0.1) -> ChatOpenAI:
-    """Build a ChatOpenAI client honoring base-URL / local-model settings."""
+def get_llm(temperature: float = 0.1) -> ChatOpenAI | CodexChatModel:
+    """Select the configured transport; temperature applies only to OpenAI."""
     settings = get_settings()
+    if settings.llm_backend == "codex":
+        from .codex import CodexChatModel
+
+        return CodexChatModel(settings)
     if not settings.openai_api_key.strip() and not _is_local_endpoint(settings.openai_base_url):
         raise LLMConfigurationError(
             "Set OPENAI_API_KEY to use the configured remote LLM backend. "

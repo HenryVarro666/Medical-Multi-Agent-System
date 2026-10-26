@@ -17,6 +17,7 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 - [Architecture and Agent workflow](#architecture)
 - [End-to-end example](#end-to-end-example)
 - [Evaluation](#evaluation)
+- [Historical results](#historical-results)
 - [Docker](#docker)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
@@ -32,7 +33,7 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 | Offline API tools | Health, ICD-10 search/lookup, simplified DRG mapping, and DDI checks |
 | Evaluation | Five synthetic fixtures, preserved historical runs, and reproducible figures |
 
-The API and offline tools require no model server, GPU, or database. Full analysis requires a configured OpenAI-compatible model backend. Neo4j/FHIR helpers are outside the default workflow.
+The API and offline tools require no model server, GPU, or database. Full analysis requires a configured OpenAI-compatible backend or a locally installed, authenticated Codex CLI. Neo4j/FHIR helpers are outside the default workflow.
 
 ## Quick start
 
@@ -118,8 +119,25 @@ OPENAI_MODEL=your-served-model
 
 The configured model name must match the server. Keep the model server on a different port from the API. In Docker, use `host.docker.internal` for a backend running on the host.
 
+### Codex CLI with a ChatGPT subscription
+
+Install the [Codex CLI](https://learn.chatgpt.com/docs/cli), then run `codex login` and choose ChatGPT sign-in. Confirm with `codex login status`. Configure `.env`:
+
+```dotenv
+LLM_BACKEND=codex
+CODEX_MODEL=gpt-6-astra
+CODEX_REASONING_EFFORT=ultra
+LLM_TIMEOUT_SECONDS=300
+```
+
+Use a model available to your account. This adapter is tested with Codex CLI `0.163.0`; the model and effort above follow this project's selected run configuration. Saved CLI authentication is reused; this backend does not require `OPENAI_API_KEY`. Each Agent call starts a fresh ephemeral CLI process outside the repository. The original system prompt becomes the CLI instructions file and the original human prompt goes through stdin. CLI context and decoding differ from Chat Completions; the original temperature settings are not applied. See [evaluation protocol](evaluation/README.md) and [OpenAI's non-interactive CLI documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
+
 | Variable | Default | Meaning |
 |---|---|---|
+| `LLM_BACKEND` | `openai` | `openai` for compatible HTTP endpoints; `codex` for local CLI calls |
+| `CODEX_MODEL` | Empty | Required for Codex; explicitly selects an account-accessible model |
+| `CODEX_REASONING_EFFORT` | `ultra` | Reasoning effort passed explicitly to Codex |
+| `CODEX_CLI_PATH` | `codex` | CLI executable name or path |
 | `OPENAI_API_KEY` | Empty | Required for a remote backend; `local` is a placeholder for a local server |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Model identifier sent to the selected endpoint |
 | `OPENAI_BASE_URL` | Empty | OpenAI by default; set the full compatible endpoint for a local/custom server |
@@ -762,6 +780,8 @@ docker compose up --build --wait
 
 Docker Compose starts only the API. Full analysis still requires a configured model backend.
 
+The supplied container supports the OpenAI-compatible HTTP backend. Run the Codex backend on the host; the image does not include the CLI or your saved login.
+
 Try the same health and offline API requests from [quick start](#3-verify-the-offline-endpoints). For a host model server, use `OPENAI_BASE_URL=http://host.docker.internal:8001/v1`. `localhost` inside the container means the container itself.
 
 ```bash
@@ -815,6 +835,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for change and evidence requirements.
 | `uvicorn` or a package cannot be found | Use `uv run --locked python -m uvicorn ...`; with pip, activate the correct venv |
 | `.env` or sample data is not found | Start commands from the repository root; restart after changing settings |
 | Health works but analysis returns 503 | Configure the model credentials/endpoint; health does not check model readiness |
+| Codex backend fails | Run `codex login status`, confirm `CODEX_MODEL` access, and check the local CLI version and per-call timeout |
 | Analysis returns 200 with errors or missing sections | Inspect `errors`; check model connectivity, JSON output, model name, and server logs |
 | Local model connection fails | Start that server separately; use its actual model ID and endpoint, often ending in `/v1` |
 | Docker cannot reach the host model | Use `host.docker.internal`, not `localhost`; the model must accept host connections |

@@ -6,6 +6,8 @@ The runner executes the five synthetic cases in `data/sample_patients.json` thro
 
 From the repository root, install the package and configure `.env` as described in the main README. A working LLM backend is required for a live run.
 
+`LLM_BACKEND=openai` is the default and uses the configured OpenAI API or OpenAI-compatible server. The optional Codex CLI backend below uses the CLI's existing ChatGPT sign-in instead.
+
 ```bash
 python -m evaluation.run_eval --help
 python -m evaluation.run_eval --repeats 2
@@ -14,6 +16,36 @@ python -m evaluation.run_eval --output-dir /tmp/clinical-eval-new
 ```
 
 `--repeats` must be a positive integer. `--cases` accepts known, unique fixture IDs separated by commas. The default selects all five cases. `--help` and importing the scoring functions do not load LangGraph, construct an LLM client, or contact a backend.
+
+### Optional Codex CLI backend
+
+Install Codex CLI separately. From a local terminal, sign in with your ChatGPT account and check that the CLI reports a valid login:
+
+```bash
+codex login
+codex login status
+```
+
+The adapter invokes that authenticated CLI; it does not extract API keys or export login credentials. Calls use the signed-in account's available models and usage limits. Set `CODEX_MODEL` explicitly to a model that account can access. The `gpt-6-astra` example below follows the model selected for this project's run configuration; it is not a universal availability claim or model recommendation.
+
+Run the original five synthetic cases once with this backend:
+
+```bash
+LLM_BACKEND=codex CODEX_MODEL=gpt-6-astra CODEX_REASONING_EFFORT=ultra \
+LLM_TIMEOUT_SECONDS=300 uv run --locked python -m evaluation.run_eval --repeats 1
+```
+
+Alternatively, set these values in `.env`. `CODEX_CLI_PATH` defaults to `codex`; change it if the executable is elsewhere. `CODEX_REASONING_EFFORT` defaults to `ultra`. `LLM_TIMEOUT_SECONDS` is shared with the OpenAI-compatible backend and applies to each model invocation. `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_BASE_URL`, and `LLM_DISABLE_THINKING` configure the OpenAI-compatible path, not the Codex CLI path.
+
+Each case normally makes four model calls, for Intake, Diagnosis, Treatment, and Coding. Audit is deterministic. Diagnostic loopbacks can add Intake and Diagnosis calls, so five cases can require more than twenty model invocations.
+
+For each invocation, the adapter starts Codex in an isolated temporary working directory, ignores user configuration, disables tool features, and rejects any observed tool invocation. It passes the original system text through `model_instructions_file` and the human message through stdin. Codex or its backend may still supply additional context. Temperature is not configurable through this CLI path; the previous OpenAI-compatible temperature settings are not reproduced. This backend therefore does not recreate the historical Qwen model context or inference configuration.
+
+New runs retain per-case `llm_calls` traces with submitted prompt text, returned content, and safe CLI metadata and usage when available, together with run provenance metadata. Review these records before publishing a new run. No new inference results are implied by the configuration example above.
+
+To plot a new run, use its `eval_results.json` with `evaluation.plot_results --results ... --label "Codex CLI run" --prefix codex-run`. Choose a distinct prefix so the preserved historical figures remain unchanged.
+
+### Output files and provenance
 
 By default, each run creates a new directory under `evaluation/results/runs/` with:
 
