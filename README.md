@@ -118,12 +118,13 @@ In terminal 2, run:
 ```bash
 curl --fail http://127.0.0.1:8000/health
 curl --fail http://127.0.0.1:8000/api/v1/clinical/icd10/J18.9
+curl --fail http://127.0.0.1:8000/api/v1/clinical/icd10/validate/I21.09
 curl --fail http://127.0.0.1:8000/api/v1/clinical/ddi/check \
   -H 'Content-Type: application/json' \
   -d '{"new_drugs":["warfarin"],"current_drugs":["aspirin"]}'
 ```
 
-All three requests should return HTTP 200. The DDI example should report `has_major_interaction: true`. Open [Swagger UI](http://127.0.0.1:8000/docs) to inspect and try the endpoints.
+All four requests should return HTTP 200. The validation example should report `valid: true` for the pinned FY2027 complete code. The DDI example should report `has_major_interaction: true`. Open [Swagger UI](http://127.0.0.1:8000/docs) to inspect and try the endpoints.
 
 `/health` reports process liveness. It does not test model readiness. Continue with model configuration before calling `/clinical/analyze`.
 
@@ -218,7 +219,7 @@ See the [API reference](docs/api.md) for schemas and all endpoints. The [archive
 
 [![System architecture: FastAPI invokes a sequential LangGraph workflow with ClinicalState, an OpenAI-compatible backend, bundled retrieval and treatment rules, plus standalone ICD-10/DRG tools.](docs/assets/architecture/system-architecture.png)](docs/assets/architecture/system-architecture.svg)
 
-The four LLM stages share the client factory. Audit runs deterministic checks after model calls. State lasts for one invocation by default; checkpoint retention is opt-in.
+The four LLM stages share the client factory. Coding additionally applies offline official catalog validation; Audit runs deterministic checks after model calls. State lasts for one invocation by default; checkpoint retention is opt-in.
 
 <a id="workflow"></a>
 
@@ -248,7 +249,7 @@ flowchart LR
 
 ## End-to-end example
 
-This walkthrough preserves `case_001`, repeat 1, recorded on July 13, 2026 with `Qwen/Qwen3-14B`. It comes from a direct graph invocation by the evaluation harness; it is a historical result, not a new execution. The [current two-model comparison](#current-model-comparison) provides separate, newly executed traces for the same case.
+This walkthrough preserves `case_001`, repeat 1, recorded on July 13, 2026 with `Qwen/Qwen3-14B`. It comes from a direct graph invocation by the evaluation harness; it is a historical result, not a new execution. The [current coding-v2 comparison](#current-model-comparison) provides separate, newly executed traces for the same case.
 
 [![Historical case_001: input, five key Agent outputs, and a 27.10-second final result with an exact ICD-10 mismatch.](docs/assets/examples/case-001-walkthrough.png)](docs/assets/examples/case-001-walkthrough.svg)
 
@@ -751,7 +752,53 @@ The old code claimed masking and verified deployment controls without establishi
 
 ### Current model comparison
 
-Coding-validation v2 now supplies the original narrative/full patient record, a versioned coding contract, and offline complete-code validation. Its two-case references preserve `J18.1` and refine the incomplete `I21.0` target to `I21.09` using official Index/Tabular evidence. New live results will be archived separately; the v1 observations below remain unchanged.
+**Coding-validation v2 · October 26, 2026.** Both models completed `case_001` and `case_002` with all five Agent sections and no pipeline/harness errors in the selected complete batches. Coding now receives the exact original narrative and full patient information, and validates every primary/secondary proposal against the packaged official FY2027 catalog. All 20 proposed code instances in these four outputs are complete catalog entries; this checks structure/membership, not clinical appropriateness.
+
+The same two narratives, medium reasoning, 600-second per-call timeout, zero diagnosis loopbacks, Codex CLI 0.163.0 and clean source `426d108` were used. The v2 label file pins FY2027: `J18.1` is retained as a provisional pneumonia target; the incomplete `I21.0` parent is refined to `I21.09` using official Index/Tabular evidence. Neither reference is independently clinically adjudicated. Reference labels and revision metadata never enter model prompts.
+
+[![Coding v2: diagnosis aliases, versioned exact-code agreement, complete-code validation, and stage execution compared between two models.](docs/assets/evaluation/coding-v2-2026-10-26-metrics.png)](docs/assets/evaluation/coding-v2-2026-10-26-metrics.svg)
+
+[![Coding v2 elapsed times: gpt-6.1-sol mean 101.79 seconds; gpt-6-astra mean 126.77 seconds.](docs/assets/evaluation/coding-v2-2026-10-26-latency.png)](docs/assets/evaluation/coding-v2-2026-10-26-latency.svg)
+
+| Recorded check | `gpt-6.1-sol` | `gpt-6-astra` |
+|---|---:|---:|
+| Complete five-stage outputs without errors | 2/2 | 2/2 |
+| Top-1 diagnosis, strict alias | 1/2 (50%) | 2/2 (100%) |
+| Top-1 diagnosis, either alias | 2/2 (100%) | 2/2 (100%) |
+| Top-3 diagnosis, either alias | 2/2 (100%) | 2/2 (100%) |
+| Exact **v2** complete-code reference | 1/2 (50%) | 1/2 (50%) |
+| ICD-10 category prefix | 2/2 (100%) | 2/2 (100%) |
+| Primary code valid and complete | 2/2 (100%) | 2/2 (100%) |
+| Primary and all secondary codes valid/complete | 2/2 (100%) | 2/2 (100%) |
+| Treatment structure complete | 2/2 (100%) | 2/2 (100%) |
+| DDI check executed | 2/2 (100%) | 2/2 (100%) |
+| Audit report produced | 2/2 (100%) | 2/2 (100%) |
+| Mean elapsed time | 101.79 s | 126.77 s |
+
+Both models still chose `J18.9` for case_001 and `I21.09` for case_002. Thus v2 exact agreement is **1/2**, while agreement with the frozen legacy labels remains **0/2**. Valid code membership does not make `J18.9` equal to `J18.1`. The pneumonia reference distinction still needs an independent coding review.
+
+| Exact-agreement comparison | `gpt-6.1-sol` | `gpt-6-astra` |
+|---|---:|---:|
+| Original v1 predictions against original labels (unchanged archive) | 0/2 | 0/2 |
+| Original v1 predictions against v2 labels (**post-hoc rescore**) | 1/2 | 1/2 |
+| New v2 predictions against the same v2 labels | 1/2 | 1/2 |
+
+The 0% → 50% difference comes from the reference refinement in this comparison; it is **not demonstrated primary-code improvement**. The implemented gains are explicit patient-context preservation and deterministic code-validation/error handling, covered by regression tests and the recorded prompts/reports. See [label-transition calculations](evaluation/results/coding-v2-2026-10-26/label_transition.json).
+
+| Complete raw trace | Model | Primary code | Secondary codes | Time |
+|---|---|---|---|---:|
+| [case_001](evaluation/results/coding-v2-2026-10-26/gpt-6.1-sol/raw/case_001_r1.json) | `gpt-6.1-sol` | `J18.9` | E11.9, I10, Z88.0, Z79.84 | 89.57 s |
+| [case_001](evaluation/results/coding-v2-2026-10-26/gpt-6-astra/raw/case_001_r1.json) | `gpt-6-astra` | `J18.9` | E11.9, I10, Z88.0, Z79.84 | 120.04 s |
+| [case_002](evaluation/results/coding-v2-2026-10-26/gpt-6.1-sol/raw/case_002_r1.json) | `gpt-6.1-sol` | `I21.09` | E78.5, Z87.891, Z82.49, Z79.82 | 114.01 s |
+| [case_002](evaluation/results/coding-v2-2026-10-26/gpt-6-astra/raw/case_002_r1.json) | `gpt-6-astra` | `I21.09` | E78.5, Z87.891, Z82.49, Z79.82 | 133.50 s |
+
+All four Coding prompts retain the narrative and structured patient record. Both models now include `I10` in case_001 and `Z87.891` in case_002. Their presence and catalog validity are observations, not independent confirmation that all secondary coding decisions are appropriate. Original model descriptions/output remain available alongside canonical catalog descriptions. `clinical_review_required` stays true even after structural validation passes.
+
+Sol's case_001 is classified as a compatible diagnosis alias because “community-acquired right lower lobe pneumonia” does not contain the strict matcher's contiguous phrase “community-acquired pneumonia.” Either-tier matching passes; the strict score difference reflects a documented limitation of the unchanged substring scorer.
+
+**Attempt accounting:** the first Sol two-case batch failed in Codex transport before Coding during a host sleep/wake interval. Its two failed pipeline observations and raw responses are [retained unchanged](evaluation/results/coding-v2-2026-10-26/attempts/README.md). After recovery, the entire Sol batch was repeated with the same code, prompts, labels and settings. The selected complete batches above contain four successful pipelines/16 completed CLI invocations; across all three batches, four of six pipeline attempts completed without errors. Failed infrastructure observations are excluded from this complete-stage output/timing comparison, not erased or reclassified as valid coding.
+
+With two cases and one repeat, these outputs establish neither clinical accuracy nor a general model ranking. Timing is not a controlled before/after speed benchmark. The [v2 archive/protocol](evaluation/results/coding-v2-2026-10-26/README.md) records source, dataset/catalog hashes, chronology, failures and reproduction commands. The original v1 and July results below remain unchanged.
 
 ### Previous model comparison (v1)
 
@@ -782,7 +829,7 @@ Both models produced `J18.9` for the pneumonia case and `I21.09` for the STEMI c
 
 There is also a label-quality problem. The [CMS FY 2027 code files](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip) list `I21.0` as a parent/header with more specific children including `I21.09`; it is absent from the complete-code list. Yet the Coding prompt asks for the most specific code. The v1 fixtures did not specify a coding-year or encounter-setting contract, and their labels have not been independently adjudicated. This structural mismatch does not establish that `I21.09` is the correct code for this vignette.
 
-For pneumonia, the retrieval map supplies `J18.9`, which both models retain, while the fixture expects `J18.1`. That suggests a possible anchoring effect, not a proven cause; an ablation is needed. **Keep the recorded 0% as fixture-label agreement, not clinical coding accuracy.** A future, versioned evaluation should review the labels, validate catalog membership and specificity, and report expert-adjudicated acceptability separately. The legacy lookup validator checks only a small demonstration subset; v2 now uses a separate complete official catalog.
+For pneumonia, the retrieval map supplies `J18.9`, which both models retain, while the fixture expects `J18.1`. That suggests a possible anchoring effect, not a proven cause; an ablation is needed. **Keep the recorded 0% as fixture-label agreement, not clinical coding accuracy.** V2 adds a versioned complete-code reference and official catalog validation; expert-adjudicated acceptability and patient-specific specificity still need separate evaluation. The legacy lookup validator checks only a small demonstration subset; v2 uses a separate complete official catalog.
 
 | Complete raw trace | Model | Expected → generated ICD-10 | More information requested | Elapsed time |
 |---|---|---|---|---:|
@@ -896,6 +943,10 @@ uv run --locked --extra plots python -m evaluation.plot_results
 uv run --locked --extra plots python -m evaluation.plot_comparison \
   --results evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/eval_results.json \
   evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/eval_results.json
+uv run --locked --extra plots python -m evaluation.plot_comparison \
+  --results evaluation/results/coding-v2-2026-10-26/gpt-6.1-sol/eval_results.json \
+  evaluation/results/coding-v2-2026-10-26/gpt-6-astra/eval_results.json \
+  --prefix coding-v2-2026-10-26
 uv run --locked --extra plots python -m evaluation.draw_architecture
 uv run --locked --extra plots python -m evaluation.draw_case
 ```
@@ -906,7 +957,7 @@ These commands read local data and make no model calls. The optional `plots` dep
 
 ```text
 src/medical_multi_agent/   Agents, graph, API, models, configuration, services
-data/                     Five synthetic vignette fixtures
+data/                     Original five vignettes and versioned coding-v2 references
 tests/                    Offline regression tests
 evaluation/               Runner, scoring, figure generators, historical artifacts
 docs/                     Architecture, API reference, and image assets
@@ -952,7 +1003,7 @@ The recorded runs establish that the demo can execute and archive its outputs. C
 | Evaluation coverage | Two synthetic cases per current model, one repeat, substring diagnosis aliases without negation handling, and structural completion checks. No held-out cohort, clinician/coder review, single-model baseline, or retrieval ablation. | Tied scores and different timings on two observations do not establish comparative clinical quality, reliability, or GraphRAG benefit. |
 | Medication and audit checks | Curated DDI/allergy rules cover a small subset; medication presence and execution stamps do not assess dose or treatment appropriateness. Audit runs after model calls. | Returning a plan/audit is not a safety or compliance result. The current pipeline does not redact all data before remote inference. |
 | Persistence and serving | No default patient database, durable audit store, resumable API conversation, authentication, or distributed job queue. | JSON experiment archives do not provide a multi-user application storage or access-control layer. |
-| Latency and failure evidence | Four sequential model stages, CLI startup/transport overhead, and possible loopbacks. The earlier `ultra` pilot timed out; timeout traces lack a completed event stream. | Latency depends on the full protocol and backend. Empty timeout usage/tool fields are missing evidence; token/cost totals cannot be treated as complete. |
+| Latency and failure evidence | Four sequential model stages, CLI startup/transport overhead, and possible loopbacks. The earlier `ultra` pilot timed out; a v2 attempt also suffered transport errors during host sleep/wake. Incomplete traces lack reliable completion evidence. | Latency depends on the full protocol and backend. Empty timeout usage/tool fields are missing evidence; token/cost totals cannot be treated as complete. |
 
 ### Storage and retrieval alternatives
 

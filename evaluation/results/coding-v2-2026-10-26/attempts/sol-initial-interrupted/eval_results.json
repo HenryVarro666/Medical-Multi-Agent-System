@@ -1,0 +1,196 @@
+{
+  "meta": {
+    "timestamp": "2026-10-26T19:27:25.995771+00:00",
+    "llm_backend": "codex",
+    "llm_timeout_seconds": 600.0,
+    "max_diagnosis_retries": 0,
+    "lockfile_sha256": "e77ef46b3b831dc221171cab9849a0490111936605cd5cade0a6720575b2ce1f",
+    "model": "gpt-6.1-sol",
+    "base_url": "",
+    "backend": "Codex CLI (saved ChatGPT authentication)",
+    "codex_cli_version": "codex-cli 0.163.0",
+    "reasoning_effort": "medium",
+    "temperature": "unsupported by Codex CLI; original agent temperatures not applied",
+    "prompt_transport": "original system text as model_instructions_file; original human text on stdin",
+    "model_revision": "unavailable; model name is requested, backend resolution not exposed",
+    "cli_retries": "no adapter retries; CLI transport recovery may occur internally",
+    "isolation": "fresh ephemeral exec in a temporary directory per call; user config ignored",
+    "n_cases": 2,
+    "repeats": 1,
+    "python_version": "3.12.13",
+    "fixture_sha256": "6767812b05debc7f6db5f1e873eb952bc7de8a0359e5f2c447b7644df0e8ccff",
+    "dataset_version": "coding-v2-fy2027",
+    "scoring_version": "coding-validation-v2",
+    "label_policy": {
+      "date": "2026-10-26",
+      "scope": "Reference-code granularity and catalog membership only; no independent clinical coding adjudication",
+      "source": "https://www.cms.gov/files/zip/2027-code-tables-tabular-index.zip",
+      "source_sha256": "37baa476323714be16f95c9b2c96812bf6f3623d9f15188866e584dc529b0298",
+      "narratives": "Unchanged from original case_001 and case_002; reference labels and revision notes are never passed to the model."
+    },
+    "coding_catalog": {
+      "catalog": {
+        "filename": "icd10cm_fy2027.json.gz",
+        "sha256": "0f6ab0461f99974a0927bbaa7451cfb8d5115a146df03a3e281a452e61d7c0bf",
+        "uncompressed_sha256": "41d9c28b751a3b7322077efe563b070f9ca44220c1ad491e1591af0404055f59"
+      },
+      "code_set": "ICD-10-CM",
+      "counts": {
+        "complete_codes": 74879,
+        "non_reportable_headers": 23524,
+        "total_entries": 98403
+      },
+      "release": "FY2027",
+      "schema_version": 1,
+      "scope": "Official release membership and long descriptions only. Complete-code status does not establish clinical appropriateness, sequencing or encounter-specific coding.",
+      "source": {
+        "members": {
+          "Code Descriptions/icd10cm_codes_2027.txt": {
+            "lines": 74879,
+            "sha256": "3c0583a38ee0e848f7dc0ac8ce88e8f001bbba8c6385ed825d44d46f6e5297c9"
+          },
+          "Code Descriptions/icd10cm_order_2027.txt": {
+            "lines": 98403,
+            "sha256": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f"
+          }
+        },
+        "sha256": "91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965",
+        "url": "https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip"
+      }
+    },
+    "coding_context": {
+      "code_set": "ICD-10-CM",
+      "release": "FY2027",
+      "encounter_setting": "Unspecified synthetic research vignette; encounter setting is not documented.",
+      "documentation_policy": "Use the original narrative and structured patient facts. Do not infer an undocumented disease, culprit artery, causal relationship, or completed procedure from medications, test findings, a treatment proposal, or retrieval hints alone.",
+      "code_selection_policy": "Choose the most specific documented, supported complete code. Catalog candidates are hints, not required answers or evidence that a condition is present. Document unresolved coding assumptions; a code's existence does not establish clinical correctness.",
+      "drg_policy": "Do not assume an inpatient encounter or completed procedure. Use null for an unresolved DRG; any estimate is unverified and requires the applicable grouper and documentation."
+    },
+    "git_revision": "426d108f0c5f2c5af398b939970186526d717878",
+    "git_dirty": false,
+    "completed_at": "2026-10-26T22:20:55.489952+00:00"
+  },
+  "aggregate": {
+    "n_runs": 2,
+    "diagnosis_top1_strict": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "diagnosis_top1_any": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "diagnosis_top3_any": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "icd10_exact": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "icd10_category": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "treatment_structure_complete": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "ddi_engine_checked": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "audit_completed": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "icd10_primary_catalog_valid": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "icd10_all_codes_catalog_valid": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "mean_latency_seconds": 190.88
+  },
+  "per_case": [
+    {
+      "case_id": "case_001",
+      "repeat": 1,
+      "expected_diagnosis": "Community-Acquired Pneumonia",
+      "predicted_diagnosis": "",
+      "diagnosis_top1": "miss",
+      "diagnosis_top1_strict": false,
+      "diagnosis_top1_any": false,
+      "diagnosis_top3_any": false,
+      "expected_icd10": "J18.1",
+      "predicted_icd10": "",
+      "icd10_exact": false,
+      "icd10_category": false,
+      "legacy_expected_icd10": "J18.1",
+      "icd10_exact_legacy_label": false,
+      "icd10_primary_catalog_valid": false,
+      "icd10_all_codes_catalog_valid": false,
+      "treatment_structure_complete": false,
+      "ddi_engine_checked": false,
+      "ddi_engine_flags": 0,
+      "allergy_alerts": 0,
+      "graphrag_candidates_retrieved": 0,
+      "graphrag_top_candidate": "",
+      "audit_completed": true,
+      "diagnosis_attempts": 1,
+      "pipeline_errors": [
+        "Diagnosis error: Codex CLI reported an error item.",
+        "No diagnosis available for treatment planning",
+        "No diagnosis available for coding"
+      ],
+      "harness_error": null,
+      "latency_seconds": 359.56
+    },
+    {
+      "case_id": "case_002",
+      "repeat": 1,
+      "expected_diagnosis": "ST-Elevation Myocardial Infarction (STEMI)",
+      "predicted_diagnosis": "",
+      "diagnosis_top1": "miss",
+      "diagnosis_top1_strict": false,
+      "diagnosis_top1_any": false,
+      "diagnosis_top3_any": false,
+      "expected_icd10": "I21.09",
+      "predicted_icd10": "",
+      "icd10_exact": false,
+      "icd10_category": false,
+      "legacy_expected_icd10": "I21.0",
+      "icd10_exact_legacy_label": false,
+      "icd10_primary_catalog_valid": false,
+      "icd10_all_codes_catalog_valid": false,
+      "treatment_structure_complete": false,
+      "ddi_engine_checked": false,
+      "ddi_engine_flags": 0,
+      "allergy_alerts": 0,
+      "graphrag_candidates_retrieved": 0,
+      "graphrag_top_candidate": "",
+      "audit_completed": true,
+      "diagnosis_attempts": 1,
+      "pipeline_errors": [
+        "Intake error: Codex CLI reported a failed turn.",
+        "No patient info available for diagnosis",
+        "No diagnosis available for treatment planning",
+        "No diagnosis available for coding"
+      ],
+      "harness_error": null,
+      "latency_seconds": 22.2
+    }
+  ]
+}

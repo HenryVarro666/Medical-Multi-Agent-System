@@ -1,0 +1,144 @@
+{
+  "case": {
+    "id": "case_002",
+    "description": "62-year-old female with sudden onset of crushing chest pain radiating to the left arm for 2 hours, associated with diaphoresis, nausea, and shortness of breath. History of hyperlipidemia, smoking (30 pack-years, quit 2 years ago), and family history of MI (father at age 55). Current medications: atorvastatin 40mg daily, aspirin 81mg daily. No known allergies. Vital signs: BP 160/95, HR 110, RR 24, SpO2 96%. ECG shows ST elevation in leads V1-V4. Troponin I: 4.5 ng/mL (markedly elevated).",
+    "expected_diagnosis": "ST-Elevation Myocardial Infarction (STEMI)",
+    "expected_icd10": "I21.09",
+    "legacy_expected_icd10": "I21.0",
+    "label_status": "structurally reviewed research reference; not independently clinically adjudicated",
+    "label_revision_rationale": "Replace non-reportable parent I21.0 with complete anterior-wall NOS code I21.09. The official FY2027 Index anterior STEMI entry and Tabular anterior-wall NOS inclusion support this refinement; no documented culprit artery is assumed."
+  },
+  "pipeline_output": {
+    "patient_info": null,
+    "diagnosis": null,
+    "treatment_plan": null,
+    "coding_result": null,
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": true,
+          "detail": "No PHI detected"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        }
+      ],
+      "phi_fields_found": [],
+      "phi_fields_masked": [],
+      "audit_trail": [
+        {
+          "timestamp": "2026-10-26T22:20:55.488434+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 0 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-10-26T22:20:55.488497+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Review failed compliance checks and remediate",
+        "Review deployment access, encryption, retention and audit storage controls. This report does not establish HIPAA compliance."
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": [
+      "Intake error: Codex CLI reported a failed turn.",
+      "No patient info available for diagnosis",
+      "No diagnosis available for treatment planning",
+      "No diagnosis available for coding"
+    ],
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 22.2,
+  "llm_calls": [
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6.1-sol",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert medical intake specialist. Your job is to extract structured patient information from the provided clinical narrative.\n\nExtract the following fields as a JSON object:\n{\n  \"name\": \"patient name or 'Unknown'\",\n  \"age\": <integer>,\n  \"gender\": \"male|female|other|unknown\",\n  \"chief_complaint\": \"main reason for visit\",\n  \"symptoms\": [\n    {\"name\": \"symptom name\", \"duration_days\": <int or null>, \"severity\": \"mild|moderate|severe|critical\", \"description\": \"details\"}\n  ],\n  \"medical_history\": [\"list of past conditions\"],\n  \"family_history\": [\"list of family conditions\"],\n  \"allergies\": [\n    {\"substance\": \"name\", \"reaction\": \"description\", \"severity\": \"mild|moderate|severe\"}\n  ],\n  \"current_medications\": [\n    {\"name\": \"drug name\", \"dosage\": \"dose\", \"frequency\": \"how often\"}\n  ],\n  \"vital_signs\": {\n    \"temperature\": <float or null>,\n    \"heart_rate\": <int or null>,\n    \"blood_pressure_systolic\": <int or null>,\n    \"blood_pressure_diastolic\": <int or null>,\n    \"respiratory_rate\": <int or null>,\n    \"oxygen_saturation\": <float or null>\n  },\n  \"lab_results\": [\n    {\"test_name\": \"name\", \"value\": \"result\", \"unit\": \"unit\", \"reference_range\": \"range\", \"is_abnormal\": true/false}\n  ]\n}\n\nRules:\n- If a field is not mentioned, use reasonable defaults or null.\n- Age must be a positive integer. If unclear, estimate from context.\n- Always identify the chief complaint even if not explicitly stated.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "5e16ad3b558875829e79aa0f459b49616741776d3bfc8eac24da9c17d28b728b"
+        },
+        {
+          "role": "human",
+          "content": "Patient narrative:\n\n62-year-old female with sudden onset of crushing chest pain radiating to the left arm for 2 hours, associated with diaphoresis, nausea, and shortness of breath. History of hyperlipidemia, smoking (30 pack-years, quit 2 years ago), and family history of MI (father at age 55). Current medications: atorvastatin 40mg daily, aspirin 81mg daily. No known allergies. Vital signs: BP 160/95, HR 110, RR 24, SpO2 96%. ECG shows ST elevation in leads V1-V4. Troponin I: 4.5 ng/mL (markedly elevated).",
+          "sha256": "a809209bd24befff5b37239613dd55bbf4a363d4977ced4a8444870953c36e59"
+        }
+      ],
+      "prompt_sha256": "07151d94a8e99d32b05b239a3b8e28b974b53c1fc56bab33e069372cb660934d",
+      "output_text": "{\n  \"name\": \"Unknown\",\n  \"age\": 62,\n  \"gender\": \"female\",\n  \"chief_complaint\": \"Sudden crushing chest pain radiating to the left arm for 2 hours\",\n  \"symptoms\": [\n    {\n      \"name\": \"Chest pain\",\n      \"duration_days\": 0,\n      \"severity\": \"severe\",\n      \"description\": \"Sudden onset of crushing chest pain radiating to the left arm, lasting 2 hours.\"\n    },\n    {\n      \"name\": \"Diaphoresis\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Sweating associated with the 2-hour episode of chest pain.\"\n    },\n    {\n      \"name\": \"Nausea\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Nausea associated with the 2-hour episode of chest pain.\"\n    },\n    {\n      \"name\": \"Shortness of breath\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Shortness of breath associated with the 2-hour episode of chest pain.\"\n    }\n  ],\n  \"medical_history\": [\n    \"Hyperlipidemia\",\n    \"Former smoker: 30 pack-years; quit 2 years ago\"\n  ],\n  \"family_history\": [\n    \"Father had myocardial infarction at age 55\"\n  ],\n  \"allergies\": [],\n  \"current_medications\": [\n    {\n      \"name\": \"Atorvastatin\",\n      \"dosage\": \"40 mg\",\n      \"frequency\": \"Daily\"\n    },\n    {\n      \"name\": \"Aspirin\",\n      \"dosage\": \"81 mg\",\n      \"frequency\": \"Daily\"\n    }\n  ],\n  \"vital_signs\": {\n    \"temperature\": null,\n    \"heart_rate\": 110,\n    \"blood_pressure_systolic\": 160,\n    \"blood_pressure_diastolic\": 95,\n    \"respiratory_rate\": 24,\n    \"oxygen_saturation\": 96.0\n  },\n  \"lab_results\": [\n    {\n      \"test_name\": \"Troponin I\",\n      \"value\": \"4.5\",\n      \"unit\": \"ng/mL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"ECG\",\n      \"value\": \"ST elevation in leads V1-V4\",\n      \"unit\": null,\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    }\n  ]\n}",
+      "output_sha256": "303356d0a6abec25502138de2399266dfc067065abe7ea7778e6b54bbcb05324",
+      "usage": {
+        "input_tokens": 14265,
+        "cached_input_tokens": 3072,
+        "output_tokens": 611,
+        "reasoning_output_tokens": 55
+      },
+      "elapsed_seconds": 22.195,
+      "status": "failed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "error",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": "Codex CLI reported a failed turn."
+    }
+  ]
+}

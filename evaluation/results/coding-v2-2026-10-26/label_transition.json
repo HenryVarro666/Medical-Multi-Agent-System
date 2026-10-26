@@ -1,0 +1,74 @@
+{
+  "description": "Post-hoc exact-string rescoring only; no historical artifact or claim of clinical correctness is changed. References were revised after v1 result review using official catalog evidence.",
+  "new_dataset_version": "coding-v2-fy2027",
+  "models": {
+    "gpt-6.1-sol": {
+      "v1_original_reference_exact": {
+        "hits": 0,
+        "n": 2,
+        "fraction": 0.0
+      },
+      "v1_predictions_scored_against_v2_references": {
+        "hits": 1,
+        "n": 2,
+        "fraction": 0.5,
+        "post_hoc": true
+      },
+      "v2_predictions_v2_reference_exact": {
+        "hits": 1,
+        "n": 2,
+        "fraction": 0.5
+      },
+      "v2_predictions_legacy_reference_exact": {
+        "hits": 0,
+        "n": 2
+      },
+      "cases": [
+        {
+          "id": "case_001",
+          "old_reference": "J18.1",
+          "new_reference": "J18.1"
+        },
+        {
+          "id": "case_002",
+          "old_reference": "I21.0",
+          "new_reference": "I21.09"
+        }
+      ]
+    },
+    "gpt-6-astra": {
+      "v1_original_reference_exact": {
+        "hits": 0,
+        "n": 2,
+        "fraction": 0.0
+      },
+      "v1_predictions_scored_against_v2_references": {
+        "hits": 1,
+        "n": 2,
+        "fraction": 0.5,
+        "post_hoc": true
+      },
+      "v2_predictions_v2_reference_exact": {
+        "hits": 1,
+        "n": 2,
+        "fraction": 0.5
+      },
+      "v2_predictions_legacy_reference_exact": {
+        "hits": 0,
+        "n": 2
+      },
+      "cases": [
+        {
+          "id": "case_001",
+          "old_reference": "J18.1",
+          "new_reference": "J18.1"
+        },
+        {
+          "id": "case_002",
+          "old_reference": "I21.0",
+          "new_reference": "I21.09"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,790 @@
+{
+  "case": {
+    "id": "case_001",
+    "description": "45-year-old male presenting with fever (39.2\u00b0C) for 3 days, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing. History of type 2 diabetes (diagnosed 5 years ago) and hypertension. Current medications: metformin 500mg twice daily, lisinopril 10mg daily. Allergies: penicillin (causes rash). Vital signs: BP 130/85, HR 102, RR 22, SpO2 94% on room air. Labs: WBC 15,000/\u03bcL (elevated), CRP 85 mg/L (elevated), procalcitonin 2.1 ng/mL (elevated). Chest X-ray shows right lower lobe consolidation.",
+    "expected_diagnosis": "Community-Acquired Pneumonia",
+    "expected_icd10": "J18.1",
+    "legacy_expected_icd10": "J18.1",
+    "label_status": "structurally reviewed research reference; not independently clinically adjudicated",
+    "label_revision_rationale": "Retain J18.1, the original complete-code reference. Lobar versus unspecified pneumonia remains a provisional annotation distinction; do not change it to J18.9 to fit existing model predictions."
+  },
+  "pipeline_output": {
+    "patient_info": {
+      "patient_id": null,
+      "name": "Unknown",
+      "age": 45,
+      "gender": "male",
+      "chief_complaint": "Fever, productive cough, and right-sided pleuritic chest pain",
+      "symptoms": [
+        {
+          "name": "Fever",
+          "duration_days": 3,
+          "severity": "moderate",
+          "description": "Temperature of 39.2\u00b0C"
+        },
+        {
+          "name": "Productive cough",
+          "duration_days": null,
+          "severity": "moderate",
+          "description": "Cough with yellow sputum; severity not explicitly stated"
+        },
+        {
+          "name": "Right-sided chest pain",
+          "duration_days": null,
+          "severity": "moderate",
+          "description": "Worsens with deep breathing; severity not explicitly stated"
+        }
+      ],
+      "medical_history": [
+        "Type 2 diabetes mellitus diagnosed 5 years ago",
+        "Hypertension"
+      ],
+      "family_history": [],
+      "allergies": [
+        {
+          "substance": "Penicillin",
+          "reaction": "Rash",
+          "severity": "mild"
+        }
+      ],
+      "current_medications": [
+        {
+          "name": "Metformin",
+          "dosage": "500 mg",
+          "frequency": "Twice daily",
+          "start_date": null
+        },
+        {
+          "name": "Lisinopril",
+          "dosage": "10 mg",
+          "frequency": "Daily",
+          "start_date": null
+        }
+      ],
+      "vital_signs": {
+        "temperature": 39.2,
+        "heart_rate": 102,
+        "blood_pressure_systolic": 130,
+        "blood_pressure_diastolic": 85,
+        "respiratory_rate": 22,
+        "oxygen_saturation": 94.0
+      },
+      "lab_results": [
+        {
+          "test_name": "WBC",
+          "value": "15000",
+          "unit": "/\u03bcL",
+          "reference_range": null,
+          "is_abnormal": true
+        },
+        {
+          "test_name": "CRP",
+          "value": "85",
+          "unit": "mg/L",
+          "reference_range": null,
+          "is_abnormal": true
+        },
+        {
+          "test_name": "Procalcitonin",
+          "value": "2.1",
+          "unit": "ng/mL",
+          "reference_range": null,
+          "is_abnormal": true
+        },
+        {
+          "test_name": "Chest X-ray",
+          "value": "Right lower lobe consolidation",
+          "unit": null,
+          "reference_range": null,
+          "is_abnormal": true
+        }
+      ],
+      "raw_input": null,
+      "created_at": "2026-10-26T17:21:06.784744"
+    },
+    "diagnosis": {
+      "primary_diagnosis": {
+        "disease_name": "Right lower lobe community-acquired pneumonia, likely bacterial",
+        "icd10_hint": "J18.9",
+        "confidence": 0.95,
+        "evidence": [
+          "Right lower lobe consolidation on chest X-ray",
+          "Fever of 39.2\u00b0C with productive cough and yellow sputum",
+          "Right-sided pleuritic chest pain",
+          "WBC 15,000/\u03bcL, CRP 85 mg/L, and procalcitonin 2.1 ng/mL",
+          "Heart rate 102/min, respiratory rate 22/min, and oxygen saturation 94%"
+        ],
+        "reasoning": "The acute febrile respiratory illness with focal consolidation strongly supports pneumonia. Elevated inflammatory markers and procalcitonin favor a bacterial cause but do not establish the pathogen. Pneumococcus is a plausible cause; community acquisition should be confirmed by exposure history."
+      },
+      "differential_list": [
+        {
+          "disease_name": "Viral pneumonia, including influenza or COVID-19, with possible bacterial coinfection",
+          "icd10_hint": "J12.9",
+          "confidence": 0.2,
+          "evidence": [
+            "Acute fever and cough",
+            "Oxygen saturation 94%",
+            "Radiographic pulmonary consolidation"
+          ],
+          "reasoning": "Influenza and SARS-CoV-2 can cause pneumonia or predispose to secondary bacterial pneumonia. Focal lobar consolidation and elevated procalcitonin favor bacterial infection over isolated viral pneumonia; viral testing is needed."
+        },
+        {
+          "disease_name": "Parapneumonic effusion or empyema complicating pneumonia",
+          "icd10_hint": "J90 / J86.9",
+          "confidence": 0.12,
+          "evidence": [
+            "Right-sided pleuritic chest pain",
+            "High fever and elevated inflammatory markers",
+            "Adjacent right lower lobe consolidation"
+          ],
+          "reasoning": "Pleural infection or an inflammatory effusion could accompany the pneumonia, although no effusion is reported on the radiograph. Ultrasound is appropriate if examination suggests fluid or fever and pain persist despite treatment."
+        },
+        {
+          "disease_name": "Pulmonary embolism with pulmonary infarction",
+          "icd10_hint": "I26.99",
+          "confidence": 0.05,
+          "evidence": [
+            "Pleuritic chest pain",
+            "Tachycardia and mild tachypnea",
+            "Oxygen saturation 94%",
+            "Focal pulmonary opacity"
+          ],
+          "reasoning": "Pulmonary infarction can mimic focal pneumonia. However, high fever, purulent sputum, and elevated procalcitonin make infection substantially more likely. Investigate if thromboembolic risk factors, disproportionate hypoxemia, hemoptysis, or an unexpected clinical course are present."
+        }
+      ],
+      "recommended_tests": [
+        "Repeat vital signs and oxygen saturation; clarify whether saturation was measured on room air and assess mental status, respiratory effort, hydration, and urine output.",
+        "Measure urea/BUN, creatinine, electrolytes, and glucose to assess organ function and support pneumonia severity scoring.",
+        "Obtain influenza and SARS-CoV-2 nucleic acid testing when locally circulating or clinically indicated.",
+        "Obtain sputum culture and blood cultures if severe pneumonia, resistant-pathogen risk factors, or suspected sepsis are present; these are not routinely necessary for uncomplicated outpatient pneumonia.",
+        "Perform chest ultrasound if pleural effusion is suspected; sample a clinically significant or complex effusion for pH, chemistry, Gram stain, and culture.",
+        "Measure lactate if hypoperfusion or sepsis is suspected.",
+        "If pulmonary embolism remains clinically concerning, assess pretest probability and use D-dimer or CT pulmonary angiography as appropriate."
+      ],
+      "clinical_notes": "Prompt in-person assessment and empiric pneumonia treatment are warranted. Diabetes increases complication risk. Fever, tachycardia, tachypnea, and leukocytosis indicate systemic inflammation but do not establish sepsis without acute organ dysfunction. Blood pressure is preserved, and septic shock is not supported. Disposition cannot be determined reliably without mental status, renal function, oxygen requirements, oral intake, and examination findings. Clarify recent hospitalization, antibiotic exposure, aspiration risk, and the timing and features of the penicillin rash before selecting therapy. Seek emergency care for worsening breathlessness, falling oxygen saturation, confusion, hypotension, or inability to maintain hydration.",
+      "knowledge_sources": [
+        "ATS/IDSA guideline for diagnosis and treatment of adults with community-acquired pneumonia (2019)",
+        "Sepsis-3 international consensus definitions for sepsis and septic shock (2016)",
+        "Provided symptom-to-disease knowledge-graph hints, weighed against the clinical and radiographic findings",
+        "GraphRAG knowledge graph (symptom->disease retrieval)"
+      ],
+      "knowledge_graph_candidates": [
+        {
+          "disease": "Influenza",
+          "symptom_match_count": 1,
+          "icd10_code": "J11.1",
+          "icd10_description": "Influenza with other respiratory manifestations"
+        },
+        {
+          "disease": "Pneumonia",
+          "symptom_match_count": 1,
+          "icd10_code": "J18.9",
+          "icd10_description": "Pneumonia, unspecified organism"
+        },
+        {
+          "disease": "COVID-19",
+          "symptom_match_count": 1,
+          "icd10_code": "U07.1",
+          "icd10_description": "COVID-19, virus identified"
+        },
+        {
+          "disease": "Sepsis",
+          "symptom_match_count": 1,
+          "icd10_code": "A41.9",
+          "icd10_description": "Sepsis, unspecified organism"
+        },
+        {
+          "disease": "Malaria",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        }
+      ]
+    },
+    "treatment_plan": {
+      "diagnosis_addressed": "Right lower lobe community-acquired pneumonia, likely bacterial, in an adult with diabetes. Same-day in-person assessment is needed before confirming outpatient treatment.",
+      "medications": [
+        {
+          "drug_name": "Ceftin",
+          "generic_name": "Cefuroxime axetil",
+          "dosage": "500 mg",
+          "route": "oral",
+          "frequency": "Twice daily with food, together with doxycycline",
+          "duration": "Initially 5 days; reassess clinical stability before stopping",
+          "contraindications": [
+            "Known cefuroxime or cephalosporin allergy",
+            "Clarify the reported penicillin rash before prescribing. A benign, nonurticarial rash generally permits use of this structurally dissimilar cephalosporin.",
+            "Do not use this outpatient regimen without specialist assessment if the prior reaction involved blistering, mucosal lesions, organ injury, or another severe delayed beta-lactam reaction.",
+            "Dose interval adjustment is required if creatinine clearance is below 30 mL/min."
+          ],
+          "side_effects": [
+            "Diarrhea",
+            "Nausea",
+            "Rash",
+            "Rare anaphylaxis or Clostridioides difficile infection"
+          ]
+        },
+        {
+          "drug_name": "Vibramycin",
+          "generic_name": "Doxycycline",
+          "dosage": "100 mg",
+          "route": "oral",
+          "frequency": "Twice daily, together with cefuroxime",
+          "duration": "Initially 5 days; reassess clinical stability before stopping",
+          "contraindications": [
+            "Tetracycline allergy; confirm no additional drug allergies",
+            "Significant swallowing difficulty or inability to remain upright after administration requires an alternative formulation or treatment"
+          ],
+          "side_effects": [
+            "Nausea",
+            "Diarrhea",
+            "Photosensitivity",
+            "Esophagitis"
+          ]
+        },
+        {
+          "drug_name": "Tylenol",
+          "generic_name": "Acetaminophen",
+          "dosage": "500\u20131,000 mg; maximum 3,000 mg from all sources in 24 hours",
+          "route": "oral",
+          "frequency": "Every 8 hours as needed for fever or pleuritic pain",
+          "duration": "Up to 3 days initially; reassess persistent fever or pain",
+          "contraindications": [
+            "Acetaminophen allergy; confirm before use",
+            "Severe active liver disease",
+            "Use a clinician-adjusted lower maximum with liver disease, heavy alcohol use, malnutrition, or body weight below 50 kg"
+          ],
+          "side_effects": [
+            "Occasional nausea or rash",
+            "Liver injury with excessive dosing"
+          ]
+        }
+      ],
+      "drug_interactions": [
+        {
+          "drug_a": "Cefuroxime",
+          "drug_b": "Metformin",
+          "severity": "none",
+          "description": "No established clinically significant direct interaction. Acute kidney injury, dehydration, sepsis, or significant hypoxemia during pneumonia can nevertheless make metformin unsafe.",
+          "recommendation": "Check renal function and hydration. Temporarily hold metformin if these complications develop or oral intake becomes poor; restart when recovered and renal function is stable."
+        },
+        {
+          "drug_a": "Cefuroxime",
+          "drug_b": "Lisinopril",
+          "severity": "none",
+          "description": "No established clinically significant direct interaction.",
+          "recommendation": "Monitor creatinine, potassium, blood pressure, and hydration; adjust cefuroxime for renal impairment."
+        },
+        {
+          "drug_a": "Doxycycline",
+          "drug_b": "Metformin",
+          "severity": "none",
+          "description": "No established clinically significant direct interaction. Both can cause gastrointestinal upset.",
+          "recommendation": "Monitor oral intake, gastrointestinal tolerance, and blood glucose."
+        },
+        {
+          "drug_a": "Doxycycline",
+          "drug_b": "Lisinopril",
+          "severity": "none",
+          "description": "No established clinically significant direct interaction.",
+          "recommendation": "No interaction-based dose adjustment is required."
+        },
+        {
+          "drug_a": "Acetaminophen",
+          "drug_b": "Metformin",
+          "severity": "none",
+          "description": "No established clinically significant direct interaction at recommended doses.",
+          "recommendation": "Keep within the daily acetaminophen limit and follow acute-illness glucose monitoring."
+        },
+        {
+          "drug_a": "Acetaminophen",
+          "drug_b": "Lisinopril",
+          "severity": "none",
+          "description": "No established clinically significant direct interaction with short-term use at recommended doses.",
+          "recommendation": "Prefer acetaminophen over NSAIDs during dehydration or possible renal impairment."
+        },
+        {
+          "drug_a": "Doxycycline",
+          "drug_b": "Iron, calcium or magnesium supplements, aluminum-containing antacids, or bismuth",
+          "severity": "moderate",
+          "description": "These products can reduce doxycycline absorption; use has not been reported but should be checked.",
+          "recommendation": "Separate administration by at least 2\u20133 hours and review all over-the-counter products with a pharmacist."
+        },
+        {
+          "drug_a": "Lisinopril",
+          "drug_b": "Ibuprofen, naproxen, or other NSAIDs",
+          "severity": "moderate",
+          "description": "If added for chest pain, NSAIDs increase acute kidney injury risk, especially during dehydration, and can reduce antihypertensive effectiveness.",
+          "recommendation": "Avoid self-starting NSAIDs during this illness."
+        }
+      ],
+      "non_drug_treatments": [
+        "Assess mental status, work of breathing, room-air oxygen saturation, oral intake, hydration, and support at home. Use the Pneumonia Severity Index plus clinical judgment to determine disposition.",
+        "Obtain BUN, creatinine, electrolytes, and glucose promptly. Do not unnecessarily delay antibiotics while awaiting results.",
+        "Maintain oral hydration with frequent small amounts; use clinician-supervised IV fluids if unable to drink or clinically volume depleted.",
+        "Supplemental oxygen is not routinely required for a stable room-air saturation of 94%, but repeat measurement is necessary. Give oxygen if hypoxemia develops, generally targeting 94\u201398% unless at risk of hypercapnic respiratory failure.",
+        "Test for influenza and SARS-CoV-2 when indicated. Positive testing may require additional antiviral therapy; suspected bacterial coinfection still warrants antibiotics.",
+        "Use chest ultrasound if examination suggests an effusion or fever and pleuritic pain persist. Complicated parapneumonic effusion or empyema may require drainage."
+      ],
+      "lifestyle_recommendations": [
+        "Rest initially and gradually resume activity as fever and breathing improve.",
+        "Avoid smoking, vaping, and alcohol during recovery.",
+        "Take doxycycline with a full glass of water and remain upright for at least 30 minutes; avoid taking immediately before bed and use sun protection.",
+        "Monitor glucose before meals and at bedtime during illness, or every 4\u20136 hours if not eating. Contact the clinician for repeated readings above 250\u2013300 mg/dL, any glucose below 70 mg/dL, or ketones.",
+        "Review influenza, COVID-19, and pneumococcal vaccination after recovery; diabetes is an indication for risk-based pneumococcal vaccination.",
+        "Use cough hygiene, handwashing, ventilation, and masking around others while acutely symptomatic."
+      ],
+      "follow_up_plan": "Arrange same-day assessment. Outpatient cefuroxime plus doxycycline is appropriate only if the allergy history is compatible, oxygenation is stable, oral medication is tolerated, and no organ dysfunction or other admission indication is present. Recheck within 24\u201348 hours because of diabetes and borderline oxygenation; meaningful improvement should occur within 48\u201372 hours. Review fever, respiratory rate, oxygen saturation, blood pressure, intake, glucose, renal function, and medication tolerance. At day 5, stop antibiotics only after clinical stability is achieved, including improving oxygenation and vital signs, normal mentation, adequate intake, and resolution of fever for approximately 48 hours. Persistent instability warrants reassessment rather than automatic extension. Investigate treatment failure for resistant pathogens, effusion/empyema, abscess, or an alternative diagnosis. Routine follow-up chest radiography is unnecessary if symptoms resolve; consider imaging at approximately 6 weeks for persistent symptoms or lung-cancer risk factors.",
+      "warnings": [
+        "No major or contraindicated direct interactions were identified between the proposed drugs and the reported metformin and lisinopril. This assessment requires confirmation of all prescription drugs, supplements, and over-the-counter medicines.",
+        "Penicillin allergy has been reviewed but remains incompletely characterized. Confirm timing, rash features, and any airway symptoms, hypotension, mucosal involvement, or organ injury before cefuroxime is given.",
+        "Seek emergency care for worsening breathlessness, repeated resting oxygen saturation of 92% or lower, a new oxygen requirement, confusion, fainting, hypotension, markedly reduced urine output, inability to drink, or severe/worsening chest pain.",
+        "If admission is needed, do not rely on this oral plan; use a hospital CAP protocol with parenteral therapy selected according to allergy history, severity, renal function, and resistant-pathogen risks.",
+        "Continue lisinopril only if blood pressure, hydration, potassium, and renal function remain satisfactory. Temporarily hold during significant dehydration, hypotension, acute kidney injury, or hyperkalemia under clinician guidance.",
+        "Metformin does not need to be stopped solely because pneumonia is diagnosed, but should be held with significant hypoxemia, dehydration, acute kidney injury, or sepsis.",
+        "Do not routinely prescribe corticosteroids for this presumed nonsevere outpatient pneumonia; they can worsen hyperglycemia.",
+        "Do not add MRSA or Pseudomonas coverage unless validated risk factors or microbiologic evidence justify it.",
+        "Stop the suspected drug and seek urgent help for hives with breathing difficulty, facial swelling, or a blistering/mucosal rash. Seek assessment for severe, persistent, or bloody diarrhea."
+      ],
+      "evidence_references": [
+        "Metlay JP et al. Diagnosis and Treatment of Adults with Community-acquired Pneumonia. ATS/IDSA Clinical Practice Guideline. American Journal of Respiratory and Critical Care Medicine. 2019;200:e45\u2013e67.",
+        "Khan DA et al. Drug allergy: A 2022 practice parameter update. Journal of Allergy and Clinical Immunology. 2022;150:1333\u20131393.",
+        "FDA prescribing information for cefuroxime axetil, doxycycline, metformin, and lisinopril: contraindications, renal precautions, administration, and interactions."
+      ],
+      "allergy_alerts": [],
+      "ddi_engine": {
+        "checked": true,
+        "proposed_drugs_checked": [
+          "Cefuroxime axetil",
+          "Ceftin",
+          "Doxycycline",
+          "Vibramycin",
+          "Acetaminophen",
+          "Tylenol"
+        ],
+        "current_medications_checked": [
+          "Metformin",
+          "Lisinopril"
+        ],
+        "allergies_checked": [
+          "Penicillin"
+        ],
+        "engine_flagged_interactions": 0,
+        "engine_flagged_allergy_alerts": 0
+      }
+    },
+    "coding_result": {
+      "primary_icd10": {
+        "code": "J18.9",
+        "description": "Pneumonia, unspecified organism",
+        "confidence": 0.96,
+        "category": "Respiratory disease",
+        "model_description": "Pneumonia, unspecified organism"
+      },
+      "secondary_icd10_codes": [
+        {
+          "code": "E11.9",
+          "description": "Type 2 diabetes mellitus without complications",
+          "confidence": 0.98,
+          "category": "Endocrine and metabolic disease",
+          "model_description": "Type 2 diabetes mellitus without complications"
+        },
+        {
+          "code": "I10",
+          "description": "Essential (primary) hypertension",
+          "confidence": 0.99,
+          "category": "Circulatory disease",
+          "model_description": "Essential (primary) hypertension"
+        },
+        {
+          "code": "Z88.0",
+          "description": "Allergy status to penicillin",
+          "confidence": 0.99,
+          "category": "Allergy status",
+          "model_description": "Allergy status to penicillin"
+        },
+        {
+          "code": "Z79.84",
+          "description": "Long term (current) use of oral hypoglycemic drugs",
+          "confidence": 0.96,
+          "category": "Medication use status",
+          "model_description": "Long term (current) use of oral hypoglycemic drugs"
+        }
+      ],
+      "drg_group": null,
+      "coding_notes": "Pneumonia is documented, but its organism and bacterial etiology are not confirmed. Right lower lobe location and consolidation do not independently establish the diagnosis of lobar pneumonia for J18.1. With the encounter setting unresolved, the uncertain bacterial qualifier is not coded as confirmed. Diabetes and hypertension are documented; no diabetic complication is established. Current maintenance metformin supports Z79.84, and penicillin allergy affects antibiotic selection. Symptoms integral to pneumonia and unconfirmed differential diagnoses are not separately coded. Sepsis and respiratory failure are not documented. DRG assignment requires an established inpatient encounter and applicable grouper information. Confidence values are uncalibrated estimates.",
+      "coding_confidence": 0.96,
+      "model_proposal": {
+        "primary_icd10": {
+          "code": "J18.9",
+          "description": "Pneumonia, unspecified organism",
+          "confidence": 0.96,
+          "category": "Respiratory disease"
+        },
+        "secondary_icd10_codes": [
+          {
+            "code": "E11.9",
+            "description": "Type 2 diabetes mellitus without complications",
+            "confidence": 0.98,
+            "category": "Endocrine and metabolic disease"
+          },
+          {
+            "code": "I10",
+            "description": "Essential (primary) hypertension",
+            "confidence": 0.99,
+            "category": "Circulatory disease"
+          },
+          {
+            "code": "Z88.0",
+            "description": "Allergy status to penicillin",
+            "confidence": 0.99,
+            "category": "Allergy status"
+          },
+          {
+            "code": "Z79.84",
+            "description": "Long term (current) use of oral hypoglycemic drugs",
+            "confidence": 0.96,
+            "category": "Medication use status"
+          }
+        ],
+        "drg_group": null,
+        "coding_notes": "Pneumonia is documented, but its organism and bacterial etiology are not confirmed. Right lower lobe location and consolidation do not independently establish the diagnosis of lobar pneumonia for J18.1. With the encounter setting unresolved, the uncertain bacterial qualifier is not coded as confirmed. Diabetes and hypertension are documented; no diabetic complication is established. Current maintenance metformin supports Z79.84, and penicillin allergy affects antibiotic selection. Symptoms integral to pneumonia and unconfirmed differential diagnoses are not separately coded. Sepsis and respiratory failure are not documented. DRG assignment requires an established inpatient encounter and applicable grouper information. Confidence values are uncalibrated estimates.",
+        "coding_confidence": 0.96
+      },
+      "raw_model_output": "{\n  \"primary_icd10\": {\n    \"code\": \"J18.9\",\n    \"description\": \"Pneumonia, unspecified organism\",\n    \"confidence\": 0.96,\n    \"category\": \"Respiratory disease\"\n  },\n  \"secondary_icd10_codes\": [\n    {\n      \"code\": \"E11.9\",\n      \"description\": \"Type 2 diabetes mellitus without complications\",\n      \"confidence\": 0.98,\n      \"category\": \"Endocrine and metabolic disease\"\n    },\n    {\n      \"code\": \"I10\",\n      \"description\": \"Essential (primary) hypertension\",\n      \"confidence\": 0.99,\n      \"category\": \"Circulatory disease\"\n    },\n    {\n      \"code\": \"Z88.0\",\n      \"description\": \"Allergy status to penicillin\",\n      \"confidence\": 0.99,\n      \"category\": \"Allergy status\"\n    },\n    {\n      \"code\": \"Z79.84\",\n      \"description\": \"Long term (current) use of oral hypoglycemic drugs\",\n      \"confidence\": 0.96,\n      \"category\": \"Medication use status\"\n    }\n  ],\n  \"drg_group\": null,\n  \"coding_notes\": \"Pneumonia is documented, but its organism and bacterial etiology are not confirmed. Right lower lobe location and consolidation do not independently establish the diagnosis of lobar pneumonia for J18.1. With the encounter setting unresolved, the uncertain bacterial qualifier is not coded as confirmed. Diabetes and hypertension are documented; no diabetic complication is established. Current maintenance metformin supports Z79.84, and penicillin allergy affects antibiotic selection. Symptoms integral to pneumonia and unconfirmed differential diagnoses are not separately coded. Sepsis and respiratory failure are not documented. DRG assignment requires an established inpatient encounter and applicable grouper information. Confidence values are uncalibrated estimates.\",\n  \"coding_confidence\": 0.96\n}",
+      "code_validation": {
+        "catalog": {
+          "catalog": {
+            "filename": "icd10cm_fy2027.json.gz",
+            "sha256": "0f6ab0461f99974a0927bbaa7451cfb8d5115a146df03a3e281a452e61d7c0bf",
+            "uncompressed_sha256": "41d9c28b751a3b7322077efe563b070f9ca44220c1ad491e1591af0404055f59"
+          },
+          "code_set": "ICD-10-CM",
+          "counts": {
+            "complete_codes": 74879,
+            "non_reportable_headers": 23524,
+            "total_entries": 98403
+          },
+          "release": "FY2027",
+          "schema_version": 1,
+          "scope": "Official release membership and long descriptions only. Complete-code status does not establish clinical appropriateness, sequencing or encounter-specific coding.",
+          "source": {
+            "members": {
+              "Code Descriptions/icd10cm_codes_2027.txt": {
+                "lines": 74879,
+                "sha256": "3c0583a38ee0e848f7dc0ac8ce88e8f001bbba8c6385ed825d44d46f6e5297c9"
+              },
+              "Code Descriptions/icd10cm_order_2027.txt": {
+                "lines": 98403,
+                "sha256": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f"
+              }
+            },
+            "sha256": "91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965",
+            "url": "https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip"
+          }
+        },
+        "schema_valid": true,
+        "valid": true,
+        "primary": {
+          "input_code": "J18.9",
+          "code": "J18.9",
+          "valid": true,
+          "reason": "complete_code",
+          "description": "Pneumonia, unspecified organism",
+          "is_complete_code": true,
+          "catalog_release": "FY2027"
+        },
+        "secondary": [
+          {
+            "input_code": "E11.9",
+            "code": "E11.9",
+            "valid": true,
+            "reason": "complete_code",
+            "description": "Type 2 diabetes mellitus without complications",
+            "is_complete_code": true,
+            "catalog_release": "FY2027"
+          },
+          {
+            "input_code": "I10",
+            "code": "I10",
+            "valid": true,
+            "reason": "complete_code",
+            "description": "Essential (primary) hypertension",
+            "is_complete_code": true,
+            "catalog_release": "FY2027"
+          },
+          {
+            "input_code": "Z88.0",
+            "code": "Z88.0",
+            "valid": true,
+            "reason": "complete_code",
+            "description": "Allergy status to penicillin",
+            "is_complete_code": true,
+            "catalog_release": "FY2027"
+          },
+          {
+            "input_code": "Z79.84",
+            "code": "Z79.84",
+            "valid": true,
+            "reason": "complete_code",
+            "description": "Long term (current) use of oral hypoglycemic drugs",
+            "is_complete_code": true,
+            "catalog_release": "FY2027"
+          }
+        ],
+        "errors": [],
+        "clinical_correctness": "not_adjudicated"
+      },
+      "requires_review": false,
+      "clinical_review_required": true
+    },
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": false,
+          "detail": "Found 2 PHI types: name, zip_code"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        }
+      ],
+      "phi_fields_found": [
+        "name",
+        "zip_code"
+      ],
+      "phi_fields_masked": [],
+      "audit_trail": [
+        {
+          "timestamp": "2026-10-26T22:22:56.411992+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 4 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-10-26T22:22:56.412062+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Ensure all PHI is masked before external transmission",
+        "Review failed compliance checks and remediate",
+        "Review deployment access, encryption, retention and audit storage controls. This report does not establish HIPAA compliance."
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": null,
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 120.04,
+  "llm_calls": [
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert medical intake specialist. Your job is to extract structured patient information from the provided clinical narrative.\n\nExtract the following fields as a JSON object:\n{\n  \"name\": \"patient name or 'Unknown'\",\n  \"age\": <integer>,\n  \"gender\": \"male|female|other|unknown\",\n  \"chief_complaint\": \"main reason for visit\",\n  \"symptoms\": [\n    {\"name\": \"symptom name\", \"duration_days\": <int or null>, \"severity\": \"mild|moderate|severe|critical\", \"description\": \"details\"}\n  ],\n  \"medical_history\": [\"list of past conditions\"],\n  \"family_history\": [\"list of family conditions\"],\n  \"allergies\": [\n    {\"substance\": \"name\", \"reaction\": \"description\", \"severity\": \"mild|moderate|severe\"}\n  ],\n  \"current_medications\": [\n    {\"name\": \"drug name\", \"dosage\": \"dose\", \"frequency\": \"how often\"}\n  ],\n  \"vital_signs\": {\n    \"temperature\": <float or null>,\n    \"heart_rate\": <int or null>,\n    \"blood_pressure_systolic\": <int or null>,\n    \"blood_pressure_diastolic\": <int or null>,\n    \"respiratory_rate\": <int or null>,\n    \"oxygen_saturation\": <float or null>\n  },\n  \"lab_results\": [\n    {\"test_name\": \"name\", \"value\": \"result\", \"unit\": \"unit\", \"reference_range\": \"range\", \"is_abnormal\": true/false}\n  ]\n}\n\nRules:\n- If a field is not mentioned, use reasonable defaults or null.\n- Age must be a positive integer. If unclear, estimate from context.\n- Always identify the chief complaint even if not explicitly stated.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "5e16ad3b558875829e79aa0f459b49616741776d3bfc8eac24da9c17d28b728b"
+        },
+        {
+          "role": "human",
+          "content": "Patient narrative:\n\n45-year-old male presenting with fever (39.2\u00b0C) for 3 days, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing. History of type 2 diabetes (diagnosed 5 years ago) and hypertension. Current medications: metformin 500mg twice daily, lisinopril 10mg daily. Allergies: penicillin (causes rash). Vital signs: BP 130/85, HR 102, RR 22, SpO2 94% on room air. Labs: WBC 15,000/\u03bcL (elevated), CRP 85 mg/L (elevated), procalcitonin 2.1 ng/mL (elevated). Chest X-ray shows right lower lobe consolidation.",
+          "sha256": "52dc98134a64aafd5925b17710d98cc92d45e58e3e07007ee89bde133c4d1aff"
+        }
+      ],
+      "prompt_sha256": "226f1a415c14c369225dc0b60a372f611c147383d1fb1e8c7a4157d3f37af5d9",
+      "output_text": "{\n  \"name\": \"Unknown\",\n  \"age\": 45,\n  \"gender\": \"male\",\n  \"chief_complaint\": \"Fever, productive cough, and right-sided pleuritic chest pain\",\n  \"symptoms\": [\n    {\n      \"name\": \"Fever\",\n      \"duration_days\": 3,\n      \"severity\": \"moderate\",\n      \"description\": \"Temperature of 39.2\u00b0C\"\n    },\n    {\n      \"name\": \"Productive cough\",\n      \"duration_days\": null,\n      \"severity\": \"moderate\",\n      \"description\": \"Cough with yellow sputum; severity not explicitly stated\"\n    },\n    {\n      \"name\": \"Right-sided chest pain\",\n      \"duration_days\": null,\n      \"severity\": \"moderate\",\n      \"description\": \"Worsens with deep breathing; severity not explicitly stated\"\n    }\n  ],\n  \"medical_history\": [\n    \"Type 2 diabetes mellitus diagnosed 5 years ago\",\n    \"Hypertension\"\n  ],\n  \"family_history\": [],\n  \"allergies\": [\n    {\n      \"substance\": \"Penicillin\",\n      \"reaction\": \"Rash\",\n      \"severity\": \"mild\"\n    }\n  ],\n  \"current_medications\": [\n    {\n      \"name\": \"Metformin\",\n      \"dosage\": \"500 mg\",\n      \"frequency\": \"Twice daily\"\n    },\n    {\n      \"name\": \"Lisinopril\",\n      \"dosage\": \"10 mg\",\n      \"frequency\": \"Daily\"\n    }\n  ],\n  \"vital_signs\": {\n    \"temperature\": 39.2,\n    \"heart_rate\": 102,\n    \"blood_pressure_systolic\": 130,\n    \"blood_pressure_diastolic\": 85,\n    \"respiratory_rate\": 22,\n    \"oxygen_saturation\": 94.0\n  },\n  \"lab_results\": [\n    {\n      \"test_name\": \"WBC\",\n      \"value\": \"15000\",\n      \"unit\": \"/\u03bcL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"CRP\",\n      \"value\": \"85\",\n      \"unit\": \"mg/L\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"Procalcitonin\",\n      \"value\": \"2.1\",\n      \"unit\": \"ng/mL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"Chest X-ray\",\n      \"value\": \"Right lower lobe consolidation\",\n      \"unit\": null,\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    }\n  ]\n}",
+      "output_sha256": "6180228e51c429ff8127df54348b861a28e5ef3803f98baf1667890841280fe0",
+      "usage": {
+        "input_tokens": 14316,
+        "cached_input_tokens": 0,
+        "output_tokens": 588,
+        "reasoning_output_tokens": 0
+      },
+      "elapsed_seconds": 10.411,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    },
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert diagnostician performing differential diagnosis. Given structured patient information, provide a comprehensive differential diagnosis.\n\nReturn a JSON object with this structure:\n{\n  \"primary_diagnosis\": {\n    \"disease_name\": \"most likely diagnosis\",\n    \"icd10_hint\": \"approximate ICD-10 code (e.g., J18.9)\",\n    \"confidence\": 0.85,\n    \"evidence\": [\"supporting finding 1\", \"supporting finding 2\"],\n    \"reasoning\": \"clinical reasoning explanation\"\n  },\n  \"differential_list\": [\n    {\n      \"disease_name\": \"alternative diagnosis\",\n      \"icd10_hint\": \"ICD-10 code\",\n      \"confidence\": 0.6,\n      \"evidence\": [\"evidence 1\"],\n      \"reasoning\": \"why this is considered\"\n    }\n  ],\n  \"recommended_tests\": [\"test 1 to confirm/rule out\", \"test 2\"],\n  \"clinical_notes\": \"overall clinical impression\",\n  \"knowledge_sources\": [\"source 1\", \"source 2\"],\n  \"needs_more_info\": false\n}\n\nRules:\n- Confidence scores must be between 0 and 1.\n- Provide at least 2-3 differential diagnoses.\n- List evidence from the patient data that supports each diagnosis.\n- If critical information is missing, set needs_more_info to true.\n- Use standard medical terminology and ICD-10 code hints.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "5a32292736ab88eafbfbcf9086f2473db6b6fdfbc1754ec46e913138a657e257"
+        },
+        {
+          "role": "human",
+          "content": "Patient information:\n\n{\n  \"patient_id\": null,\n  \"name\": \"Unknown\",\n  \"age\": 45,\n  \"gender\": \"male\",\n  \"chief_complaint\": \"Fever, productive cough, and right-sided pleuritic chest pain\",\n  \"symptoms\": [\n    {\n      \"name\": \"Fever\",\n      \"duration_days\": 3,\n      \"severity\": \"moderate\",\n      \"description\": \"Temperature of 39.2\u00b0C\"\n    },\n    {\n      \"name\": \"Productive cough\",\n      \"duration_days\": null,\n      \"severity\": \"moderate\",\n      \"description\": \"Cough with yellow sputum; severity not explicitly stated\"\n    },\n    {\n      \"name\": \"Right-sided chest pain\",\n      \"duration_days\": null,\n      \"severity\": \"moderate\",\n      \"description\": \"Worsens with deep breathing; severity not explicitly stated\"\n    }\n  ],\n  \"medical_history\": [\n    \"Type 2 diabetes mellitus diagnosed 5 years ago\",\n    \"Hypertension\"\n  ],\n  \"family_history\": [],\n  \"allergies\": [\n    {\n      \"substance\": \"Penicillin\",\n      \"reaction\": \"Rash\",\n      \"severity\": \"mild\"\n    }\n  ],\n  \"current_medications\": [\n    {\n      \"name\": \"Metformin\",\n      \"dosage\": \"500 mg\",\n      \"frequency\": \"Twice daily\",\n      \"start_date\": null\n    },\n    {\n      \"name\": \"Lisinopril\",\n      \"dosage\": \"10 mg\",\n      \"frequency\": \"Daily\",\n      \"start_date\": null\n    }\n  ],\n  \"vital_signs\": {\n    \"temperature\": 39.2,\n    \"heart_rate\": 102,\n    \"blood_pressure_systolic\": 130,\n    \"blood_pressure_diastolic\": 85,\n    \"respiratory_rate\": 22,\n    \"oxygen_saturation\": 94.0\n  },\n  \"lab_results\": [\n    {\n      \"test_name\": \"WBC\",\n      \"value\": \"15000\",\n      \"unit\": \"/\u03bcL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"CRP\",\n      \"value\": \"85\",\n      \"unit\": \"mg/L\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"Procalcitonin\",\n      \"value\": \"2.1\",\n      \"unit\": \"ng/mL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"Chest X-ray\",\n      \"value\": \"Right lower lobe consolidation\",\n      \"unit\": null,\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    }\n  ],\n  \"raw_input\": null,\n  \"created_at\": \"2026-10-26T17:21:06.784744\"\n}\n\nKnowledge-graph retrieval (deterministic symptom->disease lookup, ranked by symptom overlap). Treat these as grounding hints \u2014 you are NOT limited to this list and must weigh all clinical evidence:\n- Influenza (ICD-10 J11.1): matched 1 of the patient's symptoms\n- Pneumonia (ICD-10 J18.9): matched 1 of the patient's symptoms\n- COVID-19 (ICD-10 U07.1): matched 1 of the patient's symptoms\n- Sepsis (ICD-10 A41.9): matched 1 of the patient's symptoms\n- Malaria: matched 1 of the patient's symptoms\n\nProvide your differential diagnosis.",
+          "sha256": "4c2128e8cb80fe4bb1c5b3d8889bf71b0f7115790dfd5b72d2e9be90f4f854f4"
+        }
+      ],
+      "prompt_sha256": "cfa9ae0ce578c3cef1e4c96e070b5a73114bd87eb349b4d0d9f9fe8e1177ae34",
+      "output_text": "{\n  \"primary_diagnosis\": {\n    \"disease_name\": \"Right lower lobe community-acquired pneumonia, likely bacterial\",\n    \"icd10_hint\": \"J18.9\",\n    \"confidence\": 0.95,\n    \"evidence\": [\n      \"Right lower lobe consolidation on chest X-ray\",\n      \"Fever of 39.2\u00b0C with productive cough and yellow sputum\",\n      \"Right-sided pleuritic chest pain\",\n      \"WBC 15,000/\u03bcL, CRP 85 mg/L, and procalcitonin 2.1 ng/mL\",\n      \"Heart rate 102/min, respiratory rate 22/min, and oxygen saturation 94%\"\n    ],\n    \"reasoning\": \"The acute febrile respiratory illness with focal consolidation strongly supports pneumonia. Elevated inflammatory markers and procalcitonin favor a bacterial cause but do not establish the pathogen. Pneumococcus is a plausible cause; community acquisition should be confirmed by exposure history.\"\n  },\n  \"differential_list\": [\n    {\n      \"disease_name\": \"Viral pneumonia, including influenza or COVID-19, with possible bacterial coinfection\",\n      \"icd10_hint\": \"J12.9\",\n      \"confidence\": 0.2,\n      \"evidence\": [\n        \"Acute fever and cough\",\n        \"Oxygen saturation 94%\",\n        \"Radiographic pulmonary consolidation\"\n      ],\n      \"reasoning\": \"Influenza and SARS-CoV-2 can cause pneumonia or predispose to secondary bacterial pneumonia. Focal lobar consolidation and elevated procalcitonin favor bacterial infection over isolated viral pneumonia; viral testing is needed.\"\n    },\n    {\n      \"disease_name\": \"Parapneumonic effusion or empyema complicating pneumonia\",\n      \"icd10_hint\": \"J90 / J86.9\",\n      \"confidence\": 0.12,\n      \"evidence\": [\n        \"Right-sided pleuritic chest pain\",\n        \"High fever and elevated inflammatory markers\",\n        \"Adjacent right lower lobe consolidation\"\n      ],\n      \"reasoning\": \"Pleural infection or an inflammatory effusion could accompany the pneumonia, although no effusion is reported on the radiograph. Ultrasound is appropriate if examination suggests fluid or fever and pain persist despite treatment.\"\n    },\n    {\n      \"disease_name\": \"Pulmonary embolism with pulmonary infarction\",\n      \"icd10_hint\": \"I26.99\",\n      \"confidence\": 0.05,\n      \"evidence\": [\n        \"Pleuritic chest pain\",\n        \"Tachycardia and mild tachypnea\",\n        \"Oxygen saturation 94%\",\n        \"Focal pulmonary opacity\"\n      ],\n      \"reasoning\": \"Pulmonary infarction can mimic focal pneumonia. However, high fever, purulent sputum, and elevated procalcitonin make infection substantially more likely. Investigate if thromboembolic risk factors, disproportionate hypoxemia, hemoptysis, or an unexpected clinical course are present.\"\n    }\n  ],\n  \"recommended_tests\": [\n    \"Repeat vital signs and oxygen saturation; clarify whether saturation was measured on room air and assess mental status, respiratory effort, hydration, and urine output.\",\n    \"Measure urea/BUN, creatinine, electrolytes, and glucose to assess organ function and support pneumonia severity scoring.\",\n    \"Obtain influenza and SARS-CoV-2 nucleic acid testing when locally circulating or clinically indicated.\",\n    \"Obtain sputum culture and blood cultures if severe pneumonia, resistant-pathogen risk factors, or suspected sepsis are present; these are not routinely necessary for uncomplicated outpatient pneumonia.\",\n    \"Perform chest ultrasound if pleural effusion is suspected; sample a clinically significant or complex effusion for pH, chemistry, Gram stain, and culture.\",\n    \"Measure lactate if hypoperfusion or sepsis is suspected.\",\n    \"If pulmonary embolism remains clinically concerning, assess pretest probability and use D-dimer or CT pulmonary angiography as appropriate.\"\n  ],\n  \"clinical_notes\": \"Prompt in-person assessment and empiric pneumonia treatment are warranted. Diabetes increases complication risk. Fever, tachycardia, tachypnea, and leukocytosis indicate systemic inflammation but do not establish sepsis without acute organ dysfunction. Blood pressure is preserved, and septic shock is not supported. Disposition cannot be determined reliably without mental status, renal function, oxygen requirements, oral intake, and examination findings. Clarify recent hospitalization, antibiotic exposure, aspiration risk, and the timing and features of the penicillin rash before selecting therapy. Seek emergency care for worsening breathlessness, falling oxygen saturation, confusion, hypotension, or inability to maintain hydration.\",\n  \"knowledge_sources\": [\n    \"ATS/IDSA guideline for diagnosis and treatment of adults with community-acquired pneumonia (2019)\",\n    \"Sepsis-3 international consensus definitions for sepsis and septic shock (2016)\",\n    \"Provided symptom-to-disease knowledge-graph hints, weighed against the clinical and radiographic findings\"\n  ],\n  \"needs_more_info\": true\n}",
+      "output_sha256": "dee7b3de4467306a7d2702208c25028bfe4b5dd3af0db51729377fb58cf3eb95",
+      "usage": {
+        "input_tokens": 14850,
+        "cached_input_tokens": 0,
+        "output_tokens": 1050,
+        "reasoning_output_tokens": 0
+      },
+      "elapsed_seconds": 27.241,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    },
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert clinical pharmacologist and treatment specialist. Given a patient's diagnosis and clinical data, provide a comprehensive, evidence-based treatment plan.\n\nReturn a JSON object:\n{\n  \"diagnosis_addressed\": \"the primary diagnosis being treated\",\n  \"medications\": [\n    {\n      \"drug_name\": \"brand name\",\n      \"generic_name\": \"generic name\",\n      \"dosage\": \"e.g., 500mg\",\n      \"route\": \"oral|iv|im|topical|etc\",\n      \"frequency\": \"e.g., twice daily\",\n      \"duration\": \"e.g., 7 days\",\n      \"contraindications\": [\"list any relevant\"],\n      \"side_effects\": [\"common side effects\"]\n    }\n  ],\n  \"drug_interactions\": [\n    {\n      \"drug_a\": \"drug 1\",\n      \"drug_b\": \"drug 2 (can be current medication)\",\n      \"severity\": \"none|minor|moderate|major|contraindicated\",\n      \"description\": \"interaction details\",\n      \"recommendation\": \"what to do\"\n    }\n  ],\n  \"non_drug_treatments\": [\"physical therapy\", \"dietary changes\", \"etc.\"],\n  \"lifestyle_recommendations\": [\"exercise\", \"sleep hygiene\", \"etc.\"],\n  \"follow_up_plan\": \"when and what to check\",\n  \"warnings\": [\"critical warnings for this treatment\"],\n  \"evidence_references\": [\"guideline or study reference\"]\n}\n\nRules:\n- ALWAYS check the patient's current medications for interactions.\n- ALWAYS check allergies before recommending any drug.\n- Flag any major or contraindicated interactions prominently.\n- Provide at least one non-drug treatment option.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "57656ce21ea92a1936a6abdd58b0160802f823114e219c529c590ea0f23719f9"
+        },
+        {
+          "role": "human",
+          "content": "Clinical context:\n\n{\n  \"patient_info\": {\n    \"patient_id\": null,\n    \"name\": \"Unknown\",\n    \"age\": 45,\n    \"gender\": \"male\",\n    \"chief_complaint\": \"Fever, productive cough, and right-sided pleuritic chest pain\",\n    \"symptoms\": [\n      {\n        \"name\": \"Fever\",\n        \"duration_days\": 3,\n        \"severity\": \"moderate\",\n        \"description\": \"Temperature of 39.2\u00b0C\"\n      },\n      {\n        \"name\": \"Productive cough\",\n        \"duration_days\": null,\n        \"severity\": \"moderate\",\n        \"description\": \"Cough with yellow sputum; severity not explicitly stated\"\n      },\n      {\n        \"name\": \"Right-sided chest pain\",\n        \"duration_days\": null,\n        \"severity\": \"moderate\",\n        \"description\": \"Worsens with deep breathing; severity not explicitly stated\"\n      }\n    ],\n    \"medical_history\": [\n      \"Type 2 diabetes mellitus diagnosed 5 years ago\",\n      \"Hypertension\"\n    ],\n    \"family_history\": [],\n    \"allergies\": [\n      {\n        \"substance\": \"Penicillin\",\n        \"reaction\": \"Rash\",\n        \"severity\": \"mild\"\n      }\n    ],\n    \"current_medications\": [\n      {\n        \"name\": \"Metformin\",\n        \"dosage\": \"500 mg\",\n        \"frequency\": \"Twice daily\",\n        \"start_date\": null\n      },\n      {\n        \"name\": \"Lisinopril\",\n        \"dosage\": \"10 mg\",\n        \"frequency\": \"Daily\",\n        \"start_date\": null\n      }\n    ],\n    \"vital_signs\": {\n      \"temperature\": 39.2,\n      \"heart_rate\": 102,\n      \"blood_pressure_systolic\": 130,\n      \"blood_pressure_diastolic\": 85,\n      \"respiratory_rate\": 22,\n      \"oxygen_saturation\": 94.0\n    },\n    \"lab_results\": [\n      {\n        \"test_name\": \"WBC\",\n        \"value\": \"15000\",\n        \"unit\": \"/\u03bcL\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"CRP\",\n        \"value\": \"85\",\n        \"unit\": \"mg/L\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"Procalcitonin\",\n        \"value\": \"2.1\",\n        \"unit\": \"ng/mL\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"Chest X-ray\",\n        \"value\": \"Right lower lobe consolidation\",\n        \"unit\": null,\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      }\n    ],\n    \"raw_input\": null,\n    \"created_at\": \"2026-10-26T17:21:06.784744\"\n  },\n  \"diagnosis\": {\n    \"primary_diagnosis\": {\n      \"disease_name\": \"Right lower lobe community-acquired pneumonia, likely bacterial\",\n      \"icd10_hint\": \"J18.9\",\n      \"confidence\": 0.95,\n      \"evidence\": [\n        \"Right lower lobe consolidation on chest X-ray\",\n        \"Fever of 39.2\u00b0C with productive cough and yellow sputum\",\n        \"Right-sided pleuritic chest pain\",\n        \"WBC 15,000/\u03bcL, CRP 85 mg/L, and procalcitonin 2.1 ng/mL\",\n        \"Heart rate 102/min, respiratory rate 22/min, and oxygen saturation 94%\"\n      ],\n      \"reasoning\": \"The acute febrile respiratory illness with focal consolidation strongly supports pneumonia. Elevated inflammatory markers and procalcitonin favor a bacterial cause but do not establish the pathogen. Pneumococcus is a plausible cause; community acquisition should be confirmed by exposure history.\"\n    },\n    \"differential_list\": [\n      {\n        \"disease_name\": \"Viral pneumonia, including influenza or COVID-19, with possible bacterial coinfection\",\n        \"icd10_hint\": \"J12.9\",\n        \"confidence\": 0.2,\n        \"evidence\": [\n          \"Acute fever and cough\",\n          \"Oxygen saturation 94%\",\n          \"Radiographic pulmonary consolidation\"\n        ],\n        \"reasoning\": \"Influenza and SARS-CoV-2 can cause pneumonia or predispose to secondary bacterial pneumonia. Focal lobar consolidation and elevated procalcitonin favor bacterial infection over isolated viral pneumonia; viral testing is needed.\"\n      },\n      {\n        \"disease_name\": \"Parapneumonic effusion or empyema complicating pneumonia\",\n        \"icd10_hint\": \"J90 / J86.9\",\n        \"confidence\": 0.12,\n        \"evidence\": [\n          \"Right-sided pleuritic chest pain\",\n          \"High fever and elevated inflammatory markers\",\n          \"Adjacent right lower lobe consolidation\"\n        ],\n        \"reasoning\": \"Pleural infection or an inflammatory effusion could accompany the pneumonia, although no effusion is reported on the radiograph. Ultrasound is appropriate if examination suggests fluid or fever and pain persist despite treatment.\"\n      },\n      {\n        \"disease_name\": \"Pulmonary embolism with pulmonary infarction\",\n        \"icd10_hint\": \"I26.99\",\n        \"confidence\": 0.05,\n        \"evidence\": [\n          \"Pleuritic chest pain\",\n          \"Tachycardia and mild tachypnea\",\n          \"Oxygen saturation 94%\",\n          \"Focal pulmonary opacity\"\n        ],\n        \"reasoning\": \"Pulmonary infarction can mimic focal pneumonia. However, high fever, purulent sputum, and elevated procalcitonin make infection substantially more likely. Investigate if thromboembolic risk factors, disproportionate hypoxemia, hemoptysis, or an unexpected clinical course are present.\"\n      }\n    ],\n    \"recommended_tests\": [\n      \"Repeat vital signs and oxygen saturation; clarify whether saturation was measured on room air and assess mental status, respiratory effort, hydration, and urine output.\",\n      \"Measure urea/BUN, creatinine, electrolytes, and glucose to assess organ function and support pneumonia severity scoring.\",\n      \"Obtain influenza and SARS-CoV-2 nucleic acid testing when locally circulating or clinically indicated.\",\n      \"Obtain sputum culture and blood cultures if severe pneumonia, resistant-pathogen risk factors, or suspected sepsis are present; these are not routinely necessary for uncomplicated outpatient pneumonia.\",\n      \"Perform chest ultrasound if pleural effusion is suspected; sample a clinically significant or complex effusion for pH, chemistry, Gram stain, and culture.\",\n      \"Measure lactate if hypoperfusion or sepsis is suspected.\",\n      \"If pulmonary embolism remains clinically concerning, assess pretest probability and use D-dimer or CT pulmonary angiography as appropriate.\"\n    ],\n    \"clinical_notes\": \"Prompt in-person assessment and empiric pneumonia treatment are warranted. Diabetes increases complication risk. Fever, tachycardia, tachypnea, and leukocytosis indicate systemic inflammation but do not establish sepsis without acute organ dysfunction. Blood pressure is preserved, and septic shock is not supported. Disposition cannot be determined reliably without mental status, renal function, oxygen requirements, oral intake, and examination findings. Clarify recent hospitalization, antibiotic exposure, aspiration risk, and the timing and features of the penicillin rash before selecting therapy. Seek emergency care for worsening breathlessness, falling oxygen saturation, confusion, hypotension, or inability to maintain hydration.\",\n    \"knowledge_sources\": [\n      \"ATS/IDSA guideline for diagnosis and treatment of adults with community-acquired pneumonia (2019)\",\n      \"Sepsis-3 international consensus definitions for sepsis and septic shock (2016)\",\n      \"Provided symptom-to-disease knowledge-graph hints, weighed against the clinical and radiographic findings\",\n      \"GraphRAG knowledge graph (symptom->disease retrieval)\"\n    ],\n    \"knowledge_graph_candidates\": [\n      {\n        \"disease\": \"Influenza\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"J11.1\",\n        \"icd10_description\": \"Influenza with other respiratory manifestations\"\n      },\n      {\n        \"disease\": \"Pneumonia\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"J18.9\",\n        \"icd10_description\": \"Pneumonia, unspecified organism\"\n      },\n      {\n        \"disease\": \"COVID-19\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"U07.1\",\n        \"icd10_description\": \"COVID-19, virus identified\"\n      },\n      {\n        \"disease\": \"Sepsis\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"A41.9\",\n        \"icd10_description\": \"Sepsis, unspecified organism\"\n      },\n      {\n        \"disease\": \"Malaria\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      }\n    ]\n  }\n}\n\nProvide a comprehensive treatment plan with drug interaction checks.",
+          "sha256": "be5097ed9fa6a1a35d9bd8b7252f397caeb3975d648bd12d8b8551775e4df055"
+        }
+      ],
+      "prompt_sha256": "b473559c512fb4d75b1ac40be7d09f46bc6df730c7d742857a8c9080a51d9d5b",
+      "output_text": "{\n  \"diagnosis_addressed\": \"Right lower lobe community-acquired pneumonia, likely bacterial, in an adult with diabetes. Same-day in-person assessment is needed before confirming outpatient treatment.\",\n  \"medications\": [\n    {\n      \"drug_name\": \"Ceftin\",\n      \"generic_name\": \"Cefuroxime axetil\",\n      \"dosage\": \"500 mg\",\n      \"route\": \"oral\",\n      \"frequency\": \"Twice daily with food, together with doxycycline\",\n      \"duration\": \"Initially 5 days; reassess clinical stability before stopping\",\n      \"contraindications\": [\n        \"Known cefuroxime or cephalosporin allergy\",\n        \"Clarify the reported penicillin rash before prescribing. A benign, nonurticarial rash generally permits use of this structurally dissimilar cephalosporin.\",\n        \"Do not use this outpatient regimen without specialist assessment if the prior reaction involved blistering, mucosal lesions, organ injury, or another severe delayed beta-lactam reaction.\",\n        \"Dose interval adjustment is required if creatinine clearance is below 30 mL/min.\"\n      ],\n      \"side_effects\": [\n        \"Diarrhea\",\n        \"Nausea\",\n        \"Rash\",\n        \"Rare anaphylaxis or Clostridioides difficile infection\"\n      ]\n    },\n    {\n      \"drug_name\": \"Vibramycin\",\n      \"generic_name\": \"Doxycycline\",\n      \"dosage\": \"100 mg\",\n      \"route\": \"oral\",\n      \"frequency\": \"Twice daily, together with cefuroxime\",\n      \"duration\": \"Initially 5 days; reassess clinical stability before stopping\",\n      \"contraindications\": [\n        \"Tetracycline allergy; confirm no additional drug allergies\",\n        \"Significant swallowing difficulty or inability to remain upright after administration requires an alternative formulation or treatment\"\n      ],\n      \"side_effects\": [\n        \"Nausea\",\n        \"Diarrhea\",\n        \"Photosensitivity\",\n        \"Esophagitis\"\n      ]\n    },\n    {\n      \"drug_name\": \"Tylenol\",\n      \"generic_name\": \"Acetaminophen\",\n      \"dosage\": \"500\u20131,000 mg; maximum 3,000 mg from all sources in 24 hours\",\n      \"route\": \"oral\",\n      \"frequency\": \"Every 8 hours as needed for fever or pleuritic pain\",\n      \"duration\": \"Up to 3 days initially; reassess persistent fever or pain\",\n      \"contraindications\": [\n        \"Acetaminophen allergy; confirm before use\",\n        \"Severe active liver disease\",\n        \"Use a clinician-adjusted lower maximum with liver disease, heavy alcohol use, malnutrition, or body weight below 50 kg\"\n      ],\n      \"side_effects\": [\n        \"Occasional nausea or rash\",\n        \"Liver injury with excessive dosing\"\n      ]\n    }\n  ],\n  \"drug_interactions\": [\n    {\n      \"drug_a\": \"Cefuroxime\",\n      \"drug_b\": \"Metformin\",\n      \"severity\": \"none\",\n      \"description\": \"No established clinically significant direct interaction. Acute kidney injury, dehydration, sepsis, or significant hypoxemia during pneumonia can nevertheless make metformin unsafe.\",\n      \"recommendation\": \"Check renal function and hydration. Temporarily hold metformin if these complications develop or oral intake becomes poor; restart when recovered and renal function is stable.\"\n    },\n    {\n      \"drug_a\": \"Cefuroxime\",\n      \"drug_b\": \"Lisinopril\",\n      \"severity\": \"none\",\n      \"description\": \"No established clinically significant direct interaction.\",\n      \"recommendation\": \"Monitor creatinine, potassium, blood pressure, and hydration; adjust cefuroxime for renal impairment.\"\n    },\n    {\n      \"drug_a\": \"Doxycycline\",\n      \"drug_b\": \"Metformin\",\n      \"severity\": \"none\",\n      \"description\": \"No established clinically significant direct interaction. Both can cause gastrointestinal upset.\",\n      \"recommendation\": \"Monitor oral intake, gastrointestinal tolerance, and blood glucose.\"\n    },\n    {\n      \"drug_a\": \"Doxycycline\",\n      \"drug_b\": \"Lisinopril\",\n      \"severity\": \"none\",\n      \"description\": \"No established clinically significant direct interaction.\",\n      \"recommendation\": \"No interaction-based dose adjustment is required.\"\n    },\n    {\n      \"drug_a\": \"Acetaminophen\",\n      \"drug_b\": \"Metformin\",\n      \"severity\": \"none\",\n      \"description\": \"No established clinically significant direct interaction at recommended doses.\",\n      \"recommendation\": \"Keep within the daily acetaminophen limit and follow acute-illness glucose monitoring.\"\n    },\n    {\n      \"drug_a\": \"Acetaminophen\",\n      \"drug_b\": \"Lisinopril\",\n      \"severity\": \"none\",\n      \"description\": \"No established clinically significant direct interaction with short-term use at recommended doses.\",\n      \"recommendation\": \"Prefer acetaminophen over NSAIDs during dehydration or possible renal impairment.\"\n    },\n    {\n      \"drug_a\": \"Doxycycline\",\n      \"drug_b\": \"Iron, calcium or magnesium supplements, aluminum-containing antacids, or bismuth\",\n      \"severity\": \"moderate\",\n      \"description\": \"These products can reduce doxycycline absorption; use has not been reported but should be checked.\",\n      \"recommendation\": \"Separate administration by at least 2\u20133 hours and review all over-the-counter products with a pharmacist.\"\n    },\n    {\n      \"drug_a\": \"Lisinopril\",\n      \"drug_b\": \"Ibuprofen, naproxen, or other NSAIDs\",\n      \"severity\": \"moderate\",\n      \"description\": \"If added for chest pain, NSAIDs increase acute kidney injury risk, especially during dehydration, and can reduce antihypertensive effectiveness.\",\n      \"recommendation\": \"Avoid self-starting NSAIDs during this illness.\"\n    }\n  ],\n  \"non_drug_treatments\": [\n    \"Assess mental status, work of breathing, room-air oxygen saturation, oral intake, hydration, and support at home. Use the Pneumonia Severity Index plus clinical judgment to determine disposition.\",\n    \"Obtain BUN, creatinine, electrolytes, and glucose promptly. Do not unnecessarily delay antibiotics while awaiting results.\",\n    \"Maintain oral hydration with frequent small amounts; use clinician-supervised IV fluids if unable to drink or clinically volume depleted.\",\n    \"Supplemental oxygen is not routinely required for a stable room-air saturation of 94%, but repeat measurement is necessary. Give oxygen if hypoxemia develops, generally targeting 94\u201398% unless at risk of hypercapnic respiratory failure.\",\n    \"Test for influenza and SARS-CoV-2 when indicated. Positive testing may require additional antiviral therapy; suspected bacterial coinfection still warrants antibiotics.\",\n    \"Use chest ultrasound if examination suggests an effusion or fever and pleuritic pain persist. Complicated parapneumonic effusion or empyema may require drainage.\"\n  ],\n  \"lifestyle_recommendations\": [\n    \"Rest initially and gradually resume activity as fever and breathing improve.\",\n    \"Avoid smoking, vaping, and alcohol during recovery.\",\n    \"Take doxycycline with a full glass of water and remain upright for at least 30 minutes; avoid taking immediately before bed and use sun protection.\",\n    \"Monitor glucose before meals and at bedtime during illness, or every 4\u20136 hours if not eating. Contact the clinician for repeated readings above 250\u2013300 mg/dL, any glucose below 70 mg/dL, or ketones.\",\n    \"Review influenza, COVID-19, and pneumococcal vaccination after recovery; diabetes is an indication for risk-based pneumococcal vaccination.\",\n    \"Use cough hygiene, handwashing, ventilation, and masking around others while acutely symptomatic.\"\n  ],\n  \"follow_up_plan\": \"Arrange same-day assessment. Outpatient cefuroxime plus doxycycline is appropriate only if the allergy history is compatible, oxygenation is stable, oral medication is tolerated, and no organ dysfunction or other admission indication is present. Recheck within 24\u201348 hours because of diabetes and borderline oxygenation; meaningful improvement should occur within 48\u201372 hours. Review fever, respiratory rate, oxygen saturation, blood pressure, intake, glucose, renal function, and medication tolerance. At day 5, stop antibiotics only after clinical stability is achieved, including improving oxygenation and vital signs, normal mentation, adequate intake, and resolution of fever for approximately 48 hours. Persistent instability warrants reassessment rather than automatic extension. Investigate treatment failure for resistant pathogens, effusion/empyema, abscess, or an alternative diagnosis. Routine follow-up chest radiography is unnecessary if symptoms resolve; consider imaging at approximately 6 weeks for persistent symptoms or lung-cancer risk factors.\",\n  \"warnings\": [\n    \"No major or contraindicated direct interactions were identified between the proposed drugs and the reported metformin and lisinopril. This assessment requires confirmation of all prescription drugs, supplements, and over-the-counter medicines.\",\n    \"Penicillin allergy has been reviewed but remains incompletely characterized. Confirm timing, rash features, and any airway symptoms, hypotension, mucosal involvement, or organ injury before cefuroxime is given.\",\n    \"Seek emergency care for worsening breathlessness, repeated resting oxygen saturation of 92% or lower, a new oxygen requirement, confusion, fainting, hypotension, markedly reduced urine output, inability to drink, or severe/worsening chest pain.\",\n    \"If admission is needed, do not rely on this oral plan; use a hospital CAP protocol with parenteral therapy selected according to allergy history, severity, renal function, and resistant-pathogen risks.\",\n    \"Continue lisinopril only if blood pressure, hydration, potassium, and renal function remain satisfactory. Temporarily hold during significant dehydration, hypotension, acute kidney injury, or hyperkalemia under clinician guidance.\",\n    \"Metformin does not need to be stopped solely because pneumonia is diagnosed, but should be held with significant hypoxemia, dehydration, acute kidney injury, or sepsis.\",\n    \"Do not routinely prescribe corticosteroids for this presumed nonsevere outpatient pneumonia; they can worsen hyperglycemia.\",\n    \"Do not add MRSA or Pseudomonas coverage unless validated risk factors or microbiologic evidence justify it.\",\n    \"Stop the suspected drug and seek urgent help for hives with breathing difficulty, facial swelling, or a blistering/mucosal rash. Seek assessment for severe, persistent, or bloody diarrhea.\"\n  ],\n  \"evidence_references\": [\n    \"Metlay JP et al. Diagnosis and Treatment of Adults with Community-acquired Pneumonia. ATS/IDSA Clinical Practice Guideline. American Journal of Respiratory and Critical Care Medicine. 2019;200:e45\u2013e67.\",\n    \"Khan DA et al. Drug allergy: A 2022 practice parameter update. Journal of Allergy and Clinical Immunology. 2022;150:1333\u20131393.\",\n    \"FDA prescribing information for cefuroxime axetil, doxycycline, metformin, and lisinopril: contraindications, renal precautions, administration, and interactions.\"\n  ]\n}",
+      "output_sha256": "237bfb3c71680037bae64ed3be0d6ee4b5fb03d4d0d7cbc2e9863e01b88a868b",
+      "usage": {
+        "input_tokens": 16088,
+        "cached_input_tokens": 3072,
+        "output_tokens": 2391,
+        "reasoning_output_tokens": 60
+      },
+      "elapsed_seconds": 68.754,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    },
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You propose research ICD-10-CM coding from the supplied original narrative, complete patient information, diagnosis, treatment proposal, and coding contract.\n\nReturn a JSON object:\n{\n  \"primary_icd10\": {\n    \"code\": \"complete ICD-10-CM code supported by the documentation\",\n    \"description\": \"official code description\",\n    \"confidence\": 0.92,\n    \"category\": \"category name\"\n  },\n  \"secondary_icd10_codes\": [\n    {\n      \"code\": \"ICD-10 code\",\n      \"description\": \"description\",\n      \"confidence\": 0.85,\n      \"category\": \"category\"\n    }\n  ],\n  \"drg_group\": {\n    \"drg_code\": \"DRG number only if the encounter context supports one\",\n    \"description\": \"DRG description\",\n    \"weight\": 1.2,\n    \"mean_los\": 4.5\n  },\n  \"coding_notes\": \"rationale for code selection\",\n  \"coding_confidence\": 0.90\n}\n\nRules:\n- Follow the supplied FY2027 coding contract and use complete catalog codes, never category headers.\n- Select the most specific code supported by the documented facts; do not add unsupported specificity.\n- Consider the original narrative and full patient history even when upstream summaries omit a fact.\n- Include only documented, relevant secondary conditions; do not infer conditions from medications.\n- Retrieval hints and candidate lists do not establish a diagnosis or force a code choice.\n- Return secondary_icd10_codes as a list, including an empty list when none are supported.\n- Do not assume the encounter setting, culprit artery, causal relationships, or completed procedures.\n- drg_group may be null when the setting or grouping information is unresolved.\n- Confidence is an uncalibrated model estimate, not validated coding accuracy.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "5be0313626be588db5aafcab5eab1d7bb4e5ff7856782fbc582140072c3aae2e"
+        },
+        {
+          "role": "human",
+          "content": "Clinical data for coding:\n\n{\n  \"raw_input\": \"45-year-old male presenting with fever (39.2\u00b0C) for 3 days, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing. History of type 2 diabetes (diagnosed 5 years ago) and hypertension. Current medications: metformin 500mg twice daily, lisinopril 10mg daily. Allergies: penicillin (causes rash). Vital signs: BP 130/85, HR 102, RR 22, SpO2 94% on room air. Labs: WBC 15,000/\u03bcL (elevated), CRP 85 mg/L (elevated), procalcitonin 2.1 ng/mL (elevated). Chest X-ray shows right lower lobe consolidation.\",\n  \"patient_info\": {\n    \"patient_id\": null,\n    \"name\": \"Unknown\",\n    \"age\": 45,\n    \"gender\": \"male\",\n    \"chief_complaint\": \"Fever, productive cough, and right-sided pleuritic chest pain\",\n    \"symptoms\": [\n      {\n        \"name\": \"Fever\",\n        \"duration_days\": 3,\n        \"severity\": \"moderate\",\n        \"description\": \"Temperature of 39.2\u00b0C\"\n      },\n      {\n        \"name\": \"Productive cough\",\n        \"duration_days\": null,\n        \"severity\": \"moderate\",\n        \"description\": \"Cough with yellow sputum; severity not explicitly stated\"\n      },\n      {\n        \"name\": \"Right-sided chest pain\",\n        \"duration_days\": null,\n        \"severity\": \"moderate\",\n        \"description\": \"Worsens with deep breathing; severity not explicitly stated\"\n      }\n    ],\n    \"medical_history\": [\n      \"Type 2 diabetes mellitus diagnosed 5 years ago\",\n      \"Hypertension\"\n    ],\n    \"family_history\": [],\n    \"allergies\": [\n      {\n        \"substance\": \"Penicillin\",\n        \"reaction\": \"Rash\",\n        \"severity\": \"mild\"\n      }\n    ],\n    \"current_medications\": [\n      {\n        \"name\": \"Metformin\",\n        \"dosage\": \"500 mg\",\n        \"frequency\": \"Twice daily\",\n        \"start_date\": null\n      },\n      {\n        \"name\": \"Lisinopril\",\n        \"dosage\": \"10 mg\",\n        \"frequency\": \"Daily\",\n        \"start_date\": null\n      }\n    ],\n    \"vital_signs\": {\n      \"temperature\": 39.2,\n      \"heart_rate\": 102,\n      \"blood_pressure_systolic\": 130,\n      \"blood_pressure_diastolic\": 85,\n      \"respiratory_rate\": 22,\n      \"oxygen_saturation\": 94.0\n    },\n    \"lab_results\": [\n      {\n        \"test_name\": \"WBC\",\n        \"value\": \"15000\",\n        \"unit\": \"/\u03bcL\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"CRP\",\n        \"value\": \"85\",\n        \"unit\": \"mg/L\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"Procalcitonin\",\n        \"value\": \"2.1\",\n        \"unit\": \"ng/mL\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"Chest X-ray\",\n        \"value\": \"Right lower lobe consolidation\",\n        \"unit\": null,\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      }\n    ],\n    \"raw_input\": null,\n    \"created_at\": \"2026-10-26T17:21:06.784744\"\n  },\n  \"diagnosis\": {\n    \"primary_diagnosis\": {\n      \"disease_name\": \"Right lower lobe community-acquired pneumonia, likely bacterial\",\n      \"icd10_hint\": \"J18.9\",\n      \"confidence\": 0.95,\n      \"evidence\": [\n        \"Right lower lobe consolidation on chest X-ray\",\n        \"Fever of 39.2\u00b0C with productive cough and yellow sputum\",\n        \"Right-sided pleuritic chest pain\",\n        \"WBC 15,000/\u03bcL, CRP 85 mg/L, and procalcitonin 2.1 ng/mL\",\n        \"Heart rate 102/min, respiratory rate 22/min, and oxygen saturation 94%\"\n      ],\n      \"reasoning\": \"The acute febrile respiratory illness with focal consolidation strongly supports pneumonia. Elevated inflammatory markers and procalcitonin favor a bacterial cause but do not establish the pathogen. Pneumococcus is a plausible cause; community acquisition should be confirmed by exposure history.\"\n    },\n    \"differential_list\": [\n      {\n        \"disease_name\": \"Viral pneumonia, including influenza or COVID-19, with possible bacterial coinfection\",\n        \"icd10_hint\": \"J12.9\",\n        \"confidence\": 0.2,\n        \"evidence\": [\n          \"Acute fever and cough\",\n          \"Oxygen saturation 94%\",\n          \"Radiographic pulmonary consolidation\"\n        ],\n        \"reasoning\": \"Influenza and SARS-CoV-2 can cause pneumonia or predispose to secondary bacterial pneumonia. Focal lobar consolidation and elevated procalcitonin favor bacterial infection over isolated viral pneumonia; viral testing is needed.\"\n      },\n      {\n        \"disease_name\": \"Parapneumonic effusion or empyema complicating pneumonia\",\n        \"icd10_hint\": \"J90 / J86.9\",\n        \"confidence\": 0.12,\n        \"evidence\": [\n          \"Right-sided pleuritic chest pain\",\n          \"High fever and elevated inflammatory markers\",\n          \"Adjacent right lower lobe consolidation\"\n        ],\n        \"reasoning\": \"Pleural infection or an inflammatory effusion could accompany the pneumonia, although no effusion is reported on the radiograph. Ultrasound is appropriate if examination suggests fluid or fever and pain persist despite treatment.\"\n      },\n      {\n        \"disease_name\": \"Pulmonary embolism with pulmonary infarction\",\n        \"icd10_hint\": \"I26.99\",\n        \"confidence\": 0.05,\n        \"evidence\": [\n          \"Pleuritic chest pain\",\n          \"Tachycardia and mild tachypnea\",\n          \"Oxygen saturation 94%\",\n          \"Focal pulmonary opacity\"\n        ],\n        \"reasoning\": \"Pulmonary infarction can mimic focal pneumonia. However, high fever, purulent sputum, and elevated procalcitonin make infection substantially more likely. Investigate if thromboembolic risk factors, disproportionate hypoxemia, hemoptysis, or an unexpected clinical course are present.\"\n      }\n    ],\n    \"recommended_tests\": [\n      \"Repeat vital signs and oxygen saturation; clarify whether saturation was measured on room air and assess mental status, respiratory effort, hydration, and urine output.\",\n      \"Measure urea/BUN, creatinine, electrolytes, and glucose to assess organ function and support pneumonia severity scoring.\",\n      \"Obtain influenza and SARS-CoV-2 nucleic acid testing when locally circulating or clinically indicated.\",\n      \"Obtain sputum culture and blood cultures if severe pneumonia, resistant-pathogen risk factors, or suspected sepsis are present; these are not routinely necessary for uncomplicated outpatient pneumonia.\",\n      \"Perform chest ultrasound if pleural effusion is suspected; sample a clinically significant or complex effusion for pH, chemistry, Gram stain, and culture.\",\n      \"Measure lactate if hypoperfusion or sepsis is suspected.\",\n      \"If pulmonary embolism remains clinically concerning, assess pretest probability and use D-dimer or CT pulmonary angiography as appropriate.\"\n    ],\n    \"clinical_notes\": \"Prompt in-person assessment and empiric pneumonia treatment are warranted. Diabetes increases complication risk. Fever, tachycardia, tachypnea, and leukocytosis indicate systemic inflammation but do not establish sepsis without acute organ dysfunction. Blood pressure is preserved, and septic shock is not supported. Disposition cannot be determined reliably without mental status, renal function, oxygen requirements, oral intake, and examination findings. Clarify recent hospitalization, antibiotic exposure, aspiration risk, and the timing and features of the penicillin rash before selecting therapy. Seek emergency care for worsening breathlessness, falling oxygen saturation, confusion, hypotension, or inability to maintain hydration.\",\n    \"knowledge_sources\": [\n      \"ATS/IDSA guideline for diagnosis and treatment of adults with community-acquired pneumonia (2019)\",\n      \"Sepsis-3 international consensus definitions for sepsis and septic shock (2016)\",\n      \"Provided symptom-to-disease knowledge-graph hints, weighed against the clinical and radiographic findings\",\n      \"GraphRAG knowledge graph (symptom->disease retrieval)\"\n    ],\n    \"knowledge_graph_candidates\": [\n      {\n        \"disease\": \"Influenza\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"J11.1\",\n        \"icd10_description\": \"Influenza with other respiratory manifestations\"\n      },\n      {\n        \"disease\": \"Pneumonia\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"J18.9\",\n        \"icd10_description\": \"Pneumonia, unspecified organism\"\n      },\n      {\n        \"disease\": \"COVID-19\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"U07.1\",\n        \"icd10_description\": \"COVID-19, virus identified\"\n      },\n      {\n        \"disease\": \"Sepsis\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"A41.9\",\n        \"icd10_description\": \"Sepsis, unspecified organism\"\n      },\n      {\n        \"disease\": \"Malaria\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      }\n    ]\n  },\n  \"treatment_plan\": {\n    \"diagnosis_addressed\": \"Right lower lobe community-acquired pneumonia, likely bacterial, in an adult with diabetes. Same-day in-person assessment is needed before confirming outpatient treatment.\",\n    \"medications\": [\n      {\n        \"drug_name\": \"Ceftin\",\n        \"generic_name\": \"Cefuroxime axetil\",\n        \"dosage\": \"500 mg\",\n        \"route\": \"oral\",\n        \"frequency\": \"Twice daily with food, together with doxycycline\",\n        \"duration\": \"Initially 5 days; reassess clinical stability before stopping\",\n        \"contraindications\": [\n          \"Known cefuroxime or cephalosporin allergy\",\n          \"Clarify the reported penicillin rash before prescribing. A benign, nonurticarial rash generally permits use of this structurally dissimilar cephalosporin.\",\n          \"Do not use this outpatient regimen without specialist assessment if the prior reaction involved blistering, mucosal lesions, organ injury, or another severe delayed beta-lactam reaction.\",\n          \"Dose interval adjustment is required if creatinine clearance is below 30 mL/min.\"\n        ],\n        \"side_effects\": [\n          \"Diarrhea\",\n          \"Nausea\",\n          \"Rash\",\n          \"Rare anaphylaxis or Clostridioides difficile infection\"\n        ]\n      },\n      {\n        \"drug_name\": \"Vibramycin\",\n        \"generic_name\": \"Doxycycline\",\n        \"dosage\": \"100 mg\",\n        \"route\": \"oral\",\n        \"frequency\": \"Twice daily, together with cefuroxime\",\n        \"duration\": \"Initially 5 days; reassess clinical stability before stopping\",\n        \"contraindications\": [\n          \"Tetracycline allergy; confirm no additional drug allergies\",\n          \"Significant swallowing difficulty or inability to remain upright after administration requires an alternative formulation or treatment\"\n        ],\n        \"side_effects\": [\n          \"Nausea\",\n          \"Diarrhea\",\n          \"Photosensitivity\",\n          \"Esophagitis\"\n        ]\n      },\n      {\n        \"drug_name\": \"Tylenol\",\n        \"generic_name\": \"Acetaminophen\",\n        \"dosage\": \"500\u20131,000 mg; maximum 3,000 mg from all sources in 24 hours\",\n        \"route\": \"oral\",\n        \"frequency\": \"Every 8 hours as needed for fever or pleuritic pain\",\n        \"duration\": \"Up to 3 days initially; reassess persistent fever or pain\",\n        \"contraindications\": [\n          \"Acetaminophen allergy; confirm before use\",\n          \"Severe active liver disease\",\n          \"Use a clinician-adjusted lower maximum with liver disease, heavy alcohol use, malnutrition, or body weight below 50 kg\"\n        ],\n        \"side_effects\": [\n          \"Occasional nausea or rash\",\n          \"Liver injury with excessive dosing\"\n        ]\n      }\n    ],\n    \"drug_interactions\": [\n      {\n        \"drug_a\": \"Cefuroxime\",\n        \"drug_b\": \"Metformin\",\n        \"severity\": \"none\",\n        \"description\": \"No established clinically significant direct interaction. Acute kidney injury, dehydration, sepsis, or significant hypoxemia during pneumonia can nevertheless make metformin unsafe.\",\n        \"recommendation\": \"Check renal function and hydration. Temporarily hold metformin if these complications develop or oral intake becomes poor; restart when recovered and renal function is stable.\"\n      },\n      {\n        \"drug_a\": \"Cefuroxime\",\n        \"drug_b\": \"Lisinopril\",\n        \"severity\": \"none\",\n        \"description\": \"No established clinically significant direct interaction.\",\n        \"recommendation\": \"Monitor creatinine, potassium, blood pressure, and hydration; adjust cefuroxime for renal impairment.\"\n      },\n      {\n        \"drug_a\": \"Doxycycline\",\n        \"drug_b\": \"Metformin\",\n        \"severity\": \"none\",\n        \"description\": \"No established clinically significant direct interaction. Both can cause gastrointestinal upset.\",\n        \"recommendation\": \"Monitor oral intake, gastrointestinal tolerance, and blood glucose.\"\n      },\n      {\n        \"drug_a\": \"Doxycycline\",\n        \"drug_b\": \"Lisinopril\",\n        \"severity\": \"none\",\n        \"description\": \"No established clinically significant direct interaction.\",\n        \"recommendation\": \"No interaction-based dose adjustment is required.\"\n      },\n      {\n        \"drug_a\": \"Acetaminophen\",\n        \"drug_b\": \"Metformin\",\n        \"severity\": \"none\",\n        \"description\": \"No established clinically significant direct interaction at recommended doses.\",\n        \"recommendation\": \"Keep within the daily acetaminophen limit and follow acute-illness glucose monitoring.\"\n      },\n      {\n        \"drug_a\": \"Acetaminophen\",\n        \"drug_b\": \"Lisinopril\",\n        \"severity\": \"none\",\n        \"description\": \"No established clinically significant direct interaction with short-term use at recommended doses.\",\n        \"recommendation\": \"Prefer acetaminophen over NSAIDs during dehydration or possible renal impairment.\"\n      },\n      {\n        \"drug_a\": \"Doxycycline\",\n        \"drug_b\": \"Iron, calcium or magnesium supplements, aluminum-containing antacids, or bismuth\",\n        \"severity\": \"moderate\",\n        \"description\": \"These products can reduce doxycycline absorption; use has not been reported but should be checked.\",\n        \"recommendation\": \"Separate administration by at least 2\u20133 hours and review all over-the-counter products with a pharmacist.\"\n      },\n      {\n        \"drug_a\": \"Lisinopril\",\n        \"drug_b\": \"Ibuprofen, naproxen, or other NSAIDs\",\n        \"severity\": \"moderate\",\n        \"description\": \"If added for chest pain, NSAIDs increase acute kidney injury risk, especially during dehydration, and can reduce antihypertensive effectiveness.\",\n        \"recommendation\": \"Avoid self-starting NSAIDs during this illness.\"\n      }\n    ],\n    \"non_drug_treatments\": [\n      \"Assess mental status, work of breathing, room-air oxygen saturation, oral intake, hydration, and support at home. Use the Pneumonia Severity Index plus clinical judgment to determine disposition.\",\n      \"Obtain BUN, creatinine, electrolytes, and glucose promptly. Do not unnecessarily delay antibiotics while awaiting results.\",\n      \"Maintain oral hydration with frequent small amounts; use clinician-supervised IV fluids if unable to drink or clinically volume depleted.\",\n      \"Supplemental oxygen is not routinely required for a stable room-air saturation of 94%, but repeat measurement is necessary. Give oxygen if hypoxemia develops, generally targeting 94\u201398% unless at risk of hypercapnic respiratory failure.\",\n      \"Test for influenza and SARS-CoV-2 when indicated. Positive testing may require additional antiviral therapy; suspected bacterial coinfection still warrants antibiotics.\",\n      \"Use chest ultrasound if examination suggests an effusion or fever and pleuritic pain persist. Complicated parapneumonic effusion or empyema may require drainage.\"\n    ],\n    \"lifestyle_recommendations\": [\n      \"Rest initially and gradually resume activity as fever and breathing improve.\",\n      \"Avoid smoking, vaping, and alcohol during recovery.\",\n      \"Take doxycycline with a full glass of water and remain upright for at least 30 minutes; avoid taking immediately before bed and use sun protection.\",\n      \"Monitor glucose before meals and at bedtime during illness, or every 4\u20136 hours if not eating. Contact the clinician for repeated readings above 250\u2013300 mg/dL, any glucose below 70 mg/dL, or ketones.\",\n      \"Review influenza, COVID-19, and pneumococcal vaccination after recovery; diabetes is an indication for risk-based pneumococcal vaccination.\",\n      \"Use cough hygiene, handwashing, ventilation, and masking around others while acutely symptomatic.\"\n    ],\n    \"follow_up_plan\": \"Arrange same-day assessment. Outpatient cefuroxime plus doxycycline is appropriate only if the allergy history is compatible, oxygenation is stable, oral medication is tolerated, and no organ dysfunction or other admission indication is present. Recheck within 24\u201348 hours because of diabetes and borderline oxygenation; meaningful improvement should occur within 48\u201372 hours. Review fever, respiratory rate, oxygen saturation, blood pressure, intake, glucose, renal function, and medication tolerance. At day 5, stop antibiotics only after clinical stability is achieved, including improving oxygenation and vital signs, normal mentation, adequate intake, and resolution of fever for approximately 48 hours. Persistent instability warrants reassessment rather than automatic extension. Investigate treatment failure for resistant pathogens, effusion/empyema, abscess, or an alternative diagnosis. Routine follow-up chest radiography is unnecessary if symptoms resolve; consider imaging at approximately 6 weeks for persistent symptoms or lung-cancer risk factors.\",\n    \"warnings\": [\n      \"No major or contraindicated direct interactions were identified between the proposed drugs and the reported metformin and lisinopril. This assessment requires confirmation of all prescription drugs, supplements, and over-the-counter medicines.\",\n      \"Penicillin allergy has been reviewed but remains incompletely characterized. Confirm timing, rash features, and any airway symptoms, hypotension, mucosal involvement, or organ injury before cefuroxime is given.\",\n      \"Seek emergency care for worsening breathlessness, repeated resting oxygen saturation of 92% or lower, a new oxygen requirement, confusion, fainting, hypotension, markedly reduced urine output, inability to drink, or severe/worsening chest pain.\",\n      \"If admission is needed, do not rely on this oral plan; use a hospital CAP protocol with parenteral therapy selected according to allergy history, severity, renal function, and resistant-pathogen risks.\",\n      \"Continue lisinopril only if blood pressure, hydration, potassium, and renal function remain satisfactory. Temporarily hold during significant dehydration, hypotension, acute kidney injury, or hyperkalemia under clinician guidance.\",\n      \"Metformin does not need to be stopped solely because pneumonia is diagnosed, but should be held with significant hypoxemia, dehydration, acute kidney injury, or sepsis.\",\n      \"Do not routinely prescribe corticosteroids for this presumed nonsevere outpatient pneumonia; they can worsen hyperglycemia.\",\n      \"Do not add MRSA or Pseudomonas coverage unless validated risk factors or microbiologic evidence justify it.\",\n      \"Stop the suspected drug and seek urgent help for hives with breathing difficulty, facial swelling, or a blistering/mucosal rash. Seek assessment for severe, persistent, or bloody diarrhea.\"\n    ],\n    \"evidence_references\": [\n      \"Metlay JP et al. Diagnosis and Treatment of Adults with Community-acquired Pneumonia. ATS/IDSA Clinical Practice Guideline. American Journal of Respiratory and Critical Care Medicine. 2019;200:e45\u2013e67.\",\n      \"Khan DA et al. Drug allergy: A 2022 practice parameter update. Journal of Allergy and Clinical Immunology. 2022;150:1333\u20131393.\",\n      \"FDA prescribing information for cefuroxime axetil, doxycycline, metformin, and lisinopril: contraindications, renal precautions, administration, and interactions.\"\n    ],\n    \"allergy_alerts\": [],\n    \"ddi_engine\": {\n      \"checked\": true,\n      \"proposed_drugs_checked\": [\n        \"Cefuroxime axetil\",\n        \"Ceftin\",\n        \"Doxycycline\",\n        \"Vibramycin\",\n        \"Acetaminophen\",\n        \"Tylenol\"\n      ],\n      \"current_medications_checked\": [\n        \"Metformin\",\n        \"Lisinopril\"\n      ],\n      \"allergies_checked\": [\n        \"Penicillin\"\n      ],\n      \"engine_flagged_interactions\": 0,\n      \"engine_flagged_allergy_alerts\": 0\n    }\n  },\n  \"coding_contract\": {\n    \"code_set\": \"ICD-10-CM\",\n    \"release\": \"FY2027\",\n    \"encounter_setting\": \"Unspecified synthetic research vignette; encounter setting is not documented.\",\n    \"documentation_policy\": \"Use the original narrative and structured patient facts. Do not infer an undocumented disease, culprit artery, causal relationship, or completed procedure from medications, test findings, a treatment proposal, or retrieval hints alone.\",\n    \"code_selection_policy\": \"Choose the most specific documented, supported complete code. Catalog candidates are hints, not required answers or evidence that a condition is present. Document unresolved coding assumptions; a code's existence does not establish clinical correctness.\",\n    \"drg_policy\": \"Do not assume an inpatient encounter or completed procedure. Use null for an unresolved DRG; any estimate is unverified and requires the applicable grouper and documentation.\"\n  },\n  \"catalog_candidates\": {\n    \"catalog_release\": \"FY2027\",\n    \"policy\": \"Incomplete candidate list; mentions and hints are not diagnoses or mandatory code choices. Do not infer complications or their absence from the candidate list; use documented facts.\",\n    \"families\": [\n      {\n        \"prefix\": \"J18\",\n        \"basis\": \"diagnosis.primary_diagnosis.icd10_hint\",\n        \"codes\": [\n          {\n            \"code\": \"J18.9\",\n            \"description\": \"Pneumonia, unspecified organism\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"J18.0\",\n            \"description\": \"Bronchopneumonia, unspecified organism\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"J18.1\",\n            \"description\": \"Lobar pneumonia, unspecified organism\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"J18.2\",\n            \"description\": \"Hypostatic pneumonia, unspecified organism\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"J18.8\",\n            \"description\": \"Other pneumonia, unspecified organism\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          }\n        ]\n      },\n      {\n        \"prefix\": \"I10\",\n        \"basis\": \"patient_info.medical_history text mention\",\n        \"codes\": [\n          {\n            \"code\": \"I10\",\n            \"description\": \"Essential (primary) hypertension\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          }\n        ]\n      },\n      {\n        \"prefix\": \"E11\",\n        \"basis\": \"patient_info.medical_history text mention\",\n        \"codes\": [\n          {\n            \"code\": \"E11.9\",\n            \"description\": \"Type 2 diabetes mellitus without complications\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.00\",\n            \"description\": \"Type 2 diabetes mellitus with hyperosmolarity without nonketotic hyperglycemic-hyperosmolar coma (NKHHC)\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.01\",\n            \"description\": \"Type 2 diabetes mellitus with hyperosmolarity with coma\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.10\",\n            \"description\": \"Type 2 diabetes mellitus with ketoacidosis without coma\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.11\",\n            \"description\": \"Type 2 diabetes mellitus with ketoacidosis with coma\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.21\",\n            \"description\": \"Type 2 diabetes mellitus with diabetic nephropathy\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.22\",\n            \"description\": \"Type 2 diabetes mellitus with diabetic chronic kidney disease\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.29\",\n            \"description\": \"Type 2 diabetes mellitus with other diabetic kidney complication\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.311\",\n            \"description\": \"Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.319\",\n            \"description\": \"Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.3211\",\n            \"description\": \"Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy with macular edema, right eye\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          },\n          {\n            \"code\": \"E11.3212\",\n            \"description\": \"Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy with macular edema, left eye\",\n            \"is_complete_code\": true,\n            \"catalog_release\": \"FY2027\"\n          }\n        ]\n      }\n    ]\n  }\n}\n\nAssign ICD-10 codes and DRGs group.",
+          "sha256": "2d0a6f1a2f031d2f373b54b32f3536be4bd0d9660f6d4c65ca58e377e2e3de40"
+        }
+      ],
+      "prompt_sha256": "3d2596f21ee8cc555a116bb0bf6d196aaf32e2babca150111def53b52d30ddc8",
+      "output_text": "{\n  \"primary_icd10\": {\n    \"code\": \"J18.9\",\n    \"description\": \"Pneumonia, unspecified organism\",\n    \"confidence\": 0.96,\n    \"category\": \"Respiratory disease\"\n  },\n  \"secondary_icd10_codes\": [\n    {\n      \"code\": \"E11.9\",\n      \"description\": \"Type 2 diabetes mellitus without complications\",\n      \"confidence\": 0.98,\n      \"category\": \"Endocrine and metabolic disease\"\n    },\n    {\n      \"code\": \"I10\",\n      \"description\": \"Essential (primary) hypertension\",\n      \"confidence\": 0.99,\n      \"category\": \"Circulatory disease\"\n    },\n    {\n      \"code\": \"Z88.0\",\n      \"description\": \"Allergy status to penicillin\",\n      \"confidence\": 0.99,\n      \"category\": \"Allergy status\"\n    },\n    {\n      \"code\": \"Z79.84\",\n      \"description\": \"Long term (current) use of oral hypoglycemic drugs\",\n      \"confidence\": 0.96,\n      \"category\": \"Medication use status\"\n    }\n  ],\n  \"drg_group\": null,\n  \"coding_notes\": \"Pneumonia is documented, but its organism and bacterial etiology are not confirmed. Right lower lobe location and consolidation do not independently establish the diagnosis of lobar pneumonia for J18.1. With the encounter setting unresolved, the uncertain bacterial qualifier is not coded as confirmed. Diabetes and hypertension are documented; no diabetic complication is established. Current maintenance metformin supports Z79.84, and penicillin allergy affects antibiotic selection. Symptoms integral to pneumonia and unconfirmed differential diagnoses are not separately coded. Sepsis and respiratory failure are not documented. DRG assignment requires an established inpatient encounter and applicable grouper information. Confidence values are uncalibrated estimates.\",\n  \"coding_confidence\": 0.96\n}",
+      "output_sha256": "1be2124d979777408db178126dfba2442bc20ffcb16a9afc288396652ca06dac",
+      "usage": {
+        "input_tokens": 20000,
+        "cached_input_tokens": 0,
+        "output_tokens": 443,
+        "reasoning_output_tokens": 30
+      },
+      "elapsed_seconds": 13.596,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    }
+  ]
+}

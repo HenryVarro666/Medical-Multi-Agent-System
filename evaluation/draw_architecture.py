@@ -122,7 +122,7 @@ def architecture():
     box(ax, 320, 184, 280, 104, "FastAPI", ["Analysis + offline routes", "api/routes.py"])
     box(ax, 688, 184, 240, 104, "ICD-10 / DRG tools", ["Bundled lookup tables", "Standalone API endpoints"])
     box(ax, 320, 368, 320, 176, "LangGraph workflow",
-        ["Intake · Diagnosis · Treatment", "Coding · Audit (rules)", "LLM calls via get_llm()", "Sequential ClinicalState updates"],
+        ["Intake · Diagnosis · Treatment", "Coding · Audit (rules)", "LLM calls via get_llm()", "Coding: FY2027 code validation"],
         tag="ORCHESTRATION", fill=TINT, stroke=BLUE)
     box(ax, 704, 368, 224, 80, "Symptom map", ["Diagnosis retrieval hints"])
     box(ax, 704, 464, 224, 80, "DDI / allergy rules", ["Treatment reconciliation"])
@@ -131,7 +131,7 @@ def architecture():
     box(ax, 1008, 368, 232, 176, "LLM backend",
         ["OpenAI-compatible API", "or Codex CLI (ChatGPT)", "Intake / Diagnosis /", "Treatment / Coding"],
         tag="MODEL SERVICE", fill=SURFACE)
-    text(ax, 40, 736, "Coding proposes codes through the LLM; deterministic ICD-10/DRG lookups serve separate endpoints.",
+    text(ax, 40, 736, "Coding keeps patient context and checks the FY2027 catalog; ICD-10/DRG API tools remain separate.",
          size=14, color=MUTED)
     text(ax, 40, 764, "Neo4j and FHIR helpers sit outside this default workflow. No database is required for the default run.",
          size=14, color=MUTED)
@@ -166,7 +166,8 @@ def workflow():
         ["Read patient + diagnosis", "Reconcile DDI / allergies", "Write treatment_plan", "Record ddi_engine stamp"],
         tag="03 · LLM THEN RULES")
     box(ax, 960, 512, 280, 168, "Coding",
-        ["Read diagnosis + plan", "Propose ICD-10 / DRG", "Write coding_result"], tag="04 · LLM")
+        ["Read narrative + patient facts", "Read diagnosis + plan", "Propose / validate FY2027 codes", "Write coding_result"],
+        tag="04 · LLM + CATALOG")
     box(ax, 384, 512, 240, 168, "Audit",
         ["Post-model PHI scan", "Controls stay unverified", "Write audit_result"],
         tag="05 · DETERMINISTIC", fill=SURFACE)
@@ -219,10 +220,12 @@ def main():
     plt.rcParams.update({"font.family": "DejaVu Sans", "svg.hashsalt": "medical-architecture"})
     save(architecture(), args.output_dir, "system-architecture", "System architecture",
          "FastAPI invokes a LangGraph workflow with per-invocation state, a configured LLM backend, "
-         "local retrieval and treatment rules, plus independent ICD-10 and DRG API tools.")
+         "local retrieval and treatment rules, Coding with offline FY2027 catalog checks, "
+         "plus independent ICD-10 and DRG API tools.")
     save(workflow(), args.output_dir, "agent-workflow", "Five-Agent collaboration workflow",
          "Intake, Diagnosis, Treatment, Coding and Audit run sequentially through shared state, "
-         "with a bounded Diagnosis-to-Intake retry and a final structured API response.")
+         "with a bounded Diagnosis-to-Intake retry. Coding preserves original patient context "
+         "and validates FY2027 codes before the final structured API response.")
 
 
 if __name__ == "__main__":

@@ -249,7 +249,10 @@ def plot_latency(records: list[dict], output_dir: Path, prefix: str) -> None:
     for index, (record, color, mean) in enumerate(zip(records, COLORS, means)):
         fig.text(0.04 + index * 0.47, 0.14, f"{record['meta']['model']} mean: {mean:.2f} s",
                  size=11.5, color=color, weight="bold")
-    fig.text(0.04, 0.085, "Dashed lines show model means; failed observations remain included.",
+    fig.text(0.04, 0.085,
+             "Means include all observations in these summaries; see archive for other attempts."
+             if is_v2(records[0])
+             else "Dashed lines show model means; failed observations remain included.",
              size=10.5, color=MUTED)
     fig.text(0.04, 0.05,
              "Codex CLI wall time includes startup/transport overhead; n=2 per model does not estimate uncertainty.",

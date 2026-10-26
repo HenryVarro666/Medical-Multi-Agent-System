@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-26",
+  "source_revision": "426d108f0c5f2c5af398b939970186526d717878",
+  "dataset_version": "coding-v2-fy2027",
+  "scoring_version": "coding-validation-v2",
+  "fixture_sha256": "6767812b05debc7f6db5f1e873eb952bc7de8a0359e5f2c447b7644df0e8ccff",
+  "lockfile_sha256": "e77ef46b3b831dc221171cab9849a0490111936605cd5cade0a6720575b2ce1f",
+  "coding_catalog": {
+    "catalog": {
+      "filename": "icd10cm_fy2027.json.gz",
+      "sha256": "0f6ab0461f99974a0927bbaa7451cfb8d5115a146df03a3e281a452e61d7c0bf",
+      "uncompressed_sha256": "41d9c28b751a3b7322077efe563b070f9ca44220c1ad491e1591af0404055f59"
+    },
+    "code_set": "ICD-10-CM",
+    "counts": {
+      "complete_codes": 74879,
+      "non_reportable_headers": 23524,
+      "total_entries": 98403
+    },
+    "release": "FY2027",
+    "schema_version": 1,
+    "scope": "Official release membership and long descriptions only. Complete-code status does not establish clinical appropriateness, sequencing or encounter-specific coding.",
+    "source": {
+      "members": {
+        "Code Descriptions/icd10cm_codes_2027.txt": {
+          "lines": 74879,
+          "sha256": "3c0583a38ee0e848f7dc0ac8ce88e8f001bbba8c6385ed825d44d46f6e5297c9"
+        },
+        "Code Descriptions/icd10cm_order_2027.txt": {
+          "lines": 98403,
+          "sha256": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f"
+        }
+      },
+      "sha256": "91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965",
+      "url": "https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip"
+    }
+  },
+  "case_ids": [
+    "case_001",
+    "case_002"
+  ],
+  "display_model_order": [
+    "gpt-6.1-sol",
+    "gpt-6-astra"
+  ],
+  "protocol": {
+    "reasoning_effort": "medium",
+    "llm_timeout_seconds": 600,
+    "max_diagnosis_retries": 0,
+    "repeats": 1,
+    "execution": "Serial full two-case batches; fresh CLI per stage; no code/label/settings changes between attempts."
+  },
+  "attempts": [
+    {
+      "model": "gpt-6.1-sol",
+      "path": "attempts/sol-initial-interrupted",
+      "returncode": 1,
+      "pipeline_attempts": 2,
+      "complete_stage_outputs": 0,
+      "included_in_matched_effect_comparison": false,
+      "reason": "Codex transport errors before Coding; host sleep/wake overlap; original failures retained"
+    },
+    {
+      "model": "gpt-6-astra",
+      "path": "gpt-6-astra",
+      "returncode": 0,
+      "pipeline_attempts": 2,
+      "complete_stage_outputs": 2,
+      "included_in_matched_effect_comparison": true
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "path": "gpt-6.1-sol",
+      "returncode": 0,
+      "pipeline_attempts": 2,
+      "complete_stage_outputs": 2,
+      "included_in_matched_effect_comparison": true,
+      "reason": "Entire two-case batch repeated after infrastructure interruption"
+    }
+  ]
+}

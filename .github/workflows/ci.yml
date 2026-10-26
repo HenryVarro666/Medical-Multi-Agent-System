@@ -32,6 +32,13 @@ jobs:
           --results evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/eval_results.json
           evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/eval_results.json
           --output-dir /tmp/codex-comparison-charts
+      - name: Render coding-validation v2 comparison
+        if: matrix.python-version == '3.12'
+        run: >-
+          uv run --locked --extra dev --extra plots python -m evaluation.plot_comparison
+          --results evaluation/results/coding-v2-2026-10-26/gpt-6.1-sol/eval_results.json
+          evaluation/results/coding-v2-2026-10-26/gpt-6-astra/eval_results.json
+          --prefix coding-v2-2026-10-26 --output-dir /tmp/coding-v2-charts
       - name: Render architecture diagrams
         if: matrix.python-version == '3.12'
         run: uv run --locked --extra dev --extra plots python -m evaluation.draw_architecture --output-dir /tmp/architecture-diagrams
@@ -58,6 +65,7 @@ jobs:
       - run: docker compose up --build --detach --wait --wait-timeout 90
       - run: curl --fail http://127.0.0.1:8000/health
       - run: curl --fail http://127.0.0.1:8000/api/v1/clinical/icd10/J18.9
+      - run: curl --fail http://127.0.0.1:8000/api/v1/clinical/icd10/validate/I21.09
       - name: Check default model URL with the Compose environment
         run: >-
           docker compose exec -T -e OPENAI_API_KEY=ci-placeholder api python -c

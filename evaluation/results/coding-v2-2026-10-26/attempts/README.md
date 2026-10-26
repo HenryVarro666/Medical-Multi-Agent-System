@@ -1,0 +1,7 @@
+# Retained infrastructure-interrupted attempt
+
+The first coding-v2 `gpt-6.1-sol` batch used the same source `426d108`, dataset, medium reasoning, 600-second call timeout and zero diagnosis loopbacks as the final comparison. It returned exit 1: case_001 failed in Diagnosis after a successful Intake, and case_002 failed in Intake. Coding was not reached in either case. Audit still produced reports. Both attempted cases and their original summaries/raw traces are preserved unchanged in `sol-initial-interrupted/`.
+
+The failure window overlapped host sleep/wake activity; native Codex emitted failed/error events. A valid-looking final text from an errored CLI turn was not accepted as a successful call. The exact upstream cause is not reconstructed from the sanitized archive. Sleep-affected wall timestamps and active-clock durations must not be used as normal latency evidence. No raw OS logs, authentication data or raw CLI diagnostic streams are published.
+
+After the backend was responsive again, the entire two-case Sol batch was rerun without changing code, prompts, labels, settings or error acceptance rules. A temporary idle-sleep assertion was used for the remaining work. The successful complete-stage comparison and this infrastructure-failure cohort are reported separately; the failed observations have not been deleted or converted to successes. Catalog validity was not reached, not clinically judged false, in this first batch.
