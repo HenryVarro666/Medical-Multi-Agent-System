@@ -25,6 +25,13 @@ jobs:
       - name: Render evaluation figures
         if: matrix.python-version == '3.12'
         run: uv run --locked --extra dev --extra plots python -m evaluation.plot_results --output-dir /tmp/evaluation-charts
+      - name: Render recorded two-model comparison
+        if: matrix.python-version == '3.12'
+        run: >-
+          uv run --locked --extra dev --extra plots python -m evaluation.plot_comparison
+          --results evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/eval_results.json
+          evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/eval_results.json
+          --output-dir /tmp/codex-comparison-charts
       - name: Render architecture diagrams
         if: matrix.python-version == '3.12'
         run: uv run --locked --extra dev --extra plots python -m evaluation.draw_architecture --output-dir /tmp/architecture-diagrams

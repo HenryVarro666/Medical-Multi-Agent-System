@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-26",
+  "case_ids": [
+    "case_001",
+    "case_002"
+  ],
+  "models": [
+    "gpt-6.1-sol",
+    "gpt-6-astra"
+  ],
+  "protocol": {
+    "reasoning_effort": "medium",
+    "llm_timeout_seconds": 600,
+    "max_diagnosis_retries": 0,
+    "repeats": 1,
+    "model_run_order": [
+      "gpt-6.1-sol",
+      "gpt-6-astra"
+    ],
+    "execution": "serial model runs, serial cases, fresh CLI invocation per model stage"
+  },
+  "source_revision": "347f414120f30a837ca927617eeb8f89102ccee2",
+  "fixture_sha256": "b5c26331ff3ca58875d1b5ea2e0f8b6b2c3f166d709b1cba0513f7288ab96044",
+  "lockfile_sha256": "e77ef46b3b831dc221171cab9849a0490111936605cd5cade0a6720575b2ce1f",
+  "summary_paths": [
+    "gpt-6.1-sol/eval_results.json",
+    "gpt-6-astra/eval_results.json"
+  ],
+  "pilot_excluded": "exploratory-astra-ultra/README.md"
+}

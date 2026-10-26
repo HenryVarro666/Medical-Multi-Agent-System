@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "timestamp": "2026-10-26T06:47:53.647609+00:00",
+    "llm_backend": "codex",
+    "llm_timeout_seconds": 600.0,
+    "max_diagnosis_retries": 0,
+    "lockfile_sha256": "e77ef46b3b831dc221171cab9849a0490111936605cd5cade0a6720575b2ce1f",
+    "model": "gpt-6-astra",
+    "base_url": "",
+    "backend": "Codex CLI (saved ChatGPT authentication)",
+    "codex_cli_version": "codex-cli 0.163.0",
+    "reasoning_effort": "medium",
+    "temperature": "unsupported by Codex CLI; original agent temperatures not applied",
+    "prompt_transport": "original system text as model_instructions_file; original human text on stdin",
+    "model_revision": "unavailable; model name is requested, backend resolution not exposed",
+    "cli_retries": "no adapter retries; CLI transport recovery may occur internally",
+    "isolation": "fresh ephemeral exec in a temporary directory per call; user config ignored",
+    "n_cases": 2,
+    "repeats": 1,
+    "python_version": "3.12.13",
+    "fixture_sha256": "b5c26331ff3ca58875d1b5ea2e0f8b6b2c3f166d709b1cba0513f7288ab96044",
+    "git_revision": "347f414120f30a837ca927617eeb8f89102ccee2",
+    "git_dirty": false,
+    "completed_at": "2026-10-26T06:54:46.557759+00:00"
+  },
+  "aggregate": {
+    "n_runs": 2,
+    "diagnosis_top1_strict": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "diagnosis_top1_any": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "diagnosis_top3_any": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "icd10_exact": {
+      "hits": 0,
+      "n": 2,
+      "fraction": 0.0
+    },
+    "icd10_category": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "treatment_structure_complete": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "ddi_engine_checked": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "audit_completed": {
+      "hits": 2,
+      "n": 2,
+      "fraction": 1.0
+    },
+    "mean_latency_seconds": 206.44
+  },
+  "per_case": [
+    {
+      "case_id": "case_001",
+      "repeat": 1,
+      "expected_diagnosis": "Community-Acquired Pneumonia",
+      "predicted_diagnosis": "Acute community-acquired pneumonia, likely bacterial, involving the right lower lobe",
+      "diagnosis_top1": "strict",
+      "diagnosis_top1_strict": true,
+      "diagnosis_top1_any": true,
+      "diagnosis_top3_any": true,
+      "expected_icd10": "J18.1",
+      "predicted_icd10": "J18.9",
+      "icd10_exact": false,
+      "icd10_category": true,
+      "treatment_structure_complete": true,
+      "ddi_engine_checked": true,
+      "ddi_engine_flags": 0,
+      "allergy_alerts": 0,
+      "graphrag_candidates_retrieved": 5,
+      "graphrag_top_candidate": "Influenza",
+      "audit_completed": true,
+      "diagnosis_attempts": 1,
+      "pipeline_errors": [],
+      "harness_error": null,
+      "latency_seconds": 197.84
+    },
+    {
+      "case_id": "case_002",
+      "repeat": 1,
+      "expected_diagnosis": "ST-Elevation Myocardial Infarction (STEMI)",
+      "predicted_diagnosis": "Acute anterior ST-elevation myocardial infarction (STEMI), likely left anterior descending coronary artery occlusion",
+      "diagnosis_top1": "strict",
+      "diagnosis_top1_strict": true,
+      "diagnosis_top1_any": true,
+      "diagnosis_top3_any": true,
+      "expected_icd10": "I21.0",
+      "predicted_icd10": "I21.09",
+      "icd10_exact": false,
+      "icd10_category": true,
+      "treatment_structure_complete": true,
+      "ddi_engine_checked": true,
+      "ddi_engine_flags": 0,
+      "allergy_alerts": 0,
+      "graphrag_candidates_retrieved": 5,
+      "graphrag_top_candidate": "Pulmonary Embolism",
+      "audit_completed": true,
+      "diagnosis_attempts": 1,
+      "pipeline_errors": [],
+      "harness_error": null,
+      "latency_seconds": 215.04
+    }
+  ]
+}

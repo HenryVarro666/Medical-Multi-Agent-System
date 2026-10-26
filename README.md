@@ -17,6 +17,7 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 - [Architecture and Agent workflow](#architecture)
 - [End-to-end example](#end-to-end-example)
 - [Evaluation](#evaluation)
+- [Current model comparison](#current-model-comparison)
 - [Historical results](#historical-results)
 - [Docker](#docker)
 - [Development](#development)
@@ -127,7 +128,8 @@ Install the [Codex CLI](https://learn.chatgpt.com/docs/cli), then run `codex log
 LLM_BACKEND=codex
 CODEX_MODEL=gpt-6.1-sol
 CODEX_REASONING_EFFORT=medium
-LLM_TIMEOUT_SECONDS=300
+LLM_TIMEOUT_SECONDS=600
+MAX_DIAGNOSIS_RETRIES=0
 ```
 
 Use a model available to your account. This adapter is tested with Codex CLI `0.163.0`; the model and effort above follow this project's selected run configuration. Saved CLI authentication is reused; this backend does not require `OPENAI_API_KEY`. Each Agent call starts a fresh ephemeral CLI process outside the repository. The original system prompt becomes the CLI instructions file and the original human prompt goes through stdin. CLI context and decoding differ from Chat Completions; the original temperature settings are not applied. See [evaluation protocol](evaluation/README.md) and [OpenAI's non-interactive CLI documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
@@ -217,7 +219,7 @@ flowchart LR
 
 ## End-to-end example
 
-This walkthrough preserves `case_001`, repeat 1, recorded on July 13, 2026 with `Qwen/Qwen3-14B`. It comes from a direct graph invocation by the evaluation harness; it is a historical result, not a new execution.
+This walkthrough preserves `case_001`, repeat 1, recorded on July 13, 2026 with `Qwen/Qwen3-14B`. It comes from a direct graph invocation by the evaluation harness; it is a historical result, not a new execution. The [current two-model comparison](#current-model-comparison) provides separate, newly executed traces for the same case.
 
 [![Historical case_001: input, five key Agent outputs, and a 27.10-second final result with an exact ICD-10 mismatch.](docs/assets/examples/case-001-walkthrough.png)](docs/assets/examples/case-001-walkthrough.svg)
 
@@ -718,6 +720,44 @@ The old code claimed masking and verified deployment controls without establishi
 
 ## Evaluation
 
+### Current model comparison
+
+On October 26, 2026, two original fixtures (`case_001` and `case_002`) were run once per model through the five-stage pipeline using the signed-in Codex CLI. Both models returned all five Agent sections for both cases, with **no pipeline or harness errors**. Four pipeline outputs contain 16 completed CLI invocations; Audit is deterministic.
+
+The matched protocol uses **medium reasoning**, a **600-second per-call timeout**, and **zero diagnosis loopbacks**. Fixed fixtures cannot answer follow-up questions, so each case follows the single-pass path even if Diagnosis requests more information. Original stage prompts, retrieval/rule code, source revision, and dependency lock are shared. The two model runs were sequential in a clean clone with Python 3.12.13 and Codex CLI 0.163.0.
+
+[![Two models compared on eight fixture-label and stage-execution checks.](docs/assets/evaluation/codex-comparison-2026-10-26-metrics.png)](docs/assets/evaluation/codex-comparison-2026-10-26-metrics.svg)
+
+[![Four pipeline timings: gpt-6.1-sol averages 156.91 seconds and gpt-6-astra averages 206.44 seconds.](docs/assets/evaluation/codex-comparison-2026-10-26-latency.png)](docs/assets/evaluation/codex-comparison-2026-10-26-latency.svg)
+
+| Recorded check | `gpt-6.1-sol` | `gpt-6-astra` |
+|---|---:|---:|
+| Error-free five-stage outputs | 2/2 | 2/2 |
+| Top-1 diagnosis, strict alias | 2/2 (100%) | 2/2 (100%) |
+| Top-1 diagnosis, either alias | 2/2 (100%) | 2/2 (100%) |
+| Top-3 diagnosis, either alias | 2/2 (100%) | 2/2 (100%) |
+| Exact ICD-10 label match | 0/2 (0%) | 0/2 (0%) |
+| ICD-10 category match | 2/2 (100%) | 2/2 (100%) |
+| Treatment structure complete | 2/2 (100%) | 2/2 (100%) |
+| DDI check executed | 2/2 (100%) | 2/2 (100%) |
+| Audit report produced | 2/2 (100%) | 2/2 (100%) |
+| Mean pipeline elapsed time | 156.91 s | 206.44 s |
+
+Both models produced `J18.9` for the pneumonia case and `I21.09` for the STEMI case; the original labels are `J18.1` and `I21.0`. These are exact-label mismatches with matching code categories. The evaluation does not adjudicate which code is clinically correct.
+
+| Complete raw trace | Model | Expected → generated ICD-10 | More information requested | Elapsed time |
+|---|---|---|---|---:|
+| [case_001](evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/raw/case_001_r1.json) | `gpt-6.1-sol` | `J18.1` → `J18.9` | no | 144.33 s |
+| [case_001](evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/raw/case_001_r1.json) | `gpt-6-astra` | `J18.1` → `J18.9` | yes | 197.84 s |
+| [case_002](evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/raw/case_002_r1.json) | `gpt-6.1-sol` | `I21.0` → `I21.09` | no | 169.49 s |
+| [case_002](evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/raw/case_002_r1.json) | `gpt-6-astra` | `I21.0` → `I21.09` | no | 215.04 s |
+
+`gpt-6-astra` requested more information on `case_001`; the other three outputs did not. The raw records include the input narrative, submitted prompts, every model response, deterministic enrichment, five final Agent sections, and scoring. Returning all sections establishes execution completion, not clinical completeness, treatment safety, or compliance.
+
+`gpt-6.1-sol` was faster on these two observations. With two shared synthetic cases and one repeat, this does not establish a general model ranking. Timing includes CLI startup, transport, caching/queueing, and inference. Temperature is unsupported by this transport; backend model revisions are not exposed. Historical Qwen runs below have a different protocol and denominator.
+
+See the [comparison archive and reproduction notes](evaluation/results/codex-comparison-2026-10-26/README.md), [Sol report](evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/eval_results.md), and [Astra report](evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/eval_results.md). An earlier `ultra` pilot hit a Treatment timeout; its [unchanged raw record and interruption notes](evaluation/results/codex-comparison-2026-10-26/exploratory-astra-ultra/README.md) are retained separately and excluded from this comparison.
+
 ### Historical results
 
 The July 13, 2026 run used `Qwen/Qwen3-14B`: five synthetic cases, two repeats, ten pipeline outputs. The original [report](evaluation/results/historical-2026-07-13/eval_results.md) and JSON artifacts are preserved.
@@ -814,6 +854,9 @@ Tests use synthetic fixtures and mocked model calls. CI checks Python 3.11–3.1
 
 ```bash
 uv run --locked --extra plots python -m evaluation.plot_results
+uv run --locked --extra plots python -m evaluation.plot_comparison \
+  --results evaluation/results/codex-comparison-2026-10-26/gpt-6.1-sol/eval_results.json \
+  evaluation/results/codex-comparison-2026-10-26/gpt-6-astra/eval_results.json
 uv run --locked --extra plots python -m evaluation.draw_architecture
 uv run --locked --extra plots python -m evaluation.draw_case
 ```

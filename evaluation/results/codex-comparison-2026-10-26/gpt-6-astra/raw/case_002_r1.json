@@ -1,0 +1,741 @@
+{
+  "case": {
+    "id": "case_002",
+    "description": "62-year-old female with sudden onset of crushing chest pain radiating to the left arm for 2 hours, associated with diaphoresis, nausea, and shortness of breath. History of hyperlipidemia, smoking (30 pack-years, quit 2 years ago), and family history of MI (father at age 55). Current medications: atorvastatin 40mg daily, aspirin 81mg daily. No known allergies. Vital signs: BP 160/95, HR 110, RR 24, SpO2 96%. ECG shows ST elevation in leads V1-V4. Troponin I: 4.5 ng/mL (markedly elevated).",
+    "expected_diagnosis": "ST-Elevation Myocardial Infarction (STEMI)",
+    "expected_icd10": "I21.0"
+  },
+  "pipeline_output": {
+    "patient_info": {
+      "patient_id": null,
+      "name": "Unknown",
+      "age": 62,
+      "gender": "female",
+      "chief_complaint": "Sudden crushing chest pain radiating to the left arm for 2 hours",
+      "symptoms": [
+        {
+          "name": "Chest pain",
+          "duration_days": 0,
+          "severity": "severe",
+          "description": "Sudden onset of crushing chest pain radiating to the left arm, lasting 2 hours."
+        },
+        {
+          "name": "Diaphoresis",
+          "duration_days": 0,
+          "severity": "moderate",
+          "description": "Sweating associated with chest pain; severity not specified."
+        },
+        {
+          "name": "Nausea",
+          "duration_days": 0,
+          "severity": "moderate",
+          "description": "Nausea associated with chest pain; severity not specified."
+        },
+        {
+          "name": "Shortness of breath",
+          "duration_days": 0,
+          "severity": "moderate",
+          "description": "Shortness of breath associated with chest pain; severity not specified."
+        }
+      ],
+      "medical_history": [
+        "Hyperlipidemia",
+        "Former smoker: 30 pack-years, quit 2 years ago"
+      ],
+      "family_history": [
+        "Father had myocardial infarction at age 55"
+      ],
+      "allergies": [],
+      "current_medications": [
+        {
+          "name": "Atorvastatin",
+          "dosage": "40 mg",
+          "frequency": "Daily",
+          "start_date": null
+        },
+        {
+          "name": "Aspirin",
+          "dosage": "81 mg",
+          "frequency": "Daily",
+          "start_date": null
+        }
+      ],
+      "vital_signs": {
+        "temperature": null,
+        "heart_rate": 110,
+        "blood_pressure_systolic": 160,
+        "blood_pressure_diastolic": 95,
+        "respiratory_rate": 24,
+        "oxygen_saturation": 96.0
+      },
+      "lab_results": [
+        {
+          "test_name": "ECG",
+          "value": "ST elevation in leads V1-V4",
+          "unit": null,
+          "reference_range": null,
+          "is_abnormal": true
+        },
+        {
+          "test_name": "Troponin I",
+          "value": "4.5 (markedly elevated)",
+          "unit": "ng/mL",
+          "reference_range": null,
+          "is_abnormal": true
+        }
+      ],
+      "raw_input": null,
+      "created_at": "2026-10-26T01:51:25.000054"
+    },
+    "diagnosis": {
+      "primary_diagnosis": {
+        "disease_name": "Acute anterior ST-elevation myocardial infarction (STEMI), likely left anterior descending coronary artery occlusion",
+        "icd10_hint": "I21.09",
+        "confidence": 0.99,
+        "evidence": [
+          "Severe crushing chest pain radiating to the left arm for 2 hours",
+          "ST elevation in contiguous anterior leads V1-V4",
+          "Markedly elevated troponin I of 4.5 ng/mL",
+          "Associated diaphoresis, nausea, and dyspnea",
+          "Hyperlipidemia, substantial smoking history, and paternal myocardial infarction"
+        ],
+        "reasoning": "The classic ischemic presentation, regional anterior ST elevation, and elevated troponin strongly establish acute anterior STEMI. Acute LAD occlusion is the leading mechanism, pending coronary angiography."
+      },
+      "differential_list": [
+        {
+          "disease_name": "Takotsubo syndrome",
+          "icd10_hint": "I51.81",
+          "confidence": 0.03,
+          "evidence": [
+            "62-year-old woman",
+            "Acute chest pain and dyspnea",
+            "Anterior ST elevation and elevated troponin"
+          ],
+          "reasoning": "Can closely mimic anterior STEMI in postmenopausal women. No precipitating stressor is reported. Coronary angiography and ventricular imaging distinguish it from an occlusive infarction."
+        },
+        {
+          "disease_name": "Acute myopericarditis",
+          "icd10_hint": "I40.9",
+          "confidence": 0.01,
+          "evidence": [
+            "Acute chest pain",
+            "ST elevation",
+            "Elevated troponin indicating myocardial injury"
+          ],
+          "reasoning": "Inflammation can produce ST elevation and troponin release, but the regional ECG pattern and crushing radiating pain favor coronary occlusion. No viral prodrome, positional pain, or pleuritic features are reported."
+        },
+        {
+          "disease_name": "Acute aortic dissection with coronary malperfusion",
+          "icd10_hint": "I71.00",
+          "confidence": 0.01,
+          "evidence": [
+            "Sudden severe chest pain",
+            "Blood pressure of 160/95 mmHg",
+            "Evidence of acute myocardial ischemia"
+          ],
+          "reasoning": "Dissection can rarely compromise a coronary artery and cause STEMI. It is a dangerous alternative, although no back radiation, pulse asymmetry, neurologic deficit, or aortic regurgitation findings are supplied."
+        },
+        {
+          "disease_name": "Acute pulmonary embolism",
+          "icd10_hint": "I26.99",
+          "confidence": 0.005,
+          "evidence": [
+            "Sudden chest pain and dyspnea",
+            "Tachycardia of 110 beats/min and tachypnea of 24 breaths/min",
+            "Elevated troponin"
+          ],
+          "reasoning": "Pulmonary embolism can cause myocardial injury from right ventricular strain, but focal V1-V4 ST elevation with classic ischemic pain is substantially more consistent with anterior STEMI. Normal oxygen saturation does not exclude embolism."
+        }
+      ],
+      "recommended_tests": [
+        "Immediate emergency coronary angiography with primary PCI capability; do not delay reperfusion for additional diagnostic testing.",
+        "Urgent bedside echocardiography to assess regional wall motion, ventricular function, and mechanical complications without delaying catheterization.",
+        "Continuous cardiac monitoring and repeat ECGs to assess evolution and arrhythmias.",
+        "CBC, electrolytes, creatinine, glucose, and coagulation studies; serial troponin for trend, not as a prerequisite for reperfusion.",
+        "Rapid examination for pulse or bilateral blood-pressure discrepancies, neurologic deficits, and a new diastolic murmur; obtain urgent aortic CT angiography or transesophageal echocardiography only if dissection is clinically suspected."
+      ],
+      "clinical_notes": "This is a time-critical STEMI emergency requiring immediate emergency medical services and catheterization-team activation. If outside a hospital, call emergency services now and do not drive. Follow the emergency ACS protocol for antiplatelet and anticoagulant treatment after checking contraindications and dissection red flags. Routine supplemental oxygen is not indicated at an oxygen saturation of 96%. Additional history is useful but must not delay reperfusion. Confidence scores describe diagnostic plausibility and are not mutually exclusive probabilities.",
+      "knowledge_sources": [
+        "2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes",
+        "2023 ESC Guidelines for the Management of Acute Coronary Syndromes",
+        "Fourth Universal Definition of Myocardial Infarction (2018)",
+        "GraphRAG knowledge graph (symptom->disease retrieval)"
+      ],
+      "knowledge_graph_candidates": [
+        {
+          "disease": "Pulmonary Embolism",
+          "symptom_match_count": 2,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Acute MI",
+          "symptom_match_count": 1,
+          "icd10_code": "I21.9",
+          "icd10_description": "Acute myocardial infarction, unspecified"
+        },
+        {
+          "disease": "Angina",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "Pneumothorax",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        },
+        {
+          "disease": "GERD",
+          "symptom_match_count": 1,
+          "icd10_code": "",
+          "icd10_description": ""
+        }
+      ]
+    },
+    "treatment_plan": {
+      "diagnosis_addressed": "Acute anterior ST-elevation myocardial infarction (STEMI), likely acute left anterior descending coronary artery occlusion. This is an immediately life-threatening emergency requiring reperfusion.",
+      "medications": [
+        {
+          "drug_name": "Bayer Aspirin",
+          "generic_name": "aspirin",
+          "dosage": "162\u2013325 mg non-enteric-coated loading dose, chewed; then 81 mg",
+          "route": "oral",
+          "frequency": "Load immediately, then once daily",
+          "duration": "Long-term unless subsequently modified for bleeding risk or anticoagulation requirements",
+          "contraindications": [
+            "True aspirin hypersensitivity",
+            "Active major bleeding",
+            "Suspected aortic dissection: withhold antithrombotics pending urgent evaluation"
+          ],
+          "side_effects": [
+            "Gastrointestinal irritation",
+            "Gastrointestinal bleeding",
+            "Bruising"
+          ]
+        },
+        {
+          "drug_name": "Brilinta",
+          "generic_name": "ticagrelor",
+          "dosage": "180 mg loading dose, then 90 mg",
+          "route": "oral",
+          "frequency": "Load once for the primary-PCI strategy, then twice daily",
+          "duration": "Default 12 months with low-dose aspirin after ACS if bleeding risk is not high; individualize",
+          "contraindications": [
+            "Active pathological bleeding",
+            "Previous intracranial hemorrhage",
+            "Severe hepatic impairment",
+            "Strong CYP3A inhibitors or inducers",
+            "Known hypersensitivity"
+          ],
+          "side_effects": [
+            "Bleeding",
+            "Dyspnea",
+            "Bradyarrhythmias"
+          ]
+        },
+        {
+          "drug_name": "Heparin Sodium Injection",
+          "generic_name": "unfractionated heparin",
+          "dosage": "For primary PCI without planned glycoprotein IIb/IIIa inhibitor: 70\u2013100 units/kg IV bolus, adjusted to procedural activated clotting time",
+          "route": "iv",
+          "frequency": "Initial procedural bolus with additional dosing guided by the catheterization team",
+          "duration": "Through PCI; discontinue after uncomplicated PCI unless another indication exists",
+          "contraindications": [
+            "Active major bleeding",
+            "History of heparin-induced thrombocytopenia",
+            "Severe thrombocytopenia",
+            "Suspected aortic dissection",
+            "Known hypersensitivity"
+          ],
+          "side_effects": [
+            "Bleeding",
+            "Thrombocytopenia",
+            "Heparin-induced thrombocytopenia"
+          ]
+        },
+        {
+          "drug_name": "Nitrostat",
+          "generic_name": "nitroglycerin",
+          "dosage": "0.4 mg",
+          "route": "sublingual",
+          "frequency": "Every 5 minutes as needed for ongoing ischemic pain, up to 3 doses, with blood-pressure reassessment",
+          "duration": "Acute symptom relief only; monitored IV nitroglycerin may be considered for persistent ischemia, hypertension, or pulmonary edema",
+          "contraindications": [
+            "Systolic blood pressure below 90 mmHg or more than 30 mmHg below baseline",
+            "Suspected right ventricular infarction or other preload-dependent state",
+            "Recent sildenafil or vardenafil within 24 hours, tadalafil within 48 hours, or avanafil within 12 hours",
+            "Concomitant riociguat",
+            "Known hypersensitivity"
+          ],
+          "side_effects": [
+            "Headache",
+            "Hypotension",
+            "Dizziness",
+            "Reflex tachycardia"
+          ]
+        },
+        {
+          "drug_name": "Lipitor",
+          "generic_name": "atorvastatin",
+          "dosage": "80 mg, replacing the current 40 mg dose rather than adding a second statin prescription",
+          "route": "oral",
+          "frequency": "Once daily",
+          "duration": "Indefinitely if tolerated",
+          "contraindications": [
+            "Acute liver failure or decompensated cirrhosis",
+            "Known hypersensitivity",
+            "Previous severe statin-associated muscle toxicity requires reassessment"
+          ],
+          "side_effects": [
+            "Myalgia",
+            "Elevated liver enzymes",
+            "Rare rhabdomyolysis"
+          ]
+        },
+        {
+          "drug_name": "Lopressor",
+          "generic_name": "metoprolol tartrate",
+          "dosage": "Consider 12.5\u201325 mg initially only after reperfusion and confirmation of hemodynamic stability; titrate to heart rate and blood pressure",
+          "route": "oral",
+          "frequency": "Twice daily when appropriate",
+          "duration": "Reassess after ventricular function is established; if reduced LVEF, transition to an evidence-based heart-failure beta-blocker regimen",
+          "contraindications": [
+            "Cardiogenic shock or increased shock risk",
+            "Acute decompensated heart failure or low-output state",
+            "Significant bradycardia",
+            "Second- or third-degree AV block without a pacemaker",
+            "Active bronchospasm",
+            "Known hypersensitivity"
+          ],
+          "side_effects": [
+            "Bradycardia",
+            "Hypotension",
+            "Fatigue",
+            "Worsening heart failure if started prematurely"
+          ]
+        },
+        {
+          "drug_name": "Zestril",
+          "generic_name": "lisinopril",
+          "dosage": "2.5\u20135 mg initially, then titrate as tolerated",
+          "route": "oral",
+          "frequency": "Once daily; initiate within approximately 24 hours if stable and renal function and potassium permit",
+          "duration": "Long-term, especially with anterior infarction, hypertension, or LVEF at or below 40%",
+          "contraindications": [
+            "Previous ACE-inhibitor-associated angioedema",
+            "Pregnancy",
+            "Bilateral renal artery stenosis",
+            "Clinically significant hyperkalemia",
+            "Hypotension or evolving acute kidney injury",
+            "Sacubitril/valsartan use within the preceding 36 hours"
+          ],
+          "side_effects": [
+            "Cough",
+            "Hypotension",
+            "Hyperkalemia",
+            "Increased creatinine",
+            "Rare angioedema"
+          ]
+        }
+      ],
+      "drug_interactions": [
+        {
+          "drug_a": "Aspirin, including the current 81 mg daily regimen",
+          "drug_b": "Ticagrelor",
+          "severity": "major",
+          "description": "Additive bleeding risk, including gastrointestinal and intracranial bleeding. This combination is intentional standard therapy for ACS/PCI when appropriate.",
+          "recommendation": "Check bleeding history and CBC; monitor for bleeding. Use aspirin maintenance 81 mg daily with ticagrelor. The acute aspirin load is separate; verify whether EMS has already administered it. Consider proton-pump inhibitor gastroprotection when gastrointestinal bleeding risk is elevated."
+        },
+        {
+          "drug_a": "Unfractionated heparin",
+          "drug_b": "Aspirin and ticagrelor",
+          "severity": "major",
+          "description": "Combined anticoagulant and antiplatelet therapy substantially increases bleeding risk but is usually necessary during primary PCI.",
+          "recommendation": "Use only in a monitored emergency/procedural setting; obtain weight, CBC and platelet count, follow procedural ACT, favor radial access, and avoid routine heparin continuation after successful PCI."
+        },
+        {
+          "drug_a": "Atorvastatin, currently 40 mg daily",
+          "drug_b": "Ticagrelor",
+          "severity": "minor",
+          "description": "Ticagrelor can modestly increase atorvastatin exposure; this generally does not preclude atorvastatin 80 mg.",
+          "recommendation": "Continue high-intensity statin treatment and assess new muscle pain, weakness, or dark urine; check CK if symptomatic."
+        },
+        {
+          "drug_a": "Aspirin",
+          "drug_b": "Atorvastatin",
+          "severity": "none",
+          "description": "No clinically important direct interaction between the two documented current medications.",
+          "recommendation": "Continue both with the acute-treatment dose adjustments described above."
+        },
+        {
+          "drug_a": "Nitroglycerin",
+          "drug_b": "PDE5 inhibitors or riociguat, if taken but not yet disclosed",
+          "severity": "contraindicated",
+          "description": "Potential profound, life-threatening hypotension.",
+          "recommendation": "Explicitly verify use before administering nitrates; observe the specified PDE5-inhibitor exclusion intervals and do not combine with riociguat."
+        },
+        {
+          "drug_a": "Metoprolol",
+          "drug_b": "Ticagrelor",
+          "severity": "moderate",
+          "description": "Potential additive bradycardia or conduction disturbances.",
+          "recommendation": "Use telemetry and reassess pulse and conduction before beta-blocker initiation and titration."
+        },
+        {
+          "drug_a": "Lisinopril",
+          "drug_b": "Nitroglycerin and metoprolol",
+          "severity": "moderate",
+          "description": "Additive blood-pressure lowering may compromise perfusion during acute infarction.",
+          "recommendation": "Introduce sequentially after stability is established; monitor blood pressure and renal perfusion."
+        }
+      ],
+      "non_drug_treatments": [
+        "Activate emergency medical services and the STEMI catheterization team immediately. If outside hospital, call emergency services now and do not drive.",
+        "Perform emergency coronary angiography and primary PCI. Target first-medical-contact-to-device time of 90 minutes or less at a PCI-capable hospital and 120 minutes or less when transfer is required.",
+        "If anticipated first-medical-contact-to-device time exceeds 120 minutes, symptoms began within 12 hours, and there are no contraindications, urgently consider fibrinolysis under a formal STEMI protocol, followed by immediate transfer to a PCI center. Use a fibrinolysis-specific antithrombotic regimen rather than automatically applying the primary-PCI regimen above.",
+        "After fibrinolysis, perform rescue PCI for failed reperfusion, persistent ischemia, or instability; otherwise perform angiography within 2\u201324 hours.",
+        "Continuous cardiac monitoring, defibrillator availability, IV access, and frequent assessment for shock, pulmonary edema, arrhythmias, and mechanical complications.",
+        "Urgent echocardiography to assess LVEF, regional dysfunction, mechanical complications, and possible apical thrombus without delaying reperfusion.",
+        "Refer to supervised cardiac rehabilitation before discharge."
+      ],
+      "lifestyle_recommendations": [
+        "Rest during the acute event; do not exercise or attempt to walk off the pain.",
+        "After stabilization, follow a Mediterranean-style dietary pattern and maintain smoking abstinence.",
+        "Resume activity progressively through cardiac rehabilitation and cardiology guidance.",
+        "Emphasize medication adherence, particularly uninterrupted prescribed antiplatelet therapy after stenting.",
+        "Avoid non-aspirin NSAIDs and discuss supplements and over-the-counter medications with the care team."
+      ],
+      "follow_up_plan": "Immediate monitored hospital care, usually a coronary care setting initially. Obtain CBC/platelets, electrolytes including potassium and magnesium, creatinine/eGFR, glucose/HbA1c, coagulation studies, baseline liver enzymes, and lipid profile without delaying PCI. Repeat ECG after reperfusion and with recurrent symptoms; assess echocardiographic LVEF before discharge. Arrange cardiology follow-up within 1\u20132 weeks after discharge. Check potassium and creatinine within 1\u20132 weeks of ACE-inhibitor initiation or dose increases, sooner during hospitalization as needed. Recheck lipids 4\u20138 weeks after treatment adjustment; add nonstatin therapy if LDL-C remains at least 70 mg/dL on maximally tolerated statin, and consider intensification at 55\u201369 mg/dL according to risk and guideline goals. If LVEF is at or below 40% with heart-failure symptoms or diabetes, consider eplerenone once potassium is below 5.0 mmol/L and eGFR exceeds 30 mL/min/1.73 m\u00b2. Reassess reduced LVEF after recovery and optimized therapy; primary-prevention ICD decisions generally require at least 40 days after MI and approximately 90 days after revascularization.",
+      "warnings": [
+        "Do not delay reperfusion for repeat troponin, routine imaging, complete medication reconciliation, or this treatment plan. Medication administration requires the emergency treating team.",
+        "The supplied allergy list is empty: no allergies are documented, but this is not confirmation of no allergies. Rapidly verify aspirin/NSAID, heparin, other drug, and contrast reactions before relevant administration.",
+        "MAJOR BLEEDING RISK: aspirin plus ticagrelor plus heparin is intentional during PCI but requires close monitoring and individualized contraindication assessment.",
+        "Screen rapidly for dissection red flags. If clinically suspected, withhold antithrombotics and fibrinolysis while pursuing urgent aortic evaluation.",
+        "No routine supplemental oxygen is indicated at oxygen saturation 96%; provide oxygen for hypoxemia, generally saturation below 90%, or another clinical indication.",
+        "Heart rate 110 beats/min and dyspnea warrant assessment for heart failure and shock risk before beta-blockade. Avoid routine immediate IV beta-blocker treatment.",
+        "Fibrinolysis requires a separate contraindication checklist, including prior intracranial hemorrhage, recent ischemic stroke, active bleeding, suspected dissection, and severe uncontrolled hypertension. Clopidogrel is the initial P2Y12 agent used with fibrinolysis; anticoagulant selection and dosing depend on weight, age, and renal function.",
+        "Confirm body weight, renal function, bleeding and stroke history, prior HIT, recent surgery, and all prescription, nonprescription, and recreational substances. The interaction review covers the supplied medication list, not undisclosed drugs.",
+        "Do not routinely use opioids; they can delay oral P2Y12-inhibitor absorption. Reserve monitored analgesia for refractory severe pain without delaying reperfusion.",
+        "Do not add routine long-term anticoagulation solely for anterior MI; evaluate specific indications such as documented LV thrombus or atrial fibrillation."
+      ],
+      "evidence_references": [
+        "2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes.",
+        "2023 ESC Guidelines for the Management of Acute Coronary Syndromes.",
+        "2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure.",
+        "US prescribing information for Brilinta, Nitrostat, Lipitor, heparin sodium, Lopressor, and Zestril."
+      ],
+      "allergy_alerts": [],
+      "ddi_engine": {
+        "checked": true,
+        "proposed_drugs_checked": [
+          "aspirin",
+          "Bayer Aspirin",
+          "ticagrelor",
+          "Brilinta",
+          "unfractionated heparin",
+          "Heparin Sodium Injection",
+          "nitroglycerin",
+          "Nitrostat",
+          "atorvastatin",
+          "Lipitor",
+          "metoprolol tartrate",
+          "Lopressor",
+          "lisinopril",
+          "Zestril"
+        ],
+        "current_medications_checked": [
+          "Atorvastatin",
+          "Aspirin"
+        ],
+        "allergies_checked": [],
+        "engine_flagged_interactions": 0,
+        "engine_flagged_allergy_alerts": 0
+      }
+    },
+    "coding_result": {
+      "primary_icd10": {
+        "code": "I21.09",
+        "description": "ST elevation (STEMI) myocardial infarction involving other coronary artery of anterior wall",
+        "confidence": 0.97,
+        "category": "Acute myocardial infarction"
+      },
+      "secondary_icd10_codes": [
+        {
+          "code": "E78.5",
+          "description": "Hyperlipidemia, unspecified",
+          "confidence": 0.98,
+          "category": "Lipid metabolism disorder"
+        },
+        {
+          "code": "Z82.49",
+          "description": "Family history of ischemic heart disease and other diseases of the circulatory system",
+          "confidence": 0.99,
+          "category": "Family history"
+        },
+        {
+          "code": "Z79.82",
+          "description": "Long term (current) use of aspirin",
+          "confidence": 0.96,
+          "category": "Long-term medication use"
+        }
+      ],
+      "drg_group": {
+        "drg_code": "282",
+        "description": "Acute myocardial infarction, discharged alive without CC/MCC",
+        "weight": 0.8,
+        "mean_los": 2.5
+      },
+      "coding_notes": "I21.09 captures the documented anterior STEMI without an established culprit artery. Use I21.02 if LAD involvement is confirmed or remains a qualifying probable/likely diagnosis in final inpatient discharge documentation. This preliminary treatment plan does not establish completed PCI or stent placement. MS-DRG 282 is provisional, assuming discharge alive, no qualifying CC/MCC, and no procedure changing grouping; completed PCI would require regrouping using procedure and device details. Weight and length of stay are approximate estimates, not fiscal-year-specific CMS values. Do not code differential diagnoses, integral ischemic symptoms, or hypothetical complications. Elevated blood pressure alone does not establish hypertension. Clarify current versus former tobacco use and nicotine dependence before assigning a tobacco code. Final coding requires discharge documentation and applicable fiscal-year grouper validation.",
+      "coding_confidence": 0.88
+    },
+    "audit_result": {
+      "hipaa_compliant": false,
+      "compliance_checks": [
+        {
+          "check_name": "phi_scan",
+          "passed": false,
+          "detail": "Found 1 PHI types: name"
+        },
+        {
+          "check_name": "data_encryption_at_rest",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "data_encryption_in_transit",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "access_control_rbac",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "audit_logging",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "minimum_necessary_rule",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "breach_notification_ready",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        },
+        {
+          "check_name": "data_retention_policy",
+          "passed": false,
+          "detail": "Not verified by this demonstration. Requires deployment-specific review."
+        }
+      ],
+      "phi_fields_found": [
+        "name"
+      ],
+      "phi_fields_masked": [],
+      "audit_trail": [
+        {
+          "timestamp": "2026-10-26T06:54:46.555644+00:00",
+          "user_id": "system",
+          "action": "phi_scan",
+          "resource_type": "pipeline_output",
+          "resource_id": "",
+          "detail": "Scanned 4 sections",
+          "outcome": "success",
+          "ip_address": ""
+        },
+        {
+          "timestamp": "2026-10-26T06:54:46.555727+00:00",
+          "user_id": "system",
+          "action": "compliance_assessment",
+          "resource_type": "pipeline",
+          "resource_id": "",
+          "detail": "Overall: NEEDS_REVIEW, risk=medium",
+          "outcome": "success",
+          "ip_address": ""
+        }
+      ],
+      "recommendations": [
+        "Ensure all PHI is masked before external transmission",
+        "Review failed compliance checks and remediate",
+        "Review deployment access, encryption, retention and audit storage controls. This report does not establish HIPAA compliance."
+      ],
+      "overall_risk_level": "medium"
+    },
+    "errors": null,
+    "diagnosis_attempts": 1
+  },
+  "harness_error": null,
+  "latency_seconds": 215.04,
+  "llm_calls": [
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert medical intake specialist. Your job is to extract structured patient information from the provided clinical narrative.\n\nExtract the following fields as a JSON object:\n{\n  \"name\": \"patient name or 'Unknown'\",\n  \"age\": <integer>,\n  \"gender\": \"male|female|other|unknown\",\n  \"chief_complaint\": \"main reason for visit\",\n  \"symptoms\": [\n    {\"name\": \"symptom name\", \"duration_days\": <int or null>, \"severity\": \"mild|moderate|severe|critical\", \"description\": \"details\"}\n  ],\n  \"medical_history\": [\"list of past conditions\"],\n  \"family_history\": [\"list of family conditions\"],\n  \"allergies\": [\n    {\"substance\": \"name\", \"reaction\": \"description\", \"severity\": \"mild|moderate|severe\"}\n  ],\n  \"current_medications\": [\n    {\"name\": \"drug name\", \"dosage\": \"dose\", \"frequency\": \"how often\"}\n  ],\n  \"vital_signs\": {\n    \"temperature\": <float or null>,\n    \"heart_rate\": <int or null>,\n    \"blood_pressure_systolic\": <int or null>,\n    \"blood_pressure_diastolic\": <int or null>,\n    \"respiratory_rate\": <int or null>,\n    \"oxygen_saturation\": <float or null>\n  },\n  \"lab_results\": [\n    {\"test_name\": \"name\", \"value\": \"result\", \"unit\": \"unit\", \"reference_range\": \"range\", \"is_abnormal\": true/false}\n  ]\n}\n\nRules:\n- If a field is not mentioned, use reasonable defaults or null.\n- Age must be a positive integer. If unclear, estimate from context.\n- Always identify the chief complaint even if not explicitly stated.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "5e16ad3b558875829e79aa0f459b49616741776d3bfc8eac24da9c17d28b728b"
+        },
+        {
+          "role": "human",
+          "content": "Patient narrative:\n\n62-year-old female with sudden onset of crushing chest pain radiating to the left arm for 2 hours, associated with diaphoresis, nausea, and shortness of breath. History of hyperlipidemia, smoking (30 pack-years, quit 2 years ago), and family history of MI (father at age 55). Current medications: atorvastatin 40mg daily, aspirin 81mg daily. No known allergies. Vital signs: BP 160/95, HR 110, RR 24, SpO2 96%. ECG shows ST elevation in leads V1-V4. Troponin I: 4.5 ng/mL (markedly elevated).",
+          "sha256": "a809209bd24befff5b37239613dd55bbf4a363d4977ced4a8444870953c36e59"
+        }
+      ],
+      "prompt_sha256": "07151d94a8e99d32b05b239a3b8e28b974b53c1fc56bab33e069372cb660934d",
+      "output_text": "{\n  \"name\": \"Unknown\",\n  \"age\": 62,\n  \"gender\": \"female\",\n  \"chief_complaint\": \"Sudden crushing chest pain radiating to the left arm for 2 hours\",\n  \"symptoms\": [\n    {\n      \"name\": \"Chest pain\",\n      \"duration_days\": 0,\n      \"severity\": \"severe\",\n      \"description\": \"Sudden onset of crushing chest pain radiating to the left arm, lasting 2 hours.\"\n    },\n    {\n      \"name\": \"Diaphoresis\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Sweating associated with chest pain; severity not specified.\"\n    },\n    {\n      \"name\": \"Nausea\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Nausea associated with chest pain; severity not specified.\"\n    },\n    {\n      \"name\": \"Shortness of breath\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Shortness of breath associated with chest pain; severity not specified.\"\n    }\n  ],\n  \"medical_history\": [\n    \"Hyperlipidemia\",\n    \"Former smoker: 30 pack-years, quit 2 years ago\"\n  ],\n  \"family_history\": [\n    \"Father had myocardial infarction at age 55\"\n  ],\n  \"allergies\": [],\n  \"current_medications\": [\n    {\n      \"name\": \"Atorvastatin\",\n      \"dosage\": \"40 mg\",\n      \"frequency\": \"Daily\"\n    },\n    {\n      \"name\": \"Aspirin\",\n      \"dosage\": \"81 mg\",\n      \"frequency\": \"Daily\"\n    }\n  ],\n  \"vital_signs\": {\n    \"temperature\": null,\n    \"heart_rate\": 110,\n    \"blood_pressure_systolic\": 160,\n    \"blood_pressure_diastolic\": 95,\n    \"respiratory_rate\": 24,\n    \"oxygen_saturation\": 96.0\n  },\n  \"lab_results\": [\n    {\n      \"test_name\": \"ECG\",\n      \"value\": \"ST elevation in leads V1-V4\",\n      \"unit\": null,\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"Troponin I\",\n      \"value\": \"4.5 (markedly elevated)\",\n      \"unit\": \"ng/mL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    }\n  ]\n}",
+      "output_sha256": "019b00a5760125f448185fb2c6fa73f3c4bcd1286d2ad2524a39f7bd1a36c6ed",
+      "usage": {
+        "input_tokens": 14288,
+        "cached_input_tokens": 0,
+        "output_tokens": 552,
+        "reasoning_output_tokens": 0
+      },
+      "elapsed_seconds": 13.476,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    },
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert diagnostician performing differential diagnosis. Given structured patient information, provide a comprehensive differential diagnosis.\n\nReturn a JSON object with this structure:\n{\n  \"primary_diagnosis\": {\n    \"disease_name\": \"most likely diagnosis\",\n    \"icd10_hint\": \"approximate ICD-10 code (e.g., J18.9)\",\n    \"confidence\": 0.85,\n    \"evidence\": [\"supporting finding 1\", \"supporting finding 2\"],\n    \"reasoning\": \"clinical reasoning explanation\"\n  },\n  \"differential_list\": [\n    {\n      \"disease_name\": \"alternative diagnosis\",\n      \"icd10_hint\": \"ICD-10 code\",\n      \"confidence\": 0.6,\n      \"evidence\": [\"evidence 1\"],\n      \"reasoning\": \"why this is considered\"\n    }\n  ],\n  \"recommended_tests\": [\"test 1 to confirm/rule out\", \"test 2\"],\n  \"clinical_notes\": \"overall clinical impression\",\n  \"knowledge_sources\": [\"source 1\", \"source 2\"],\n  \"needs_more_info\": false\n}\n\nRules:\n- Confidence scores must be between 0 and 1.\n- Provide at least 2-3 differential diagnoses.\n- List evidence from the patient data that supports each diagnosis.\n- If critical information is missing, set needs_more_info to true.\n- Use standard medical terminology and ICD-10 code hints.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "5a32292736ab88eafbfbcf9086f2473db6b6fdfbc1754ec46e913138a657e257"
+        },
+        {
+          "role": "human",
+          "content": "Patient information:\n\n{\n  \"patient_id\": null,\n  \"name\": \"Unknown\",\n  \"age\": 62,\n  \"gender\": \"female\",\n  \"chief_complaint\": \"Sudden crushing chest pain radiating to the left arm for 2 hours\",\n  \"symptoms\": [\n    {\n      \"name\": \"Chest pain\",\n      \"duration_days\": 0,\n      \"severity\": \"severe\",\n      \"description\": \"Sudden onset of crushing chest pain radiating to the left arm, lasting 2 hours.\"\n    },\n    {\n      \"name\": \"Diaphoresis\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Sweating associated with chest pain; severity not specified.\"\n    },\n    {\n      \"name\": \"Nausea\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Nausea associated with chest pain; severity not specified.\"\n    },\n    {\n      \"name\": \"Shortness of breath\",\n      \"duration_days\": 0,\n      \"severity\": \"moderate\",\n      \"description\": \"Shortness of breath associated with chest pain; severity not specified.\"\n    }\n  ],\n  \"medical_history\": [\n    \"Hyperlipidemia\",\n    \"Former smoker: 30 pack-years, quit 2 years ago\"\n  ],\n  \"family_history\": [\n    \"Father had myocardial infarction at age 55\"\n  ],\n  \"allergies\": [],\n  \"current_medications\": [\n    {\n      \"name\": \"Atorvastatin\",\n      \"dosage\": \"40 mg\",\n      \"frequency\": \"Daily\",\n      \"start_date\": null\n    },\n    {\n      \"name\": \"Aspirin\",\n      \"dosage\": \"81 mg\",\n      \"frequency\": \"Daily\",\n      \"start_date\": null\n    }\n  ],\n  \"vital_signs\": {\n    \"temperature\": null,\n    \"heart_rate\": 110,\n    \"blood_pressure_systolic\": 160,\n    \"blood_pressure_diastolic\": 95,\n    \"respiratory_rate\": 24,\n    \"oxygen_saturation\": 96.0\n  },\n  \"lab_results\": [\n    {\n      \"test_name\": \"ECG\",\n      \"value\": \"ST elevation in leads V1-V4\",\n      \"unit\": null,\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    },\n    {\n      \"test_name\": \"Troponin I\",\n      \"value\": \"4.5 (markedly elevated)\",\n      \"unit\": \"ng/mL\",\n      \"reference_range\": null,\n      \"is_abnormal\": true\n    }\n  ],\n  \"raw_input\": null,\n  \"created_at\": \"2026-10-26T01:51:25.000054\"\n}\n\nKnowledge-graph retrieval (deterministic symptom->disease lookup, ranked by symptom overlap). Treat these as grounding hints \u2014 you are NOT limited to this list and must weigh all clinical evidence:\n- Pulmonary Embolism: matched 2 of the patient's symptoms\n- Acute MI (ICD-10 I21.9): matched 1 of the patient's symptoms\n- Angina: matched 1 of the patient's symptoms\n- Pneumothorax: matched 1 of the patient's symptoms\n- GERD: matched 1 of the patient's symptoms\n\nProvide your differential diagnosis.",
+          "sha256": "f0f681c0dc43ad3b29873d512aecd11ae584670332d042ca300d4a06ed78a54c"
+        }
+      ],
+      "prompt_sha256": "dd7f9abb03ce9237089b5f0e6b92fe3427281db853bcf0c4d930cce38ac965d4",
+      "output_text": "{\n  \"primary_diagnosis\": {\n    \"disease_name\": \"Acute anterior ST-elevation myocardial infarction (STEMI), likely left anterior descending coronary artery occlusion\",\n    \"icd10_hint\": \"I21.09\",\n    \"confidence\": 0.99,\n    \"evidence\": [\n      \"Severe crushing chest pain radiating to the left arm for 2 hours\",\n      \"ST elevation in contiguous anterior leads V1-V4\",\n      \"Markedly elevated troponin I of 4.5 ng/mL\",\n      \"Associated diaphoresis, nausea, and dyspnea\",\n      \"Hyperlipidemia, substantial smoking history, and paternal myocardial infarction\"\n    ],\n    \"reasoning\": \"The classic ischemic presentation, regional anterior ST elevation, and elevated troponin strongly establish acute anterior STEMI. Acute LAD occlusion is the leading mechanism, pending coronary angiography.\"\n  },\n  \"differential_list\": [\n    {\n      \"disease_name\": \"Takotsubo syndrome\",\n      \"icd10_hint\": \"I51.81\",\n      \"confidence\": 0.03,\n      \"evidence\": [\n        \"62-year-old woman\",\n        \"Acute chest pain and dyspnea\",\n        \"Anterior ST elevation and elevated troponin\"\n      ],\n      \"reasoning\": \"Can closely mimic anterior STEMI in postmenopausal women. No precipitating stressor is reported. Coronary angiography and ventricular imaging distinguish it from an occlusive infarction.\"\n    },\n    {\n      \"disease_name\": \"Acute myopericarditis\",\n      \"icd10_hint\": \"I40.9\",\n      \"confidence\": 0.01,\n      \"evidence\": [\n        \"Acute chest pain\",\n        \"ST elevation\",\n        \"Elevated troponin indicating myocardial injury\"\n      ],\n      \"reasoning\": \"Inflammation can produce ST elevation and troponin release, but the regional ECG pattern and crushing radiating pain favor coronary occlusion. No viral prodrome, positional pain, or pleuritic features are reported.\"\n    },\n    {\n      \"disease_name\": \"Acute aortic dissection with coronary malperfusion\",\n      \"icd10_hint\": \"I71.00\",\n      \"confidence\": 0.01,\n      \"evidence\": [\n        \"Sudden severe chest pain\",\n        \"Blood pressure of 160/95 mmHg\",\n        \"Evidence of acute myocardial ischemia\"\n      ],\n      \"reasoning\": \"Dissection can rarely compromise a coronary artery and cause STEMI. It is a dangerous alternative, although no back radiation, pulse asymmetry, neurologic deficit, or aortic regurgitation findings are supplied.\"\n    },\n    {\n      \"disease_name\": \"Acute pulmonary embolism\",\n      \"icd10_hint\": \"I26.99\",\n      \"confidence\": 0.005,\n      \"evidence\": [\n        \"Sudden chest pain and dyspnea\",\n        \"Tachycardia of 110 beats/min and tachypnea of 24 breaths/min\",\n        \"Elevated troponin\"\n      ],\n      \"reasoning\": \"Pulmonary embolism can cause myocardial injury from right ventricular strain, but focal V1-V4 ST elevation with classic ischemic pain is substantially more consistent with anterior STEMI. Normal oxygen saturation does not exclude embolism.\"\n    }\n  ],\n  \"recommended_tests\": [\n    \"Immediate emergency coronary angiography with primary PCI capability; do not delay reperfusion for additional diagnostic testing.\",\n    \"Urgent bedside echocardiography to assess regional wall motion, ventricular function, and mechanical complications without delaying catheterization.\",\n    \"Continuous cardiac monitoring and repeat ECGs to assess evolution and arrhythmias.\",\n    \"CBC, electrolytes, creatinine, glucose, and coagulation studies; serial troponin for trend, not as a prerequisite for reperfusion.\",\n    \"Rapid examination for pulse or bilateral blood-pressure discrepancies, neurologic deficits, and a new diastolic murmur; obtain urgent aortic CT angiography or transesophageal echocardiography only if dissection is clinically suspected.\"\n  ],\n  \"clinical_notes\": \"This is a time-critical STEMI emergency requiring immediate emergency medical services and catheterization-team activation. If outside a hospital, call emergency services now and do not drive. Follow the emergency ACS protocol for antiplatelet and anticoagulant treatment after checking contraindications and dissection red flags. Routine supplemental oxygen is not indicated at an oxygen saturation of 96%. Additional history is useful but must not delay reperfusion. Confidence scores describe diagnostic plausibility and are not mutually exclusive probabilities.\",\n  \"knowledge_sources\": [\n    \"2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes\",\n    \"2023 ESC Guidelines for the Management of Acute Coronary Syndromes\",\n    \"Fourth Universal Definition of Myocardial Infarction (2018)\"\n  ],\n  \"needs_more_info\": false\n}",
+      "output_sha256": "6bb3ecf96a67aedf21907585c461c40ac0b8809540da10a13fff203760692620",
+      "usage": {
+        "input_tokens": 14786,
+        "cached_input_tokens": 3072,
+        "output_tokens": 1051,
+        "reasoning_output_tokens": 0
+      },
+      "elapsed_seconds": 42.906,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    },
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are an expert clinical pharmacologist and treatment specialist. Given a patient's diagnosis and clinical data, provide a comprehensive, evidence-based treatment plan.\n\nReturn a JSON object:\n{\n  \"diagnosis_addressed\": \"the primary diagnosis being treated\",\n  \"medications\": [\n    {\n      \"drug_name\": \"brand name\",\n      \"generic_name\": \"generic name\",\n      \"dosage\": \"e.g., 500mg\",\n      \"route\": \"oral|iv|im|topical|etc\",\n      \"frequency\": \"e.g., twice daily\",\n      \"duration\": \"e.g., 7 days\",\n      \"contraindications\": [\"list any relevant\"],\n      \"side_effects\": [\"common side effects\"]\n    }\n  ],\n  \"drug_interactions\": [\n    {\n      \"drug_a\": \"drug 1\",\n      \"drug_b\": \"drug 2 (can be current medication)\",\n      \"severity\": \"none|minor|moderate|major|contraindicated\",\n      \"description\": \"interaction details\",\n      \"recommendation\": \"what to do\"\n    }\n  ],\n  \"non_drug_treatments\": [\"physical therapy\", \"dietary changes\", \"etc.\"],\n  \"lifestyle_recommendations\": [\"exercise\", \"sleep hygiene\", \"etc.\"],\n  \"follow_up_plan\": \"when and what to check\",\n  \"warnings\": [\"critical warnings for this treatment\"],\n  \"evidence_references\": [\"guideline or study reference\"]\n}\n\nRules:\n- ALWAYS check the patient's current medications for interactions.\n- ALWAYS check allergies before recommending any drug.\n- Flag any major or contraindicated interactions prominently.\n- Provide at least one non-drug treatment option.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "57656ce21ea92a1936a6abdd58b0160802f823114e219c529c590ea0f23719f9"
+        },
+        {
+          "role": "human",
+          "content": "Clinical context:\n\n{\n  \"patient_info\": {\n    \"patient_id\": null,\n    \"name\": \"Unknown\",\n    \"age\": 62,\n    \"gender\": \"female\",\n    \"chief_complaint\": \"Sudden crushing chest pain radiating to the left arm for 2 hours\",\n    \"symptoms\": [\n      {\n        \"name\": \"Chest pain\",\n        \"duration_days\": 0,\n        \"severity\": \"severe\",\n        \"description\": \"Sudden onset of crushing chest pain radiating to the left arm, lasting 2 hours.\"\n      },\n      {\n        \"name\": \"Diaphoresis\",\n        \"duration_days\": 0,\n        \"severity\": \"moderate\",\n        \"description\": \"Sweating associated with chest pain; severity not specified.\"\n      },\n      {\n        \"name\": \"Nausea\",\n        \"duration_days\": 0,\n        \"severity\": \"moderate\",\n        \"description\": \"Nausea associated with chest pain; severity not specified.\"\n      },\n      {\n        \"name\": \"Shortness of breath\",\n        \"duration_days\": 0,\n        \"severity\": \"moderate\",\n        \"description\": \"Shortness of breath associated with chest pain; severity not specified.\"\n      }\n    ],\n    \"medical_history\": [\n      \"Hyperlipidemia\",\n      \"Former smoker: 30 pack-years, quit 2 years ago\"\n    ],\n    \"family_history\": [\n      \"Father had myocardial infarction at age 55\"\n    ],\n    \"allergies\": [],\n    \"current_medications\": [\n      {\n        \"name\": \"Atorvastatin\",\n        \"dosage\": \"40 mg\",\n        \"frequency\": \"Daily\",\n        \"start_date\": null\n      },\n      {\n        \"name\": \"Aspirin\",\n        \"dosage\": \"81 mg\",\n        \"frequency\": \"Daily\",\n        \"start_date\": null\n      }\n    ],\n    \"vital_signs\": {\n      \"temperature\": null,\n      \"heart_rate\": 110,\n      \"blood_pressure_systolic\": 160,\n      \"blood_pressure_diastolic\": 95,\n      \"respiratory_rate\": 24,\n      \"oxygen_saturation\": 96.0\n    },\n    \"lab_results\": [\n      {\n        \"test_name\": \"ECG\",\n        \"value\": \"ST elevation in leads V1-V4\",\n        \"unit\": null,\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      },\n      {\n        \"test_name\": \"Troponin I\",\n        \"value\": \"4.5 (markedly elevated)\",\n        \"unit\": \"ng/mL\",\n        \"reference_range\": null,\n        \"is_abnormal\": true\n      }\n    ],\n    \"raw_input\": null,\n    \"created_at\": \"2026-10-26T01:51:25.000054\"\n  },\n  \"diagnosis\": {\n    \"primary_diagnosis\": {\n      \"disease_name\": \"Acute anterior ST-elevation myocardial infarction (STEMI), likely left anterior descending coronary artery occlusion\",\n      \"icd10_hint\": \"I21.09\",\n      \"confidence\": 0.99,\n      \"evidence\": [\n        \"Severe crushing chest pain radiating to the left arm for 2 hours\",\n        \"ST elevation in contiguous anterior leads V1-V4\",\n        \"Markedly elevated troponin I of 4.5 ng/mL\",\n        \"Associated diaphoresis, nausea, and dyspnea\",\n        \"Hyperlipidemia, substantial smoking history, and paternal myocardial infarction\"\n      ],\n      \"reasoning\": \"The classic ischemic presentation, regional anterior ST elevation, and elevated troponin strongly establish acute anterior STEMI. Acute LAD occlusion is the leading mechanism, pending coronary angiography.\"\n    },\n    \"differential_list\": [\n      {\n        \"disease_name\": \"Takotsubo syndrome\",\n        \"icd10_hint\": \"I51.81\",\n        \"confidence\": 0.03,\n        \"evidence\": [\n          \"62-year-old woman\",\n          \"Acute chest pain and dyspnea\",\n          \"Anterior ST elevation and elevated troponin\"\n        ],\n        \"reasoning\": \"Can closely mimic anterior STEMI in postmenopausal women. No precipitating stressor is reported. Coronary angiography and ventricular imaging distinguish it from an occlusive infarction.\"\n      },\n      {\n        \"disease_name\": \"Acute myopericarditis\",\n        \"icd10_hint\": \"I40.9\",\n        \"confidence\": 0.01,\n        \"evidence\": [\n          \"Acute chest pain\",\n          \"ST elevation\",\n          \"Elevated troponin indicating myocardial injury\"\n        ],\n        \"reasoning\": \"Inflammation can produce ST elevation and troponin release, but the regional ECG pattern and crushing radiating pain favor coronary occlusion. No viral prodrome, positional pain, or pleuritic features are reported.\"\n      },\n      {\n        \"disease_name\": \"Acute aortic dissection with coronary malperfusion\",\n        \"icd10_hint\": \"I71.00\",\n        \"confidence\": 0.01,\n        \"evidence\": [\n          \"Sudden severe chest pain\",\n          \"Blood pressure of 160/95 mmHg\",\n          \"Evidence of acute myocardial ischemia\"\n        ],\n        \"reasoning\": \"Dissection can rarely compromise a coronary artery and cause STEMI. It is a dangerous alternative, although no back radiation, pulse asymmetry, neurologic deficit, or aortic regurgitation findings are supplied.\"\n      },\n      {\n        \"disease_name\": \"Acute pulmonary embolism\",\n        \"icd10_hint\": \"I26.99\",\n        \"confidence\": 0.005,\n        \"evidence\": [\n          \"Sudden chest pain and dyspnea\",\n          \"Tachycardia of 110 beats/min and tachypnea of 24 breaths/min\",\n          \"Elevated troponin\"\n        ],\n        \"reasoning\": \"Pulmonary embolism can cause myocardial injury from right ventricular strain, but focal V1-V4 ST elevation with classic ischemic pain is substantially more consistent with anterior STEMI. Normal oxygen saturation does not exclude embolism.\"\n      }\n    ],\n    \"recommended_tests\": [\n      \"Immediate emergency coronary angiography with primary PCI capability; do not delay reperfusion for additional diagnostic testing.\",\n      \"Urgent bedside echocardiography to assess regional wall motion, ventricular function, and mechanical complications without delaying catheterization.\",\n      \"Continuous cardiac monitoring and repeat ECGs to assess evolution and arrhythmias.\",\n      \"CBC, electrolytes, creatinine, glucose, and coagulation studies; serial troponin for trend, not as a prerequisite for reperfusion.\",\n      \"Rapid examination for pulse or bilateral blood-pressure discrepancies, neurologic deficits, and a new diastolic murmur; obtain urgent aortic CT angiography or transesophageal echocardiography only if dissection is clinically suspected.\"\n    ],\n    \"clinical_notes\": \"This is a time-critical STEMI emergency requiring immediate emergency medical services and catheterization-team activation. If outside a hospital, call emergency services now and do not drive. Follow the emergency ACS protocol for antiplatelet and anticoagulant treatment after checking contraindications and dissection red flags. Routine supplemental oxygen is not indicated at an oxygen saturation of 96%. Additional history is useful but must not delay reperfusion. Confidence scores describe diagnostic plausibility and are not mutually exclusive probabilities.\",\n    \"knowledge_sources\": [\n      \"2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes\",\n      \"2023 ESC Guidelines for the Management of Acute Coronary Syndromes\",\n      \"Fourth Universal Definition of Myocardial Infarction (2018)\",\n      \"GraphRAG knowledge graph (symptom->disease retrieval)\"\n    ],\n    \"knowledge_graph_candidates\": [\n      {\n        \"disease\": \"Pulmonary Embolism\",\n        \"symptom_match_count\": 2,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      },\n      {\n        \"disease\": \"Acute MI\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"I21.9\",\n        \"icd10_description\": \"Acute myocardial infarction, unspecified\"\n      },\n      {\n        \"disease\": \"Angina\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      },\n      {\n        \"disease\": \"Pneumothorax\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      },\n      {\n        \"disease\": \"GERD\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      }\n    ]\n  }\n}\n\nProvide a comprehensive treatment plan with drug interaction checks.",
+          "sha256": "2b575e3bfabfb9c65f48896cc01696614f0a5a85efa6f8daa8dc432e273f9a2c"
+        }
+      ],
+      "prompt_sha256": "c837a8d6892b326f7e0b89a7e08b0bc4c2c7e2502711d858280b41a868f7298f",
+      "output_text": "{\n  \"diagnosis_addressed\": \"Acute anterior ST-elevation myocardial infarction (STEMI), likely acute left anterior descending coronary artery occlusion. This is an immediately life-threatening emergency requiring reperfusion.\",\n  \"medications\": [\n    {\n      \"drug_name\": \"Bayer Aspirin\",\n      \"generic_name\": \"aspirin\",\n      \"dosage\": \"162\u2013325 mg non-enteric-coated loading dose, chewed; then 81 mg\",\n      \"route\": \"oral\",\n      \"frequency\": \"Load immediately, then once daily\",\n      \"duration\": \"Long-term unless subsequently modified for bleeding risk or anticoagulation requirements\",\n      \"contraindications\": [\n        \"True aspirin hypersensitivity\",\n        \"Active major bleeding\",\n        \"Suspected aortic dissection: withhold antithrombotics pending urgent evaluation\"\n      ],\n      \"side_effects\": [\n        \"Gastrointestinal irritation\",\n        \"Gastrointestinal bleeding\",\n        \"Bruising\"\n      ]\n    },\n    {\n      \"drug_name\": \"Brilinta\",\n      \"generic_name\": \"ticagrelor\",\n      \"dosage\": \"180 mg loading dose, then 90 mg\",\n      \"route\": \"oral\",\n      \"frequency\": \"Load once for the primary-PCI strategy, then twice daily\",\n      \"duration\": \"Default 12 months with low-dose aspirin after ACS if bleeding risk is not high; individualize\",\n      \"contraindications\": [\n        \"Active pathological bleeding\",\n        \"Previous intracranial hemorrhage\",\n        \"Severe hepatic impairment\",\n        \"Strong CYP3A inhibitors or inducers\",\n        \"Known hypersensitivity\"\n      ],\n      \"side_effects\": [\n        \"Bleeding\",\n        \"Dyspnea\",\n        \"Bradyarrhythmias\"\n      ]\n    },\n    {\n      \"drug_name\": \"Heparin Sodium Injection\",\n      \"generic_name\": \"unfractionated heparin\",\n      \"dosage\": \"For primary PCI without planned glycoprotein IIb/IIIa inhibitor: 70\u2013100 units/kg IV bolus, adjusted to procedural activated clotting time\",\n      \"route\": \"iv\",\n      \"frequency\": \"Initial procedural bolus with additional dosing guided by the catheterization team\",\n      \"duration\": \"Through PCI; discontinue after uncomplicated PCI unless another indication exists\",\n      \"contraindications\": [\n        \"Active major bleeding\",\n        \"History of heparin-induced thrombocytopenia\",\n        \"Severe thrombocytopenia\",\n        \"Suspected aortic dissection\",\n        \"Known hypersensitivity\"\n      ],\n      \"side_effects\": [\n        \"Bleeding\",\n        \"Thrombocytopenia\",\n        \"Heparin-induced thrombocytopenia\"\n      ]\n    },\n    {\n      \"drug_name\": \"Nitrostat\",\n      \"generic_name\": \"nitroglycerin\",\n      \"dosage\": \"0.4 mg\",\n      \"route\": \"sublingual\",\n      \"frequency\": \"Every 5 minutes as needed for ongoing ischemic pain, up to 3 doses, with blood-pressure reassessment\",\n      \"duration\": \"Acute symptom relief only; monitored IV nitroglycerin may be considered for persistent ischemia, hypertension, or pulmonary edema\",\n      \"contraindications\": [\n        \"Systolic blood pressure below 90 mmHg or more than 30 mmHg below baseline\",\n        \"Suspected right ventricular infarction or other preload-dependent state\",\n        \"Recent sildenafil or vardenafil within 24 hours, tadalafil within 48 hours, or avanafil within 12 hours\",\n        \"Concomitant riociguat\",\n        \"Known hypersensitivity\"\n      ],\n      \"side_effects\": [\n        \"Headache\",\n        \"Hypotension\",\n        \"Dizziness\",\n        \"Reflex tachycardia\"\n      ]\n    },\n    {\n      \"drug_name\": \"Lipitor\",\n      \"generic_name\": \"atorvastatin\",\n      \"dosage\": \"80 mg, replacing the current 40 mg dose rather than adding a second statin prescription\",\n      \"route\": \"oral\",\n      \"frequency\": \"Once daily\",\n      \"duration\": \"Indefinitely if tolerated\",\n      \"contraindications\": [\n        \"Acute liver failure or decompensated cirrhosis\",\n        \"Known hypersensitivity\",\n        \"Previous severe statin-associated muscle toxicity requires reassessment\"\n      ],\n      \"side_effects\": [\n        \"Myalgia\",\n        \"Elevated liver enzymes\",\n        \"Rare rhabdomyolysis\"\n      ]\n    },\n    {\n      \"drug_name\": \"Lopressor\",\n      \"generic_name\": \"metoprolol tartrate\",\n      \"dosage\": \"Consider 12.5\u201325 mg initially only after reperfusion and confirmation of hemodynamic stability; titrate to heart rate and blood pressure\",\n      \"route\": \"oral\",\n      \"frequency\": \"Twice daily when appropriate\",\n      \"duration\": \"Reassess after ventricular function is established; if reduced LVEF, transition to an evidence-based heart-failure beta-blocker regimen\",\n      \"contraindications\": [\n        \"Cardiogenic shock or increased shock risk\",\n        \"Acute decompensated heart failure or low-output state\",\n        \"Significant bradycardia\",\n        \"Second- or third-degree AV block without a pacemaker\",\n        \"Active bronchospasm\",\n        \"Known hypersensitivity\"\n      ],\n      \"side_effects\": [\n        \"Bradycardia\",\n        \"Hypotension\",\n        \"Fatigue\",\n        \"Worsening heart failure if started prematurely\"\n      ]\n    },\n    {\n      \"drug_name\": \"Zestril\",\n      \"generic_name\": \"lisinopril\",\n      \"dosage\": \"2.5\u20135 mg initially, then titrate as tolerated\",\n      \"route\": \"oral\",\n      \"frequency\": \"Once daily; initiate within approximately 24 hours if stable and renal function and potassium permit\",\n      \"duration\": \"Long-term, especially with anterior infarction, hypertension, or LVEF at or below 40%\",\n      \"contraindications\": [\n        \"Previous ACE-inhibitor-associated angioedema\",\n        \"Pregnancy\",\n        \"Bilateral renal artery stenosis\",\n        \"Clinically significant hyperkalemia\",\n        \"Hypotension or evolving acute kidney injury\",\n        \"Sacubitril/valsartan use within the preceding 36 hours\"\n      ],\n      \"side_effects\": [\n        \"Cough\",\n        \"Hypotension\",\n        \"Hyperkalemia\",\n        \"Increased creatinine\",\n        \"Rare angioedema\"\n      ]\n    }\n  ],\n  \"drug_interactions\": [\n    {\n      \"drug_a\": \"Aspirin, including the current 81 mg daily regimen\",\n      \"drug_b\": \"Ticagrelor\",\n      \"severity\": \"major\",\n      \"description\": \"Additive bleeding risk, including gastrointestinal and intracranial bleeding. This combination is intentional standard therapy for ACS/PCI when appropriate.\",\n      \"recommendation\": \"Check bleeding history and CBC; monitor for bleeding. Use aspirin maintenance 81 mg daily with ticagrelor. The acute aspirin load is separate; verify whether EMS has already administered it. Consider proton-pump inhibitor gastroprotection when gastrointestinal bleeding risk is elevated.\"\n    },\n    {\n      \"drug_a\": \"Unfractionated heparin\",\n      \"drug_b\": \"Aspirin and ticagrelor\",\n      \"severity\": \"major\",\n      \"description\": \"Combined anticoagulant and antiplatelet therapy substantially increases bleeding risk but is usually necessary during primary PCI.\",\n      \"recommendation\": \"Use only in a monitored emergency/procedural setting; obtain weight, CBC and platelet count, follow procedural ACT, favor radial access, and avoid routine heparin continuation after successful PCI.\"\n    },\n    {\n      \"drug_a\": \"Atorvastatin, currently 40 mg daily\",\n      \"drug_b\": \"Ticagrelor\",\n      \"severity\": \"minor\",\n      \"description\": \"Ticagrelor can modestly increase atorvastatin exposure; this generally does not preclude atorvastatin 80 mg.\",\n      \"recommendation\": \"Continue high-intensity statin treatment and assess new muscle pain, weakness, or dark urine; check CK if symptomatic.\"\n    },\n    {\n      \"drug_a\": \"Aspirin\",\n      \"drug_b\": \"Atorvastatin\",\n      \"severity\": \"none\",\n      \"description\": \"No clinically important direct interaction between the two documented current medications.\",\n      \"recommendation\": \"Continue both with the acute-treatment dose adjustments described above.\"\n    },\n    {\n      \"drug_a\": \"Nitroglycerin\",\n      \"drug_b\": \"PDE5 inhibitors or riociguat, if taken but not yet disclosed\",\n      \"severity\": \"contraindicated\",\n      \"description\": \"Potential profound, life-threatening hypotension.\",\n      \"recommendation\": \"Explicitly verify use before administering nitrates; observe the specified PDE5-inhibitor exclusion intervals and do not combine with riociguat.\"\n    },\n    {\n      \"drug_a\": \"Metoprolol\",\n      \"drug_b\": \"Ticagrelor\",\n      \"severity\": \"moderate\",\n      \"description\": \"Potential additive bradycardia or conduction disturbances.\",\n      \"recommendation\": \"Use telemetry and reassess pulse and conduction before beta-blocker initiation and titration.\"\n    },\n    {\n      \"drug_a\": \"Lisinopril\",\n      \"drug_b\": \"Nitroglycerin and metoprolol\",\n      \"severity\": \"moderate\",\n      \"description\": \"Additive blood-pressure lowering may compromise perfusion during acute infarction.\",\n      \"recommendation\": \"Introduce sequentially after stability is established; monitor blood pressure and renal perfusion.\"\n    }\n  ],\n  \"non_drug_treatments\": [\n    \"Activate emergency medical services and the STEMI catheterization team immediately. If outside hospital, call emergency services now and do not drive.\",\n    \"Perform emergency coronary angiography and primary PCI. Target first-medical-contact-to-device time of 90 minutes or less at a PCI-capable hospital and 120 minutes or less when transfer is required.\",\n    \"If anticipated first-medical-contact-to-device time exceeds 120 minutes, symptoms began within 12 hours, and there are no contraindications, urgently consider fibrinolysis under a formal STEMI protocol, followed by immediate transfer to a PCI center. Use a fibrinolysis-specific antithrombotic regimen rather than automatically applying the primary-PCI regimen above.\",\n    \"After fibrinolysis, perform rescue PCI for failed reperfusion, persistent ischemia, or instability; otherwise perform angiography within 2\u201324 hours.\",\n    \"Continuous cardiac monitoring, defibrillator availability, IV access, and frequent assessment for shock, pulmonary edema, arrhythmias, and mechanical complications.\",\n    \"Urgent echocardiography to assess LVEF, regional dysfunction, mechanical complications, and possible apical thrombus without delaying reperfusion.\",\n    \"Refer to supervised cardiac rehabilitation before discharge.\"\n  ],\n  \"lifestyle_recommendations\": [\n    \"Rest during the acute event; do not exercise or attempt to walk off the pain.\",\n    \"After stabilization, follow a Mediterranean-style dietary pattern and maintain smoking abstinence.\",\n    \"Resume activity progressively through cardiac rehabilitation and cardiology guidance.\",\n    \"Emphasize medication adherence, particularly uninterrupted prescribed antiplatelet therapy after stenting.\",\n    \"Avoid non-aspirin NSAIDs and discuss supplements and over-the-counter medications with the care team.\"\n  ],\n  \"follow_up_plan\": \"Immediate monitored hospital care, usually a coronary care setting initially. Obtain CBC/platelets, electrolytes including potassium and magnesium, creatinine/eGFR, glucose/HbA1c, coagulation studies, baseline liver enzymes, and lipid profile without delaying PCI. Repeat ECG after reperfusion and with recurrent symptoms; assess echocardiographic LVEF before discharge. Arrange cardiology follow-up within 1\u20132 weeks after discharge. Check potassium and creatinine within 1\u20132 weeks of ACE-inhibitor initiation or dose increases, sooner during hospitalization as needed. Recheck lipids 4\u20138 weeks after treatment adjustment; add nonstatin therapy if LDL-C remains at least 70 mg/dL on maximally tolerated statin, and consider intensification at 55\u201369 mg/dL according to risk and guideline goals. If LVEF is at or below 40% with heart-failure symptoms or diabetes, consider eplerenone once potassium is below 5.0 mmol/L and eGFR exceeds 30 mL/min/1.73 m\u00b2. Reassess reduced LVEF after recovery and optimized therapy; primary-prevention ICD decisions generally require at least 40 days after MI and approximately 90 days after revascularization.\",\n  \"warnings\": [\n    \"Do not delay reperfusion for repeat troponin, routine imaging, complete medication reconciliation, or this treatment plan. Medication administration requires the emergency treating team.\",\n    \"The supplied allergy list is empty: no allergies are documented, but this is not confirmation of no allergies. Rapidly verify aspirin/NSAID, heparin, other drug, and contrast reactions before relevant administration.\",\n    \"MAJOR BLEEDING RISK: aspirin plus ticagrelor plus heparin is intentional during PCI but requires close monitoring and individualized contraindication assessment.\",\n    \"Screen rapidly for dissection red flags. If clinically suspected, withhold antithrombotics and fibrinolysis while pursuing urgent aortic evaluation.\",\n    \"No routine supplemental oxygen is indicated at oxygen saturation 96%; provide oxygen for hypoxemia, generally saturation below 90%, or another clinical indication.\",\n    \"Heart rate 110 beats/min and dyspnea warrant assessment for heart failure and shock risk before beta-blockade. Avoid routine immediate IV beta-blocker treatment.\",\n    \"Fibrinolysis requires a separate contraindication checklist, including prior intracranial hemorrhage, recent ischemic stroke, active bleeding, suspected dissection, and severe uncontrolled hypertension. Clopidogrel is the initial P2Y12 agent used with fibrinolysis; anticoagulant selection and dosing depend on weight, age, and renal function.\",\n    \"Confirm body weight, renal function, bleeding and stroke history, prior HIT, recent surgery, and all prescription, nonprescription, and recreational substances. The interaction review covers the supplied medication list, not undisclosed drugs.\",\n    \"Do not routinely use opioids; they can delay oral P2Y12-inhibitor absorption. Reserve monitored analgesia for refractory severe pain without delaying reperfusion.\",\n    \"Do not add routine long-term anticoagulation solely for anterior MI; evaluate specific indications such as documented LV thrombus or atrial fibrillation.\"\n  ],\n  \"evidence_references\": [\n    \"2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes.\",\n    \"2023 ESC Guidelines for the Management of Acute Coronary Syndromes.\",\n    \"2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure.\",\n    \"US prescribing information for Brilinta, Nitrostat, Lipitor, heparin sodium, Lopressor, and Zestril.\"\n  ]\n}",
+      "output_sha256": "67638059ed4b46fa61e9fdf93a7862b371b4738a23a37156a26746fbd549fc3a",
+      "usage": {
+        "input_tokens": 16018,
+        "cached_input_tokens": 0,
+        "output_tokens": 3277,
+        "reasoning_output_tokens": 79
+      },
+      "elapsed_seconds": 132.863,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    },
+    {
+      "backend": "codex",
+      "transport": "saved_chatgpt",
+      "requested_model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "cli_version": "codex-cli 0.163.0",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a certified medical coding specialist (CCS) with expertise in ICD-10-CM and DRGs grouping. Given diagnosis information and treatment details, assign accurate medical codes.\n\nReturn a JSON object:\n{\n  \"primary_icd10\": {\n    \"code\": \"exact ICD-10-CM code (e.g., J18.1)\",\n    \"description\": \"official code description\",\n    \"confidence\": 0.92,\n    \"category\": \"category name\"\n  },\n  \"secondary_icd10_codes\": [\n    {\n      \"code\": \"ICD-10 code\",\n      \"description\": \"description\",\n      \"confidence\": 0.85,\n      \"category\": \"category\"\n    }\n  ],\n  \"drg_group\": {\n    \"drg_code\": \"DRG number (e.g., 193)\",\n    \"description\": \"DRG description\",\n    \"weight\": 1.2,\n    \"mean_los\": 4.5\n  },\n  \"coding_notes\": \"rationale for code selection\",\n  \"coding_confidence\": 0.90\n}\n\nRules:\n- Use the most specific ICD-10-CM code available (4th-7th character level).\n- Primary code should match the principal diagnosis.\n- Include comorbidity and complication codes as secondary.\n- DRGs weight and mean length of stay should be realistic estimates.\n- Confidence reflects how certain the code assignment is.\n- Return ONLY valid JSON, no markdown fences.",
+          "sha256": "025f1fe12175062b796d8cf38a6872ba349e6cd57e03783c8c850cc6a28496d3"
+        },
+        {
+          "role": "human",
+          "content": "Clinical data for coding:\n\n{\n  \"diagnosis\": {\n    \"primary_diagnosis\": {\n      \"disease_name\": \"Acute anterior ST-elevation myocardial infarction (STEMI), likely left anterior descending coronary artery occlusion\",\n      \"icd10_hint\": \"I21.09\",\n      \"confidence\": 0.99,\n      \"evidence\": [\n        \"Severe crushing chest pain radiating to the left arm for 2 hours\",\n        \"ST elevation in contiguous anterior leads V1-V4\",\n        \"Markedly elevated troponin I of 4.5 ng/mL\",\n        \"Associated diaphoresis, nausea, and dyspnea\",\n        \"Hyperlipidemia, substantial smoking history, and paternal myocardial infarction\"\n      ],\n      \"reasoning\": \"The classic ischemic presentation, regional anterior ST elevation, and elevated troponin strongly establish acute anterior STEMI. Acute LAD occlusion is the leading mechanism, pending coronary angiography.\"\n    },\n    \"differential_list\": [\n      {\n        \"disease_name\": \"Takotsubo syndrome\",\n        \"icd10_hint\": \"I51.81\",\n        \"confidence\": 0.03,\n        \"evidence\": [\n          \"62-year-old woman\",\n          \"Acute chest pain and dyspnea\",\n          \"Anterior ST elevation and elevated troponin\"\n        ],\n        \"reasoning\": \"Can closely mimic anterior STEMI in postmenopausal women. No precipitating stressor is reported. Coronary angiography and ventricular imaging distinguish it from an occlusive infarction.\"\n      },\n      {\n        \"disease_name\": \"Acute myopericarditis\",\n        \"icd10_hint\": \"I40.9\",\n        \"confidence\": 0.01,\n        \"evidence\": [\n          \"Acute chest pain\",\n          \"ST elevation\",\n          \"Elevated troponin indicating myocardial injury\"\n        ],\n        \"reasoning\": \"Inflammation can produce ST elevation and troponin release, but the regional ECG pattern and crushing radiating pain favor coronary occlusion. No viral prodrome, positional pain, or pleuritic features are reported.\"\n      },\n      {\n        \"disease_name\": \"Acute aortic dissection with coronary malperfusion\",\n        \"icd10_hint\": \"I71.00\",\n        \"confidence\": 0.01,\n        \"evidence\": [\n          \"Sudden severe chest pain\",\n          \"Blood pressure of 160/95 mmHg\",\n          \"Evidence of acute myocardial ischemia\"\n        ],\n        \"reasoning\": \"Dissection can rarely compromise a coronary artery and cause STEMI. It is a dangerous alternative, although no back radiation, pulse asymmetry, neurologic deficit, or aortic regurgitation findings are supplied.\"\n      },\n      {\n        \"disease_name\": \"Acute pulmonary embolism\",\n        \"icd10_hint\": \"I26.99\",\n        \"confidence\": 0.005,\n        \"evidence\": [\n          \"Sudden chest pain and dyspnea\",\n          \"Tachycardia of 110 beats/min and tachypnea of 24 breaths/min\",\n          \"Elevated troponin\"\n        ],\n        \"reasoning\": \"Pulmonary embolism can cause myocardial injury from right ventricular strain, but focal V1-V4 ST elevation with classic ischemic pain is substantially more consistent with anterior STEMI. Normal oxygen saturation does not exclude embolism.\"\n      }\n    ],\n    \"recommended_tests\": [\n      \"Immediate emergency coronary angiography with primary PCI capability; do not delay reperfusion for additional diagnostic testing.\",\n      \"Urgent bedside echocardiography to assess regional wall motion, ventricular function, and mechanical complications without delaying catheterization.\",\n      \"Continuous cardiac monitoring and repeat ECGs to assess evolution and arrhythmias.\",\n      \"CBC, electrolytes, creatinine, glucose, and coagulation studies; serial troponin for trend, not as a prerequisite for reperfusion.\",\n      \"Rapid examination for pulse or bilateral blood-pressure discrepancies, neurologic deficits, and a new diastolic murmur; obtain urgent aortic CT angiography or transesophageal echocardiography only if dissection is clinically suspected.\"\n    ],\n    \"clinical_notes\": \"This is a time-critical STEMI emergency requiring immediate emergency medical services and catheterization-team activation. If outside a hospital, call emergency services now and do not drive. Follow the emergency ACS protocol for antiplatelet and anticoagulant treatment after checking contraindications and dissection red flags. Routine supplemental oxygen is not indicated at an oxygen saturation of 96%. Additional history is useful but must not delay reperfusion. Confidence scores describe diagnostic plausibility and are not mutually exclusive probabilities.\",\n    \"knowledge_sources\": [\n      \"2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes\",\n      \"2023 ESC Guidelines for the Management of Acute Coronary Syndromes\",\n      \"Fourth Universal Definition of Myocardial Infarction (2018)\",\n      \"GraphRAG knowledge graph (symptom->disease retrieval)\"\n    ],\n    \"knowledge_graph_candidates\": [\n      {\n        \"disease\": \"Pulmonary Embolism\",\n        \"symptom_match_count\": 2,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      },\n      {\n        \"disease\": \"Acute MI\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"I21.9\",\n        \"icd10_description\": \"Acute myocardial infarction, unspecified\"\n      },\n      {\n        \"disease\": \"Angina\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      },\n      {\n        \"disease\": \"Pneumothorax\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      },\n      {\n        \"disease\": \"GERD\",\n        \"symptom_match_count\": 1,\n        \"icd10_code\": \"\",\n        \"icd10_description\": \"\"\n      }\n    ]\n  },\n  \"treatment_plan\": {\n    \"diagnosis_addressed\": \"Acute anterior ST-elevation myocardial infarction (STEMI), likely acute left anterior descending coronary artery occlusion. This is an immediately life-threatening emergency requiring reperfusion.\",\n    \"medications\": [\n      {\n        \"drug_name\": \"Bayer Aspirin\",\n        \"generic_name\": \"aspirin\",\n        \"dosage\": \"162\u2013325 mg non-enteric-coated loading dose, chewed; then 81 mg\",\n        \"route\": \"oral\",\n        \"frequency\": \"Load immediately, then once daily\",\n        \"duration\": \"Long-term unless subsequently modified for bleeding risk or anticoagulation requirements\",\n        \"contraindications\": [\n          \"True aspirin hypersensitivity\",\n          \"Active major bleeding\",\n          \"Suspected aortic dissection: withhold antithrombotics pending urgent evaluation\"\n        ],\n        \"side_effects\": [\n          \"Gastrointestinal irritation\",\n          \"Gastrointestinal bleeding\",\n          \"Bruising\"\n        ]\n      },\n      {\n        \"drug_name\": \"Brilinta\",\n        \"generic_name\": \"ticagrelor\",\n        \"dosage\": \"180 mg loading dose, then 90 mg\",\n        \"route\": \"oral\",\n        \"frequency\": \"Load once for the primary-PCI strategy, then twice daily\",\n        \"duration\": \"Default 12 months with low-dose aspirin after ACS if bleeding risk is not high; individualize\",\n        \"contraindications\": [\n          \"Active pathological bleeding\",\n          \"Previous intracranial hemorrhage\",\n          \"Severe hepatic impairment\",\n          \"Strong CYP3A inhibitors or inducers\",\n          \"Known hypersensitivity\"\n        ],\n        \"side_effects\": [\n          \"Bleeding\",\n          \"Dyspnea\",\n          \"Bradyarrhythmias\"\n        ]\n      },\n      {\n        \"drug_name\": \"Heparin Sodium Injection\",\n        \"generic_name\": \"unfractionated heparin\",\n        \"dosage\": \"For primary PCI without planned glycoprotein IIb/IIIa inhibitor: 70\u2013100 units/kg IV bolus, adjusted to procedural activated clotting time\",\n        \"route\": \"iv\",\n        \"frequency\": \"Initial procedural bolus with additional dosing guided by the catheterization team\",\n        \"duration\": \"Through PCI; discontinue after uncomplicated PCI unless another indication exists\",\n        \"contraindications\": [\n          \"Active major bleeding\",\n          \"History of heparin-induced thrombocytopenia\",\n          \"Severe thrombocytopenia\",\n          \"Suspected aortic dissection\",\n          \"Known hypersensitivity\"\n        ],\n        \"side_effects\": [\n          \"Bleeding\",\n          \"Thrombocytopenia\",\n          \"Heparin-induced thrombocytopenia\"\n        ]\n      },\n      {\n        \"drug_name\": \"Nitrostat\",\n        \"generic_name\": \"nitroglycerin\",\n        \"dosage\": \"0.4 mg\",\n        \"route\": \"sublingual\",\n        \"frequency\": \"Every 5 minutes as needed for ongoing ischemic pain, up to 3 doses, with blood-pressure reassessment\",\n        \"duration\": \"Acute symptom relief only; monitored IV nitroglycerin may be considered for persistent ischemia, hypertension, or pulmonary edema\",\n        \"contraindications\": [\n          \"Systolic blood pressure below 90 mmHg or more than 30 mmHg below baseline\",\n          \"Suspected right ventricular infarction or other preload-dependent state\",\n          \"Recent sildenafil or vardenafil within 24 hours, tadalafil within 48 hours, or avanafil within 12 hours\",\n          \"Concomitant riociguat\",\n          \"Known hypersensitivity\"\n        ],\n        \"side_effects\": [\n          \"Headache\",\n          \"Hypotension\",\n          \"Dizziness\",\n          \"Reflex tachycardia\"\n        ]\n      },\n      {\n        \"drug_name\": \"Lipitor\",\n        \"generic_name\": \"atorvastatin\",\n        \"dosage\": \"80 mg, replacing the current 40 mg dose rather than adding a second statin prescription\",\n        \"route\": \"oral\",\n        \"frequency\": \"Once daily\",\n        \"duration\": \"Indefinitely if tolerated\",\n        \"contraindications\": [\n          \"Acute liver failure or decompensated cirrhosis\",\n          \"Known hypersensitivity\",\n          \"Previous severe statin-associated muscle toxicity requires reassessment\"\n        ],\n        \"side_effects\": [\n          \"Myalgia\",\n          \"Elevated liver enzymes\",\n          \"Rare rhabdomyolysis\"\n        ]\n      },\n      {\n        \"drug_name\": \"Lopressor\",\n        \"generic_name\": \"metoprolol tartrate\",\n        \"dosage\": \"Consider 12.5\u201325 mg initially only after reperfusion and confirmation of hemodynamic stability; titrate to heart rate and blood pressure\",\n        \"route\": \"oral\",\n        \"frequency\": \"Twice daily when appropriate\",\n        \"duration\": \"Reassess after ventricular function is established; if reduced LVEF, transition to an evidence-based heart-failure beta-blocker regimen\",\n        \"contraindications\": [\n          \"Cardiogenic shock or increased shock risk\",\n          \"Acute decompensated heart failure or low-output state\",\n          \"Significant bradycardia\",\n          \"Second- or third-degree AV block without a pacemaker\",\n          \"Active bronchospasm\",\n          \"Known hypersensitivity\"\n        ],\n        \"side_effects\": [\n          \"Bradycardia\",\n          \"Hypotension\",\n          \"Fatigue\",\n          \"Worsening heart failure if started prematurely\"\n        ]\n      },\n      {\n        \"drug_name\": \"Zestril\",\n        \"generic_name\": \"lisinopril\",\n        \"dosage\": \"2.5\u20135 mg initially, then titrate as tolerated\",\n        \"route\": \"oral\",\n        \"frequency\": \"Once daily; initiate within approximately 24 hours if stable and renal function and potassium permit\",\n        \"duration\": \"Long-term, especially with anterior infarction, hypertension, or LVEF at or below 40%\",\n        \"contraindications\": [\n          \"Previous ACE-inhibitor-associated angioedema\",\n          \"Pregnancy\",\n          \"Bilateral renal artery stenosis\",\n          \"Clinically significant hyperkalemia\",\n          \"Hypotension or evolving acute kidney injury\",\n          \"Sacubitril/valsartan use within the preceding 36 hours\"\n        ],\n        \"side_effects\": [\n          \"Cough\",\n          \"Hypotension\",\n          \"Hyperkalemia\",\n          \"Increased creatinine\",\n          \"Rare angioedema\"\n        ]\n      }\n    ],\n    \"drug_interactions\": [\n      {\n        \"drug_a\": \"Aspirin, including the current 81 mg daily regimen\",\n        \"drug_b\": \"Ticagrelor\",\n        \"severity\": \"major\",\n        \"description\": \"Additive bleeding risk, including gastrointestinal and intracranial bleeding. This combination is intentional standard therapy for ACS/PCI when appropriate.\",\n        \"recommendation\": \"Check bleeding history and CBC; monitor for bleeding. Use aspirin maintenance 81 mg daily with ticagrelor. The acute aspirin load is separate; verify whether EMS has already administered it. Consider proton-pump inhibitor gastroprotection when gastrointestinal bleeding risk is elevated.\"\n      },\n      {\n        \"drug_a\": \"Unfractionated heparin\",\n        \"drug_b\": \"Aspirin and ticagrelor\",\n        \"severity\": \"major\",\n        \"description\": \"Combined anticoagulant and antiplatelet therapy substantially increases bleeding risk but is usually necessary during primary PCI.\",\n        \"recommendation\": \"Use only in a monitored emergency/procedural setting; obtain weight, CBC and platelet count, follow procedural ACT, favor radial access, and avoid routine heparin continuation after successful PCI.\"\n      },\n      {\n        \"drug_a\": \"Atorvastatin, currently 40 mg daily\",\n        \"drug_b\": \"Ticagrelor\",\n        \"severity\": \"minor\",\n        \"description\": \"Ticagrelor can modestly increase atorvastatin exposure; this generally does not preclude atorvastatin 80 mg.\",\n        \"recommendation\": \"Continue high-intensity statin treatment and assess new muscle pain, weakness, or dark urine; check CK if symptomatic.\"\n      },\n      {\n        \"drug_a\": \"Aspirin\",\n        \"drug_b\": \"Atorvastatin\",\n        \"severity\": \"none\",\n        \"description\": \"No clinically important direct interaction between the two documented current medications.\",\n        \"recommendation\": \"Continue both with the acute-treatment dose adjustments described above.\"\n      },\n      {\n        \"drug_a\": \"Nitroglycerin\",\n        \"drug_b\": \"PDE5 inhibitors or riociguat, if taken but not yet disclosed\",\n        \"severity\": \"contraindicated\",\n        \"description\": \"Potential profound, life-threatening hypotension.\",\n        \"recommendation\": \"Explicitly verify use before administering nitrates; observe the specified PDE5-inhibitor exclusion intervals and do not combine with riociguat.\"\n      },\n      {\n        \"drug_a\": \"Metoprolol\",\n        \"drug_b\": \"Ticagrelor\",\n        \"severity\": \"moderate\",\n        \"description\": \"Potential additive bradycardia or conduction disturbances.\",\n        \"recommendation\": \"Use telemetry and reassess pulse and conduction before beta-blocker initiation and titration.\"\n      },\n      {\n        \"drug_a\": \"Lisinopril\",\n        \"drug_b\": \"Nitroglycerin and metoprolol\",\n        \"severity\": \"moderate\",\n        \"description\": \"Additive blood-pressure lowering may compromise perfusion during acute infarction.\",\n        \"recommendation\": \"Introduce sequentially after stability is established; monitor blood pressure and renal perfusion.\"\n      }\n    ],\n    \"non_drug_treatments\": [\n      \"Activate emergency medical services and the STEMI catheterization team immediately. If outside hospital, call emergency services now and do not drive.\",\n      \"Perform emergency coronary angiography and primary PCI. Target first-medical-contact-to-device time of 90 minutes or less at a PCI-capable hospital and 120 minutes or less when transfer is required.\",\n      \"If anticipated first-medical-contact-to-device time exceeds 120 minutes, symptoms began within 12 hours, and there are no contraindications, urgently consider fibrinolysis under a formal STEMI protocol, followed by immediate transfer to a PCI center. Use a fibrinolysis-specific antithrombotic regimen rather than automatically applying the primary-PCI regimen above.\",\n      \"After fibrinolysis, perform rescue PCI for failed reperfusion, persistent ischemia, or instability; otherwise perform angiography within 2\u201324 hours.\",\n      \"Continuous cardiac monitoring, defibrillator availability, IV access, and frequent assessment for shock, pulmonary edema, arrhythmias, and mechanical complications.\",\n      \"Urgent echocardiography to assess LVEF, regional dysfunction, mechanical complications, and possible apical thrombus without delaying reperfusion.\",\n      \"Refer to supervised cardiac rehabilitation before discharge.\"\n    ],\n    \"lifestyle_recommendations\": [\n      \"Rest during the acute event; do not exercise or attempt to walk off the pain.\",\n      \"After stabilization, follow a Mediterranean-style dietary pattern and maintain smoking abstinence.\",\n      \"Resume activity progressively through cardiac rehabilitation and cardiology guidance.\",\n      \"Emphasize medication adherence, particularly uninterrupted prescribed antiplatelet therapy after stenting.\",\n      \"Avoid non-aspirin NSAIDs and discuss supplements and over-the-counter medications with the care team.\"\n    ],\n    \"follow_up_plan\": \"Immediate monitored hospital care, usually a coronary care setting initially. Obtain CBC/platelets, electrolytes including potassium and magnesium, creatinine/eGFR, glucose/HbA1c, coagulation studies, baseline liver enzymes, and lipid profile without delaying PCI. Repeat ECG after reperfusion and with recurrent symptoms; assess echocardiographic LVEF before discharge. Arrange cardiology follow-up within 1\u20132 weeks after discharge. Check potassium and creatinine within 1\u20132 weeks of ACE-inhibitor initiation or dose increases, sooner during hospitalization as needed. Recheck lipids 4\u20138 weeks after treatment adjustment; add nonstatin therapy if LDL-C remains at least 70 mg/dL on maximally tolerated statin, and consider intensification at 55\u201369 mg/dL according to risk and guideline goals. If LVEF is at or below 40% with heart-failure symptoms or diabetes, consider eplerenone once potassium is below 5.0 mmol/L and eGFR exceeds 30 mL/min/1.73 m\u00b2. Reassess reduced LVEF after recovery and optimized therapy; primary-prevention ICD decisions generally require at least 40 days after MI and approximately 90 days after revascularization.\",\n    \"warnings\": [\n      \"Do not delay reperfusion for repeat troponin, routine imaging, complete medication reconciliation, or this treatment plan. Medication administration requires the emergency treating team.\",\n      \"The supplied allergy list is empty: no allergies are documented, but this is not confirmation of no allergies. Rapidly verify aspirin/NSAID, heparin, other drug, and contrast reactions before relevant administration.\",\n      \"MAJOR BLEEDING RISK: aspirin plus ticagrelor plus heparin is intentional during PCI but requires close monitoring and individualized contraindication assessment.\",\n      \"Screen rapidly for dissection red flags. If clinically suspected, withhold antithrombotics and fibrinolysis while pursuing urgent aortic evaluation.\",\n      \"No routine supplemental oxygen is indicated at oxygen saturation 96%; provide oxygen for hypoxemia, generally saturation below 90%, or another clinical indication.\",\n      \"Heart rate 110 beats/min and dyspnea warrant assessment for heart failure and shock risk before beta-blockade. Avoid routine immediate IV beta-blocker treatment.\",\n      \"Fibrinolysis requires a separate contraindication checklist, including prior intracranial hemorrhage, recent ischemic stroke, active bleeding, suspected dissection, and severe uncontrolled hypertension. Clopidogrel is the initial P2Y12 agent used with fibrinolysis; anticoagulant selection and dosing depend on weight, age, and renal function.\",\n      \"Confirm body weight, renal function, bleeding and stroke history, prior HIT, recent surgery, and all prescription, nonprescription, and recreational substances. The interaction review covers the supplied medication list, not undisclosed drugs.\",\n      \"Do not routinely use opioids; they can delay oral P2Y12-inhibitor absorption. Reserve monitored analgesia for refractory severe pain without delaying reperfusion.\",\n      \"Do not add routine long-term anticoagulation solely for anterior MI; evaluate specific indications such as documented LV thrombus or atrial fibrillation.\"\n    ],\n    \"evidence_references\": [\n      \"2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes.\",\n      \"2023 ESC Guidelines for the Management of Acute Coronary Syndromes.\",\n      \"2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure.\",\n      \"US prescribing information for Brilinta, Nitrostat, Lipitor, heparin sodium, Lopressor, and Zestril.\"\n    ],\n    \"allergy_alerts\": [],\n    \"ddi_engine\": {\n      \"checked\": true,\n      \"proposed_drugs_checked\": [\n        \"aspirin\",\n        \"Bayer Aspirin\",\n        \"ticagrelor\",\n        \"Brilinta\",\n        \"unfractionated heparin\",\n        \"Heparin Sodium Injection\",\n        \"nitroglycerin\",\n        \"Nitrostat\",\n        \"atorvastatin\",\n        \"Lipitor\",\n        \"metoprolol tartrate\",\n        \"Lopressor\",\n        \"lisinopril\",\n        \"Zestril\"\n      ],\n      \"current_medications_checked\": [\n        \"Atorvastatin\",\n        \"Aspirin\"\n      ],\n      \"allergies_checked\": [],\n      \"engine_flagged_interactions\": 0,\n      \"engine_flagged_allergy_alerts\": 0\n    }\n  }\n}\n\nAssign ICD-10 codes and DRGs group.",
+          "sha256": "195f2a60d79b69da267530cf9997d1c5f244db27587517ee5ebf28b38828b498"
+        }
+      ],
+      "prompt_sha256": "cc45d0039f08cda31adaf4f44b902462fcc76caf69380fb51202bd003f5cd2e1",
+      "output_text": "{\n  \"primary_icd10\": {\n    \"code\": \"I21.09\",\n    \"description\": \"ST elevation (STEMI) myocardial infarction involving other coronary artery of anterior wall\",\n    \"confidence\": 0.97,\n    \"category\": \"Acute myocardial infarction\"\n  },\n  \"secondary_icd10_codes\": [\n    {\n      \"code\": \"E78.5\",\n      \"description\": \"Hyperlipidemia, unspecified\",\n      \"confidence\": 0.98,\n      \"category\": \"Lipid metabolism disorder\"\n    },\n    {\n      \"code\": \"Z82.49\",\n      \"description\": \"Family history of ischemic heart disease and other diseases of the circulatory system\",\n      \"confidence\": 0.99,\n      \"category\": \"Family history\"\n    },\n    {\n      \"code\": \"Z79.82\",\n      \"description\": \"Long term (current) use of aspirin\",\n      \"confidence\": 0.96,\n      \"category\": \"Long-term medication use\"\n    }\n  ],\n  \"drg_group\": {\n    \"drg_code\": \"282\",\n    \"description\": \"Acute myocardial infarction, discharged alive without CC/MCC\",\n    \"weight\": 0.8,\n    \"mean_los\": 2.5\n  },\n  \"coding_notes\": \"I21.09 captures the documented anterior STEMI without an established culprit artery. Use I21.02 if LAD involvement is confirmed or remains a qualifying probable/likely diagnosis in final inpatient discharge documentation. This preliminary treatment plan does not establish completed PCI or stent placement. MS-DRG 282 is provisional, assuming discharge alive, no qualifying CC/MCC, and no procedure changing grouping; completed PCI would require regrouping using procedure and device details. Weight and length of stay are approximate estimates, not fiscal-year-specific CMS values. Do not code differential diagnoses, integral ischemic symptoms, or hypothetical complications. Elevated blood pressure alone does not establish hypertension. Clarify current versus former tobacco use and nicotine dependence before assigning a tobacco code. Final coding requires discharge documentation and applicable fiscal-year grouper validation.\",\n  \"coding_confidence\": 0.88\n}",
+      "output_sha256": "4809c8c40ac41a847d55fd57805dd8df04ecf9b76a49376d2d1064845dfbfa89",
+      "usage": {
+        "input_tokens": 18745,
+        "cached_input_tokens": 3072,
+        "output_tokens": 537,
+        "reasoning_output_tokens": 78
+      },
+      "elapsed_seconds": 25.776,
+      "status": "completed",
+      "tool_use": [],
+      "event_types": [
+        "thread.started",
+        "turn.started",
+        "item.completed",
+        "turn.completed"
+      ],
+      "warnings": [
+        "skill_catalog_omitted"
+      ],
+      "error": null
+    }
+  ]
+}
