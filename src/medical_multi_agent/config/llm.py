@@ -45,12 +45,13 @@ def get_llm(temperature: float = 0.1) -> ChatOpenAI:
     kwargs: dict = {
         "model": settings.openai_model,
         "api_key": settings.openai_api_key or "local",
+        # An explicit default prevents the SDK from reading a blank process env value.
+        "base_url": settings.openai_base_url or "https://api.openai.com/v1",
         "temperature": temperature,
         "timeout": settings.llm_timeout_seconds,
         "max_retries": 1,
     }
     if settings.openai_base_url:
-        kwargs["base_url"] = settings.openai_base_url
         if settings.llm_disable_thinking:
             # Qwen3-style hybrid models: skip the <think> phase for fast,
             # deterministic structured output.

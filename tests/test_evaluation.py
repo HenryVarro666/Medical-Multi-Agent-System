@@ -3,12 +3,14 @@
 import json
 import subprocess
 import sys
+import tempfile
 from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 
 from evaluation.run_eval import (
+    METRICS,
     aggregate,
     evaluate_case,
     icd10_scores,
@@ -82,6 +84,62 @@ def test_pipeline_failure_is_a_scored_observation(tmp_path):
     assert aggregate([])["mean_latency_seconds"] is None
 
 
+def test_scoring_failure_preserves_raw_pipeline_output(tmp_path):
+    pipeline = Mock()
+    pipeline.invoke.return_value = {
+        "diagnosis": {
+            "primary_diagnosis": {"disease_name": "Community-acquired pneumonia"},
+            "differential_list": ["Bronchitis"],
+        },
+        "audit_result": {"assessment": "report exists"},
+        "errors": ["Recorded agent warning"],
+        "diagnosis_attempts": 1,
+    }
+
+    row = evaluate_case(pipeline, CASE, repeat=1, output_dir=tmp_path, recursion_limit=14)
+
+    assert "Scoring error: AttributeError" in row["harness_error"]
+    assert not any(row[key] for key in METRICS)
+    assert row["pipeline_errors"] == ["Recorded agent warning"]
+    assert row["diagnosis_attempts"] == 1
+    archived = json.loads((tmp_path / "raw" / "case_001_r1.json").read_text())
+    assert archived["pipeline_output"]["diagnosis"] == pipeline.invoke.return_value["diagnosis"]
+    assert archived["pipeline_output"]["audit_result"] == pipeline.invoke.return_value["audit_result"]
+    assert archived["pipeline_output"]["errors"] == ["Recorded agent warning"]
+    assert archived["harness_error"] == row["harness_error"]
+    pipeline.invoke.assert_called_once()
+
+
+def test_unwritable_output_fails_before_pipeline_invocation(tmp_path, monkeypatch):
+    pipeline = Mock()
+    pipeline.invoke.return_value = {}
+
+    def reject_probe(*args, **kwargs):
+        raise PermissionError("output directory is read-only")
+
+    monkeypatch.setattr(tempfile, "TemporaryFile", reject_probe)
+
+    with pytest.raises(PermissionError, match="read-only"):
+        evaluate_case(pipeline, CASE, repeat=1, output_dir=tmp_path, recursion_limit=14)
+
+    pipeline.invoke.assert_not_called()
+    assert not list(tmp_path.rglob("*.json"))
+
+
+def test_evaluation_preserves_existing_raw_file(tmp_path):
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    raw_path = raw_dir / "case_001_r1.json"
+    raw_path.write_text("original recorded result")
+    pipeline = Mock()
+    pipeline.invoke.return_value = {}
+
+    with pytest.raises(FileExistsError):
+        evaluate_case(pipeline, CASE, repeat=1, output_dir=tmp_path, recursion_limit=14)
+
+    assert raw_path.read_text() == "original recorded result"
+
+
 @pytest.mark.parametrize("arguments", [
     ["--repeats", "0"],
     ["--repeats", "-1"],
@@ -133,3 +191,30 @@ def test_main_writes_mock_run_and_uses_configured_retry_budget(tmp_path, monkeyp
     assert (tmp_path / "eval_results.md").exists()
     with pytest.raises(SystemExit):
         parse_args(["--output-dir", str(tmp_path)])
+
+
+def test_main_reports_scoring_failure_and_exits_nonzero(tmp_path, monkeypatch):
+    from medical_multi_agent.config import settings
+    from medical_multi_agent.graph import clinical_pipeline
+
+    pipeline = Mock()
+    pipeline.invoke.return_value = {
+        "diagnosis": {
+            "primary_diagnosis": {"disease_name": "Pneumonia"},
+            "differential_list": ["Bronchitis"],
+        },
+    }
+    monkeypatch.setattr(settings, "get_settings", lambda: SimpleNamespace(
+        openai_model="mock-model", openai_base_url="http://localhost:8001/v1",
+        max_diagnosis_retries=2,
+    ))
+    monkeypatch.setattr(clinical_pipeline, "build_clinical_pipeline", lambda: pipeline)
+
+    assert main(["--cases", "case_001", "--output-dir", str(tmp_path)]) == 1
+
+    report = json.loads((tmp_path / "eval_results.json").read_text())
+    assert report["aggregate"]["n_runs"] == 1
+    assert report["aggregate"]["diagnosis_top1_any"]["hits"] == 0
+    assert "Scoring error: AttributeError" in report["per_case"][0]["harness_error"]
+    assert (tmp_path / "eval_results.md").exists()
+    assert (tmp_path / "raw" / "case_001_r1.json").exists()

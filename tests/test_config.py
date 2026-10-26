@@ -46,6 +46,28 @@ def test_public_custom_backend_requires_api_key(monkeypatch):
         llm.get_llm()
 
 
+def test_blank_process_base_url_uses_default_openai_endpoint(monkeypatch):
+    monkeypatch.setenv("OPENAI_BASE_URL", "")
+    settings = Settings(_env_file=None, openai_api_key="test-placeholder")
+    monkeypatch.setattr(llm, "get_settings", lambda: settings)
+
+    client = llm.get_llm()
+
+    assert str(client.root_client.base_url) == "https://api.openai.com/v1/"
+    assert str(client.root_async_client.base_url) == "https://api.openai.com/v1/"
+
+
+def test_custom_base_url_is_honored_by_real_clients(monkeypatch):
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://localhost:8001/v1")
+    settings = Settings(_env_file=None, openai_api_key="test-placeholder")
+    monkeypatch.setattr(llm, "get_settings", lambda: settings)
+
+    client = llm.get_llm()
+
+    assert str(client.root_client.base_url) == "http://localhost:8001/v1/"
+    assert str(client.root_async_client.base_url) == "http://localhost:8001/v1/"
+
+
 def test_local_backend_allows_placeholder_key_without_thinking_option(monkeypatch):
     settings = Settings(_env_file=None, openai_api_key="", openai_base_url="http://localhost:8001/v1")
     monkeypatch.setattr(llm, "get_settings", lambda: settings)

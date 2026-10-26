@@ -26,6 +26,8 @@ run-<timestamp>-<suffix>/
 
 A custom output directory must be new or empty. The runner rejects paths inside the historical archive and does not overwrite result files. New local results are ignored by Git. The process exits nonzero if a pipeline or harness error occurred; a diagnosis mismatch alone does not change its exit status.
 
+Output directories are checked for writability before inference begins. If malformed model output prevents scoring, the raw stage results are still archived and the scoring exception is recorded in `harness_error`. That run exits nonzero.
+
 Metadata includes timestamp, selected backend and model, Python version, fixture SHA-256, Git revision, and whether uncommitted changes were present. For a reproducible report, also record the model revision, serving command and versions, hardware, decoding configuration, and the exact source diff when dirty. Those details are not all captured automatically.
 
 ## Score definitions

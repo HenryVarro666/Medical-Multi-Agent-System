@@ -18,6 +18,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from datetime import datetime, timezone
@@ -168,6 +169,12 @@ def evaluate_case(pipeline, case: dict, repeat: int, output_dir: Path,
                   recursion_limit: int) -> dict:
     """Invoke a supplied pipeline and archive its result, including failures."""
     output_dir = _validate_output_dir(Path(output_dir))
+    raw_dir = output_dir / "raw"
+    for directory in (output_dir, raw_dir):
+        directory.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryFile(dir=directory) as probe:
+            probe.write(b"evaluation output write check")
+            probe.flush()
     thread_id = f"eval_{case['id']}_r{repeat}_{uuid.uuid4().hex[:8]}"
     start = time.perf_counter()
     result = {}
@@ -179,9 +186,14 @@ def evaluate_case(pipeline, case: dict, repeat: int, output_dir: Path,
         )
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
-    row = score_output(case, result, repeat, time.perf_counter() - start, error)
-    raw_dir = output_dir / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    latency = time.perf_counter() - start
+    try:
+        row = score_output(case, result, repeat, latency, error)
+    except Exception as exc:
+        error = f"Scoring error: {type(exc).__name__}: {exc}"
+        row = score_output(case, {}, repeat, latency, error)
+        row["pipeline_errors"] = result.get("errors") or []
+        row["diagnosis_attempts"] = result.get("diagnosis_attempts")
     raw_path = raw_dir / f"{case['id']}_r{repeat}.json"
     with raw_path.open("x", encoding="utf-8") as stream:
         json.dump({

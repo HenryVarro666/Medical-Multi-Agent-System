@@ -4,38 +4,111 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-A Python research prototype that runs a synthetic patient narrative through five stages: intake, diagnosis, treatment, coding, and audit. LangGraph controls the workflow, and FastAPI exposes the pipeline and deterministic lookup tools.
+A Python research prototype for a five-stage clinical workflow: Intake, Diagnosis, Treatment, Coding, and Audit. LangGraph orchestrates the Agents; FastAPI exposes analysis and deterministic lookup endpoints.
 
-The project demonstrates agent orchestration, retrieval traces, deterministic drug-interaction checks, and reproducible evaluation artifacts. It is not clinically validated, HIPAA certified, or intended for patient care. Use synthetic data only.
+Use synthetic data only. The project is not clinically validated or HIPAA certified.
 
-Adapted from [bcefghj/medical-multi-agent-system](https://github.com/bcefghj/medical-multi-agent-system), under the MIT license. See [attribution and project history](ATTRIBUTION.md).
+## Contents
 
-## What runs today
+- [Overview](#overview)
+- [Quick start](#quick-start)
+- [Model configuration](#model-configuration)
+- [Try the API](#try-the-api)
+- [Architecture and Agent workflow](#architecture)
+- [End-to-end example](#end-to-end-example)
+- [Evaluation](#evaluation)
+- [Docker](#docker)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
+- [Scope and attribution](#scope-and-attribution)
 
-- Four LLM stages produce structured intake, diagnosis, treatment, and coding outputs. A deterministic audit stage screens outputs with limited PHI regex patterns and marks deployment controls as unverified.
-- Diagnosis retrieves candidates from a small, bundled symptom-to-disease map and includes the retrieval trace in its output. The default pipeline does not query Neo4j or a literature corpus.
-- Treatment reconciles LLM suggestions with curated drug-interaction and allergy rules. These rules are illustrative and incomplete.
-- ICD-10 lookup and simplified DRG grouping use bundled mappings. They do not replace a complete coding catalog or certified grouper.
-- Evaluation records per-run outputs, scoring, errors, and latency for five synthetic vignettes.
+## Overview
 
-## Architecture
+| Component | Implemented behavior |
+|---|---|
+| Agent workflow | Four LLM stages followed by deterministic Audit, with bounded diagnosis retries |
+| Retrieval | A small bundled symptom map; candidates and retrieval traces enter Diagnosis |
+| Treatment checks | Curated DDI/allergy rules reconcile the model's proposal |
+| Offline API tools | Health, ICD-10 search/lookup, simplified DRG mapping, and DDI checks |
+| Evaluation | Five synthetic fixtures, preserved historical runs, and reproducible figures |
 
-[![System architecture: FastAPI invokes a sequential LangGraph workflow with ClinicalState, a configured LLM backend, bundled symptom retrieval, and treatment rules. Separate endpoints expose ICD-10 and DRG lookups.](docs/assets/architecture/system-architecture.png)](docs/assets/architecture/system-architecture.svg)
-
-The four LLM stages share the model client factory; Audit runs deterministic checks. State lasts for one invocation by default. See [architecture details and diagram sources](docs/architecture.md) for the implemented boundaries and regeneration command.
+The API and offline tools require no model server, GPU, or database. Full analysis requires a configured OpenAI-compatible model backend. Neo4j/FHIR helpers are outside the default workflow.
 
 ## Quick start
 
-Use Python 3.11 or newer; `.python-version` selects Python 3.12 for uv. Run these commands from the repository root:
+### 1. Clone and install
+
+Install Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). The commands below use macOS/Linux shell syntax. This repository is private; Git credentials must belong to an account with access.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e '.[dev]'
+git clone https://github.com/HenryVarro666/Medical-Multi-Agent-System.git
+cd Medical-Multi-Agent-System
+uv python install 3.12
+uv sync --locked --managed-python
 cp .env.example .env
 ```
 
-Set `OPENAI_API_KEY` in `.env` to use the default OpenAI backend. Alternatively, point the application at an already running OpenAI-compatible model server:
+The managed Python path avoids dependence on the system interpreter. uv creates `.venv` and installs the committed dependency versions. CI tests Python 3.11, 3.12, and 3.13; Python 3.12 is the default here.
+
+For PowerShell, use `Copy-Item .env.example .env` for the last step. Keep all later commands in the repository root. The uv commands do not require virtual-environment activation.
+
+<details>
+<summary>Alternative: install with pip and an existing Python 3.12</summary>
+
+After cloning and entering the repository:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+cp .env.example .env
+```
+
+On Windows, create the environment with `py -3.12 -m venv .venv` and activate it with `.venv\Scripts\Activate.ps1` in PowerShell. Use `Copy-Item` to create `.env`.
+
+For this installation path, replace `uv run --locked python` with `python` in later examples. Keep the venv active in each terminal. pip resolves compatible version ranges; it does not use `uv.lock`.
+
+</details>
+
+### 2. Start the API
+
+In terminal 1, leave the server running:
+
+```bash
+uv run --locked python -m uvicorn medical_multi_agent.api.main:app --host 127.0.0.1 --port 8000
+```
+
+With pip, run the same command without `uv run --locked` in the activated venv. You can start the API with the unchanged `.env` template; credentials are needed only for full analysis.
+
+### 3. Verify the offline endpoints
+
+In terminal 2, run:
+
+```bash
+curl --fail http://127.0.0.1:8000/health
+curl --fail http://127.0.0.1:8000/api/v1/clinical/icd10/J18.9
+curl --fail http://127.0.0.1:8000/api/v1/clinical/ddi/check \
+  -H 'Content-Type: application/json' \
+  -d '{"new_drugs":["warfarin"],"current_drugs":["aspirin"]}'
+```
+
+All three requests should return HTTP 200. The DDI example should report `has_major_interaction: true`. Open [Swagger UI](http://127.0.0.1:8000/docs) to inspect and try the endpoints.
+
+`/health` reports process liveness. It does not test model readiness. Continue with model configuration before calling `/clinical/analyze`.
+
+## Model configuration
+
+Edit `.env` in the repository root and restart the API after changes. Choose one backend; this repository does not download model weights or launch a model server.
+
+### Hosted OpenAI backend
+
+```dotenv
+OPENAI_API_KEY=your-api-key
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=
+```
+
+### Existing local OpenAI-compatible backend
 
 ```dotenv
 OPENAI_BASE_URL=http://localhost:8001/v1
@@ -43,37 +116,25 @@ OPENAI_API_KEY=local
 OPENAI_MODEL=your-served-model
 ```
 
-The model server is a separate dependency and is not launched by this repository. Keep it on a different port from the API. `LLM_DISABLE_THINKING` defaults to `false`; enable it only if the server supports `chat_template_kwargs.enable_thinking`.
+The configured model name must match the server. Keep the model server on a different port from the API. In Docker, use `host.docker.internal` for a backend running on the host.
 
-Start the API:
+| Variable | Default | Meaning |
+|---|---|---|
+| `OPENAI_API_KEY` | Empty | Required for a remote backend; `local` is a placeholder for a local server |
+| `OPENAI_MODEL` | `gpt-4o-mini` | Model identifier sent to the selected endpoint |
+| `OPENAI_BASE_URL` | Empty | OpenAI by default; set the full compatible endpoint for a local/custom server |
+| `LLM_TIMEOUT_SECONDS` | `180` | Timeout for each model call |
+| `LLM_DISABLE_THINKING` | `false` | Opt-in `chat_template_kwargs.enable_thinking=false`; enable only on servers that support it |
+| `MAX_DIAGNOSIS_RETRIES` | `2` | Diagnosis-to-Intake loopbacks, in addition to the initial attempt |
 
-```bash
-uvicorn medical_multi_agent.api.main:app --host 127.0.0.1 --port 8000
-```
-
-Open [Swagger UI](http://127.0.0.1:8000/docs) or [ReDoc](http://127.0.0.1:8000/redoc). The health, ICD-10, and DDI endpoints work without an LLM. Full analysis requires a working configured backend. `/health` checks the API process, not model readiness.
-
-For an installation using the committed dependency lockfile, use uv:
-
-```bash
-uv sync --extra dev --locked
-uv run uvicorn medical_multi_agent.api.main:app --host 127.0.0.1 --port 8000
-```
+See [.env.example](.env.example) for optional Neo4j/FHIR helper settings. No external service is needed for the default offline endpoints.
 
 ## Try the API
 
-A deterministic interaction check:
+After configuring a backend and restarting the API, run this from the repository root in terminal 2:
 
 ```bash
-curl -s http://127.0.0.1:8000/api/v1/clinical/ddi/check \
-  -H 'Content-Type: application/json' \
-  -d '{"new_drugs":["warfarin"],"current_drugs":["aspirin"]}'
-```
-
-Run a bundled synthetic vignette through the full pipeline:
-
-```bash
-python - <<'PY'
+uv run --locked python - <<'PY'
 import json
 from pathlib import Path
 import httpx
@@ -85,19 +146,32 @@ response = httpx.post(
     timeout=600,
 )
 response.raise_for_status()
-print(json.dumps(response.json(), indent=2))
+result = response.json()
+print(json.dumps(result, indent=2))
+if result["errors"]:
+    raise SystemExit("One or more stages failed; inspect the errors above.")
 PY
 ```
 
-Inspect the returned `errors` list as well as the HTTP status; individual agent failures can produce partial results. See the [API reference](docs/api.md).
+For pip, use `python - <<'PY'` in the activated venv. Agent failures can return HTTP 200 with partial sections and a nonempty `errors` list, so inspect both the status and response body.
 
-For a complete recorded input-to-result walkthrough, see the [end-to-end example](#end-to-end-example).
+See the [API reference](docs/api.md) for schemas and all endpoints. The [archived walkthrough](#end-to-end-example) shows a complete recorded run without requiring a model connection.
 
-## Workflow
+## Architecture
 
-[![Five-Agent workflow: Intake, Diagnosis, Treatment, Coding, and Audit execute in numbered order. Diagnosis retries Intake only while more information is requested and the retry budget remains; Audit runs after all model stages.](docs/assets/architecture/agent-workflow.png)](docs/assets/architecture/agent-workflow.svg)
+### System diagram
 
-Agents read and update a shared `ClinicalState` in the numbered sequence. Intake, Diagnosis, Treatment, and Coding use the LLM; Audit is deterministic. Click either architecture diagram for its vector version.
+[![System architecture: FastAPI invokes a sequential LangGraph workflow with ClinicalState, an OpenAI-compatible backend, bundled retrieval and treatment rules, plus standalone ICD-10/DRG tools.](docs/assets/architecture/system-architecture.png)](docs/assets/architecture/system-architecture.svg)
+
+The four LLM stages share the client factory. Audit runs deterministic checks after model calls. State lasts for one invocation by default; checkpoint retention is opt-in.
+
+<a id="workflow"></a>
+
+### Agent workflow
+
+[![Five-Agent workflow: Intake, Diagnosis, Treatment, Coding, and Audit execute in order, with a bounded Diagnosis-to-Intake retry.](docs/assets/architecture/agent-workflow.png)](docs/assets/architecture/agent-workflow.svg)
+
+Retries reprocess the same narrative. Once the retry budget is exhausted, the workflow proceeds with the available information. See [architecture details and figure sources](docs/architecture.md).
 
 <details>
 <summary>Compact workflow in Mermaid</summary>
@@ -117,30 +191,55 @@ flowchart LR
 
 </details>
 
-Retries reprocess the same narrative; the API does not collect new information from a user. Once the retry budget is exhausted, the current workflow proceeds with the available information. See [architecture and limitations](docs/architecture.md).
-
 ## End-to-end example
 
-This walkthrough uses **`case_001`, repeat 1**, from the July 13, 2026 evaluation with `Qwen/Qwen3-14B`. It displays the input and five stored stage-result sections from the [original pipeline trace](evaluation/results/historical-2026-07-13/raw/case_001_r1.json). The evaluation harness invoked the graph directly; the record is a historical pipeline result, not a captured HTTP response or a new run of the refactored code.
+This walkthrough preserves `case_001`, repeat 1, recorded on July 13, 2026 with `Qwen/Qwen3-14B`. It comes from a direct graph invocation by the evaluation harness; it is a historical result, not a new execution.
 
-[![Historical case_001 flow: synthetic input passes through Intake, Diagnosis, Treatment, Coding, and legacy Audit. The final result took 27.10 seconds, matched the strict diagnosis alias tier, and predicted ICD-10 J18.9 versus fixture J18.1.](docs/assets/examples/case-001-walkthrough.png)](docs/assets/examples/case-001-walkthrough.svg)
+[![Historical case_001: input, five key Agent outputs, and a 27.10-second final result with an exact ICD-10 mismatch.](docs/assets/examples/case-001-walkthrough.png)](docs/assets/examples/case-001-walkthrough.svg)
 
-The diagram follows the single recorded diagnosis attempt and reads its values from the archive. Click it for the vector version; see [diagram regeneration](evaluation/README.md#case-walkthrough-figure) for the command. The input and complete stage outputs remain below.
-
-Each expandable block contains the complete recorded JSON for that stage, with no fields omitted. Medication, interaction, coding, confidence, and reference fields are unverified model outputs. They are shown to explain the software workflow and are not clinical instructions or validated citations.
+The [raw trace](evaluation/results/historical-2026-07-13/raw/case_001_r1.json) contains every recorded field. The figure shows the single observed path; complete stage JSON remains expandable below.
 
 ### Input
 
 > 45-year-old male presenting with fever (39.2°C) for 3 days, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing. History of type 2 diabetes (diagnosed 5 years ago) and hypertension. Current medications: metformin 500mg twice daily, lisinopril 10mg daily. Allergies: penicillin (causes rash). Vital signs: BP 130/85, HR 102, RR 22, SpO2 94% on room air. Labs: WBC 15,000/μL (elevated), CRP 85 mg/L (elevated), procalcitonin 2.1 ng/mL (elevated). Chest X-ray shows right lower lobe consolidation.
 
-The API accepts this narrative as `patient_description` and passes it to the graph as `raw_input`. The fixture labels used for scoring are `Community-Acquired Pneumonia` and ICD-10 `J18.1`; these labels are not included in the model input.
+The API accepts this narrative as `patient_description` and maps it to `raw_input`. Fixture labels `Community-Acquired Pneumonia` and `J18.1` are used for scoring and are not included in the model input.
 
-### 1. Intake → `patient_info`
+### Recorded Agent handoffs
 
-Intake reads `raw_input` and extracts a 45-year-old male patient, symptoms, diabetes/hypertension history, two current medications, a penicillin allergy, vital signs, and lab results. This structured object becomes the input to Diagnosis.
+| Agent | State field | Key recorded output |
+|---|---|---|
+| Intake | `patient_info` | Age 45, male; structured symptoms/labs, two medications, penicillin allergy |
+| Diagnosis | `diagnosis` | Community-acquired pneumonia; model confidence 0.85; five retrieval candidates |
+| Treatment | `treatment_plan` | Two medication proposals; DDI executed; 0 curated-rule matches and 4 LLM interaction entries |
+| Coding | `coding_result` | Model-proposed primary code `J18.9` and DRG `193` |
+| Audit | `audit_result` | Historical `hipaa_compliant: false`, `name` pattern flagged; unsupported masking/control claims |
+
+Medication, interaction, coding, confidence, and reference fields are unverified model output. Legacy audit claims do not establish masking or compliance. These archived values explain the workflow; they are not clinical instructions.
+
+### Final recorded result
+
+| Item | Recorded result |
+|---|---|
+| Primary diagnosis | `Community-acquired pneumonia` |
+| Diagnosis alias tier | `strict` |
+| Fixture / predicted ICD-10 | `J18.1` / `J18.9` |
+| Exact ICD-10 / category match | `false` / `true` |
+| Treatment proposal | `Levofloxacin`, `Acetaminophen`; unverified model output |
+| Deterministic treatment checks | Executed; 0 curated-rule interaction matches, 0 rule-based allergy alerts |
+| Historical audit | `hipaa_compliant: false`; `name` flagged; legacy masking/control claims are unsupported |
+| Diagnosis attempts | `1` |
+| Stored pipeline `errors` / `harness_error` | `null` / `null` (no errors recorded) |
+| End-to-end latency | **27.10 seconds** |
+
+The run completed with all five sections present. Exact ICD-10 matching failed while the category matched. The historical audit flagged a name pattern; the current audit no longer asserts masking or verified deployment controls.
+
+### Complete Agent outputs
 
 <details>
-<summary>Complete Intake output</summary>
+<summary>1. Intake — complete patient_info JSON</summary>
+
+Intake converts the narrative to structured patient information. The stored object becomes input to Diagnosis.
 
 ```json
 {
@@ -233,12 +332,10 @@ Intake reads `raw_input` and extracts a 45-year-old male patient, symptoms, diab
 
 </details>
 
-### 2. Diagnosis → `diagnosis`
-
-Diagnosis reads `patient_info` and retrieves five bundled symptom-map candidates. The first candidate is `Influenza`, with one symptom match; the LLM selects `Community-acquired pneumonia`, reports confidence `0.85`, and records its differentials and retrieval trace. Confidence is model-reported, not calibrated accuracy. The archive records one diagnosis attempt.
-
 <details>
-<summary>Complete Diagnosis output</summary>
+<summary>2. Diagnosis — complete diagnosis JSON</summary>
+
+Diagnosis uses patient information and bundled retrieval hints. Confidence is model-reported, not calibrated accuracy; source-name strings are not verified citations.
 
 ```json
 {
@@ -334,12 +431,10 @@ Diagnosis reads `patient_info` and retrieves five bundled symptom-map candidates
 
 </details>
 
-### 3. Treatment → `treatment_plan`
-
-Treatment reads the patient information and diagnosis. The LLM proposes `Levofloxacin` and `Acetaminophen` and supplies four interaction descriptions. The deterministic engine checks the proposed drugs against `metformin`, `lisinopril`, and the `penicillin` allergy, recording `checked: true`, **zero curated-rule interaction matches**, and zero rule-based allergy alerts. This stamp does not verify the LLM interaction text or establish medication safety.
-
 <details>
-<summary>Complete Treatment output</summary>
+<summary>3. Treatment — complete treatment_plan JSON</summary>
+
+The model proposes medications and four interaction descriptions. The deterministic stamp records zero curated-rule matches; it does not verify the model text or establish medication safety.
 
 ```json
 {
@@ -452,12 +547,10 @@ Treatment reads the patient information and diagnosis. The LLM proposes `Levoflo
 
 </details>
 
-### 4. Coding → `coding_result`
-
-Coding reads the diagnosis and treatment plan and proposes primary ICD-10 `J18.9` and DRG `193`, plus secondary codes. These are LLM-generated proposals. The primary code differs from the fixture label `J18.1`, so the recorded exact-code check fails while the `J18` category check matches.
-
 <details>
-<summary>Complete Coding output</summary>
+<summary>4. Coding — complete coding_result JSON</summary>
+
+These are model-generated code and DRG proposals. The primary code is J18.9, compared with fixture J18.1 only during evaluation.
 
 ```json
 {
@@ -500,12 +593,10 @@ Coding reads the diagnosis and treatment plan and proposes primary ICD-10 `J18.9
 
 </details>
 
-### 5. Audit → `audit_result`
-
-Audit scans the four preceding structured outputs. The historical report flags `name`, sets `hipaa_compliant: false`, and reports risk `medium`. The old implementation also claimed `phi_fields_masked: ["name"]` and marked deployment controls `Verified`; those claims did not establish actual redaction or control verification. The current implementation reports deployment controls as unverified and does not claim to have masked the returned data. The archived JSON below is retained unchanged.
-
 <details>
-<summary>Complete historical Audit output</summary>
+<summary>5. Audit — complete historical audit_result JSON</summary>
+
+The old code claimed masking and verified deployment controls without establishing either. This JSON preserves the old output; current code marks controls unverified and does not claim masking.
 
 ```json
 {
@@ -601,44 +692,15 @@ Audit scans the four preceding structured outputs. The historical report flags `
 
 </details>
 
-### Final recorded result
-
-All five stage-result sections are present in the final `pipeline_output`. The outcome below combines those sections with the [recorded scoring row](evaluation/results/historical-2026-07-13/eval_results.json).
-
-| Item | Recorded result |
-|---|---|
-| Primary diagnosis | `Community-acquired pneumonia` |
-| Diagnosis alias tier | `strict` |
-| Fixture / predicted ICD-10 | `J18.1` / `J18.9` |
-| Exact ICD-10 / category match | `false` / `true` |
-| Treatment proposal | `Levofloxacin`, `Acetaminophen`; unverified model output |
-| Deterministic treatment checks | Executed; 0 curated-rule interaction matches, 0 rule-based allergy alerts |
-| Historical audit | `hipaa_compliant: false`; `name` flagged; legacy masking/control claims are unsupported |
-| Diagnosis attempts | `1` |
-| Stored pipeline `errors` / `harness_error` | `null` / `null` (no errors recorded) |
-| End-to-end latency | **27.10 seconds** |
-
-The pipeline completed this demonstration run, while the exact ICD-10 check did not match and the audit report flagged an identifier pattern. The trace preserves these outcomes and the original model text for inspection.
-
-With a configured backend, run the same fixture against the current code:
-
-```bash
-python -m evaluation.run_eval --cases case_001 --repeats 1
-```
-
-This creates a separate result directory. Model outputs may differ, and the current audit behavior includes the corrections described above.
-
 ## Evaluation
 
-### Recorded results
+### Historical results
 
-The original July 13, 2026 run used `Qwen/Qwen3-14B` through a local OpenAI-compatible endpoint. Five synthetic cases were run twice, producing ten recorded pipeline outputs. The original results remain displayed below and are preserved in the [full report](evaluation/results/historical-2026-07-13/eval_results.md), [machine-readable summary](evaluation/results/historical-2026-07-13/eval_results.json), and [raw outputs](evaluation/results/historical-2026-07-13/raw/).
+The July 13, 2026 run used `Qwen/Qwen3-14B`: five synthetic cases, two repeats, ten pipeline outputs. The original [report](evaluation/results/historical-2026-07-13/eval_results.md) and JSON artifacts are preserved.
 
-[![Historical evaluation metrics: strict diagnosis alias matches 6/10, either-tier top-1 and top-3 matches 10/10, exact ICD-10 matches 5/10, category matches 10/10, and three structure/execution checks 10/10.](docs/assets/evaluation/historical-metrics.png)](docs/assets/evaluation/historical-metrics.svg)
+[![Eight historical checks: diagnosis alias matching, ICD-10 matching, treatment structure, DDI execution, and audit completion.](docs/assets/evaluation/historical-metrics.png)](docs/assets/evaluation/historical-metrics.svg)
 
-[![Paired end-to-end latency for five synthetic cases over two repeats, with an overall mean of 28.22 seconds.](docs/assets/evaluation/historical-latency.png)](docs/assets/evaluation/historical-latency.svg)
-
-The charts are generated from the preserved JSON. Click either chart for its vector version; see [figure regeneration](evaluation/README.md#readme-figures) for the command. Exact values and all ten raw runs remain below.
+[![Two recorded latencies per case, with a 28.22-second overall mean.](docs/assets/evaluation/historical-latency.png)](docs/assets/evaluation/historical-latency.svg)
 
 | Recorded measure | Original field | Result |
 |---|---|---:|
@@ -652,7 +714,7 @@ The charts are generated from the preserved JSON. Click either chart for its vec
 | Audit report produced | `audit_completed` | 10/10 (100%) |
 | Mean pipeline latency | `mean_latency_seconds` | 28.22 s |
 
-`treatment_ok` measures the presence of medications and a DDI execution stamp. `audit_completed` measures whether a report exists. These fields do not assess treatment safety or establish compliance.
+`treatment_ok` checks medications and a DDI execution stamp. `audit_completed` checks that a report exists. Neither measures treatment safety or compliance.
 
 <details>
 <summary>Show all ten original per-case results</summary>
@@ -674,49 +736,96 @@ Each case links to its original raw pipeline output. “Plan” is the historica
 
 </details>
 
-These are historical demo measurements, not results for the current refactor. Diagnosis scoring uses substring aliases; it does not assess clinical correctness. Repeats reuse the same five cases, labels have not been independently validated, and there is no baseline comparison or demonstrated GraphRAG improvement. The historical files retain their original wording and outputs for traceability.
+These are historical demo measurements. Diagnosis scoring uses substring aliases, not clinical adjudication. Repeated runs reuse five cases; labels have not been independently validated. No baseline or retrieval improvement is established.
 
 ### Run a new evaluation
 
-After configuring a backend, create a new run:
+With a configured backend, run from the repository root:
 
 ```bash
-python -m evaluation.run_eval --help
-python -m evaluation.run_eval --repeats 2
-python -m evaluation.run_eval --cases case_001 --output-dir /tmp/clinical-eval-new
+uv run --locked python -m evaluation.run_eval --help
+uv run --locked python -m evaluation.run_eval --cases case_001 --repeats 1
+uv run --locked python -m evaluation.run_eval --repeats 2
 ```
 
-New outputs default to an ignored, timestamped directory under `evaluation/results/runs/`. Historical results and nonempty output directories cannot be overwritten by the runner. See [evaluation methods and reproduction limits](evaluation/README.md).
+New runs use separate directories under `evaluation/results/runs/`. The runner rejects overwriting historical or nonempty result directories. Model output may differ from the archive. See [methods and scoring limits](evaluation/README.md).
+
+## Docker
+
+Use the `.env` created in quick start. If you skipped that step, copy `.env.example` to `.env` once, then configure it. From the repository root:
+
+Stop the API in terminal 1 with Ctrl+C before starting Compose, or choose a different host port to avoid a conflict on port 8000.
+
+```bash
+docker compose up --build --wait
+```
+
+Docker Compose starts only the API. Full analysis still requires a configured model backend.
+
+Try the same health and offline API requests from [quick start](#3-verify-the-offline-endpoints). For a host model server, use `OPENAI_BASE_URL=http://host.docker.internal:8001/v1`. `localhost` inside the container means the container itself.
+
+```bash
+docker compose logs -f api
+docker compose down
+```
 
 ## Development
 
+### Tests and package builds
+
 ```bash
-python -m pytest
-python -m ruff check .
+uv sync --locked --managed-python --extra dev
+uv run --locked --extra dev pytest
+uv run --locked --extra dev ruff check .
+uv build
 ```
 
-The automated tests exercise the graph and agents with synthetic fixtures and mocked model calls; they also cover the API and evaluation runner. They do not require an LLM or clinical data. CI checks Python 3.11, 3.12, and 3.13, builds the package, and runs container smoke tests. A live evaluation is a separate check requiring a model backend.
+For pip, install `python -m pip install -e ".[dev]"`, then run `python -m pytest` and `python -m ruff check .` in the activated venv.
+
+Tests use synthetic fixtures and mocked model calls. CI checks Python 3.11–3.13, pip installation, package builds, figure generation, and Docker startup. Live model inference requires a separately configured backend.
+
+### Regenerate the figures
+
+```bash
+uv run --locked --extra plots python -m evaluation.plot_results
+uv run --locked --extra plots python -m evaluation.draw_architecture
+uv run --locked --extra plots python -m evaluation.draw_case
+```
+
+These commands read local data and make no model calls. The optional `plots` dependency is needed only for regeneration; committed PNG/SVG files display without it. See [figure details](evaluation/README.md#readme-figures).
+
+### Project layout
 
 ```text
 src/medical_multi_agent/   Agents, graph, API, models, configuration, services
 data/                     Five synthetic vignette fixtures
 tests/                    Offline regression tests
-evaluation/               Scoring, runner, and historical artifacts
-docs/                     Architecture and API reference
+evaluation/               Runner, scoring, figure generators, historical artifacts
+docs/                     Architecture, API reference, and image assets
 ```
 
-## Docker
+See [CONTRIBUTING.md](CONTRIBUTING.md) for change and evidence requirements.
 
-```bash
-cp .env.example .env
-# Configure the backend in .env before full analysis.
-docker compose up --build
-```
+## Troubleshooting
 
-Compose runs the API alone. For a model server running on the host, set `OPENAI_BASE_URL=http://host.docker.internal:8001/v1`. PostgreSQL and Redis are not used by the default pipeline. Neo4j connection helpers are optional and are not wired into diagnosis retrieval.
+| Symptom | Check |
+|---|---|
+| Clone says repository not found or asks for credentials | The repo is private; confirm GitHub access and authenticate Git |
+| uv selects an old/broken system Python | Run `uv python install 3.12`, then `uv sync --locked --managed-python` |
+| `uvicorn` or a package cannot be found | Use `uv run --locked python -m uvicorn ...`; with pip, activate the correct venv |
+| `.env` or sample data is not found | Start commands from the repository root; restart after changing settings |
+| Health works but analysis returns 503 | Configure the model credentials/endpoint; health does not check model readiness |
+| Analysis returns 200 with errors or missing sections | Inspect `errors`; check model connectivity, JSON output, model name, and server logs |
+| Local model connection fails | Start that server separately; use its actual model ID and endpoint, often ending in `/v1` |
+| Docker cannot reach the host model | Use `host.docker.internal`, not `localhost`; the model must accept host connections |
+| Port 8000 is occupied | Change the API `--port` or Compose host port and use that port in client requests |
+| A model call times out | Check backend load and client timeout; `LLM_TIMEOUT_SECONDS` applies per model call |
+| Evaluation output cannot be written | Choose a new writable `--output-dir`; do not write into the historical archive |
 
-## Scope and limitations
+## Scope and attribution
 
-The audit stage runs after LLM calls and does not redact the returned patient data. Remote model configuration sends narrative and intermediate data to the selected endpoint. This application has no authentication or durable audit storage. FHIR conversion helpers are experimental, are not invoked by the pipeline, and have not been validated against an external FHIR server.
+The audit stage runs after model calls and does not redact returned patient data. Remote model configuration sends narratives and intermediate data to the selected endpoint. Authentication and durable audit storage are not implemented.
 
-The project is licensed under [MIT](LICENSE). Contributions should preserve the evidence boundaries described in [CONTRIBUTING.md](CONTRIBUTING.md).
+Bundled medical mappings and rules are incomplete. FHIR helpers are experimental and outside the pipeline. Historical evidence does not validate clinical accuracy, safety, throughput, FHIR conformance, or HIPAA compliance.
+
+Adapted from [bcefghj/medical-multi-agent-system](https://github.com/bcefghj/medical-multi-agent-system) under [MIT](LICENSE). See [attribution and project history](ATTRIBUTION.md) for provenance.
