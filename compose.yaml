@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file: .env
+    # For a model running on the host, set OPENAI_BASE_URL in .env to
+    # http://host.docker.internal:8001/v1 instead of localhost.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
