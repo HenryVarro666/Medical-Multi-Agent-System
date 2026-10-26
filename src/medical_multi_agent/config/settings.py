@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # LLM
     llm_backend: Literal["openai", "codex"] = "openai"
     codex_model: str = ""
-    codex_reasoning_effort: str = Field(default="ultra", min_length=1)
+    codex_reasoning_effort: str = Field(default="medium", min_length=1)
     codex_cli_path: str = Field(default="codex", min_length=1)
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"

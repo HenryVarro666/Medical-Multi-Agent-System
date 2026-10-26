@@ -129,7 +129,7 @@ def architecture():
     box(ax, 320, 600, 608, 80, "ClinicalState · one invocation",
         ["Patient, diagnosis, plan, coding, audit, errors · checkpoints opt-in"], fill=SURFACE)
     box(ax, 1008, 368, 232, 176, "LLM backend",
-        ["OpenAI-compatible API", "Hosted or local server", "Intake / Diagnosis /", "Treatment / Coding"],
+        ["OpenAI-compatible API", "or Codex CLI (ChatGPT)", "Intake / Diagnosis /", "Treatment / Coding"],
         tag="MODEL SERVICE", fill=SURFACE)
     text(ax, 40, 736, "Coding proposes codes through the LLM; deterministic ICD-10/DRG lookups serve separate endpoints.",
          size=14, color=MUTED)

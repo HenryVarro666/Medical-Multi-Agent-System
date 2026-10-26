@@ -16,6 +16,8 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.container import BarContainer  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
 from matplotlib.ticker import PercentFormatter  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +29,7 @@ BLUE = "#2563EB"
 PURPLE = "#7954C8"
 SLATE = "#64748B"
 GRID = "#E7EDF4"
+ERROR = "#B42318"
 
 
 def style() -> None:
@@ -127,13 +130,20 @@ def plot_latency(record: dict, output_dir: Path, *, label: str = "Historical run
     repeats = sorted({row["repeat"] for row in rows})
     width = 0.72 / len(repeats)
     colors = [BLUE, "#91B4F8"]
+    has_errors = any(row.get("pipeline_errors") or row.get("harness_error") for row in rows)
     for index, repeat in enumerate(repeats):
-        values = [next(row["latency_seconds"] for row in rows
-                       if row["case_id"] == case_id and row["repeat"] == repeat)
-                  for case_id in case_ids]
+        repeat_rows = [next(row for row in rows
+                            if row["case_id"] == case_id and row["repeat"] == repeat)
+                       for case_id in case_ids]
+        values = [row["latency_seconds"] for row in repeat_rows]
         positions = [x + (index - (len(repeats) - 1) / 2) * width for x in range(len(case_ids))]
         bars = ax.bar(positions, values, width=width * 0.88,
                       color=colors[index % len(colors)], label=f"Repeat {repeat}")
+        for bar, row in zip(bars, repeat_rows):
+            if row.get("pipeline_errors") or row.get("harness_error"):
+                bar.set_hatch("///")
+                bar.set_edgecolor(ERROR)
+                bar.set_linewidth(1.5)
         ax.bar_label(bars, labels=[f"{value:.2f}" for value in values], padding=5,
                      size=10.5, bbox={"facecolor": "white", "edgecolor": "none", "pad": 1})
     mean = sum(row["latency_seconds"] for row in rows) / len(rows)
@@ -147,8 +157,17 @@ def plot_latency(record: dict, output_dir: Path, *, label: str = "Historical run
     ax.set_ylim(0, max(row["latency_seconds"] for row in rows) * 1.21)
     ax.set_ylabel("Pipeline latency (seconds)", labelpad=12)
     ax.grid(axis="y", color=GRID)
+    legend_options = {}
+    if has_errors:
+        handles, legend_labels = ax.get_legend_handles_labels()
+        handles = [Patch(facecolor=handle.patches[0].get_facecolor())
+                   if isinstance(handle, BarContainer) else handle for handle in handles]
+        handles.append(Patch(facecolor="white", edgecolor=ERROR, hatch="///"))
+        legend_labels.append("Pipeline / harness error")
+        legend_options = {"handles": handles, "labels": legend_labels}
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.01), frameon=False,
-              ncol=len(repeats) + 1, fontsize=11, borderaxespad=0)
+              ncol=len(repeats) + 1 + int(has_errors), fontsize=11, borderaxespad=0,
+              **legend_options)
     if len(repeats) == 1:
         repeat_note = "Each bar is one run of a synthetic case. One repeat does not estimate uncertainty."
     elif len(repeats) == 2:
@@ -157,7 +176,11 @@ def plot_latency(record: dict, output_dir: Path, *, label: str = "Historical run
         repeat_note = "Each group reuses the same synthetic case. Repeats do not estimate uncertainty."
     fig.text(0.04, 0.065, repeat_note,
              size=10.5, color=MUTED)
-    fig.text(0.04, 0.035, "Recorded backend timings; no clinical validation or throughput claim.",
+    timing_note = (
+        "Failed or incomplete pipeline observations remain in the mean; timings do not measure clinical quality."
+        if has_errors else "Recorded backend timings; no clinical validation or throughput claim."
+    )
+    fig.text(0.04, 0.035, timing_note,
              size=10.5, color=MUTED)
     save(fig, output_dir, f"{prefix}-latency")
 

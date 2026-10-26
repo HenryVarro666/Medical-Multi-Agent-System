@@ -125,8 +125,8 @@ Install the [Codex CLI](https://learn.chatgpt.com/docs/cli), then run `codex log
 
 ```dotenv
 LLM_BACKEND=codex
-CODEX_MODEL=gpt-6-astra
-CODEX_REASONING_EFFORT=ultra
+CODEX_MODEL=gpt-6.1-sol
+CODEX_REASONING_EFFORT=medium
 LLM_TIMEOUT_SECONDS=300
 ```
 
@@ -136,9 +136,9 @@ Use a model available to your account. This adapter is tested with Codex CLI `0.
 |---|---|---|
 | `LLM_BACKEND` | `openai` | `openai` for compatible HTTP endpoints; `codex` for local CLI calls |
 | `CODEX_MODEL` | Empty | Required for Codex; explicitly selects an account-accessible model |
-| `CODEX_REASONING_EFFORT` | `ultra` | Reasoning effort passed explicitly to Codex |
+| `CODEX_REASONING_EFFORT` | `medium` | Reasoning effort passed explicitly to Codex |
 | `CODEX_CLI_PATH` | `codex` | CLI executable name or path |
-| `OPENAI_API_KEY` | Empty | Required for a remote backend; `local` is a placeholder for a local server |
+| `OPENAI_API_KEY` | Empty | Required for a remote HTTP backend; `local` is a placeholder for a local server |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Model identifier sent to the selected endpoint |
 | `OPENAI_BASE_URL` | Empty | OpenAI by default; set the full compatible endpoint for a local/custom server |
 | `LLM_TIMEOUT_SECONDS` | `180` | Timeout for each model call |
@@ -156,12 +156,16 @@ uv run --locked python - <<'PY'
 import json
 from pathlib import Path
 import httpx
+from medical_multi_agent.config.settings import get_settings
 
 case = json.loads(Path("data/sample_patients.json").read_text())[0]
+settings = get_settings()
+max_calls = 4 + 2 * settings.max_diagnosis_retries
+attempts_per_call = 1 if settings.llm_backend == "codex" else 2
 response = httpx.post(
     "http://127.0.0.1:8000/api/v1/clinical/analyze",
     json={"patient_description": case["description"]},
-    timeout=600,
+    timeout=settings.llm_timeout_seconds * max_calls * attempts_per_call + 60,
 )
 response.raise_for_status()
 result = response.json()
@@ -172,6 +176,8 @@ PY
 ```
 
 For pip, use `python - <<'PY'` in the activated venv. Agent failures can return HTTP 200 with partial sections and a nonempty `errors` list, so inspect both the status and response body.
+
+The client timeout allows all model stages and configured retries. Reasoning-heavy Codex calls can take several minutes per stage; the evaluation runner invokes the graph directly and does not add an HTTP client timeout.
 
 See the [API reference](docs/api.md) for schemas and all endpoints. The [archived walkthrough](#end-to-end-example) shows a complete recorded run without requiring a model connection.
 

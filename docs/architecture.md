@@ -18,6 +18,8 @@ The application is a Python package under `src/medical_multi_agent`. FastAPI acc
 
 Intake, diagnosis, treatment, and coding use the shared `config/llm.py` factory. Audit uses deterministic rules. JSON generation can fail; callers must inspect `errors` and missing output sections.
 
+The optional `LLM_BACKEND=codex` uses a separately authenticated Codex CLI instead of the application's HTTP model client. Each invocation starts a fresh ephemeral call in a temporary directory, passing the original system prompt through an instructions file and the human message through stdin. The CLI sends these inputs to a remote model service; a temporary working directory does not make inference local or air-gapped. The four model stages and deterministic Audit retain the same workflow.
+
 The API executes the synchronous graph in FastAPI's worker thread pool. Each request receives an independent internal execution identifier, including requests that reuse a supplied `thread_id` label. The label does not implement a resumable clinical conversation.
 
 The default graph keeps state only for the invocation and does not retain checkpoint history. Library callers can explicitly pass a LangGraph checkpointer to `build_clinical_pipeline(checkpointer=...)`; its storage and retention then depend on that caller-provided implementation. Audit records are returned within the result. There is no implemented database persistence, cache, or distributed worker queue.

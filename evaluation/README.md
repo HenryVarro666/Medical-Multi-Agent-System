@@ -26,16 +26,21 @@ codex login
 codex login status
 ```
 
-The adapter invokes that authenticated CLI; it does not extract API keys or export login credentials. Calls use the signed-in account's available models and usage limits. Set `CODEX_MODEL` explicitly to a model that account can access. The `gpt-6-astra` example below follows the model selected for this project's run configuration; it is not a universal availability claim or model recommendation.
+The adapter invokes that authenticated CLI; it does not extract API keys or export login credentials. Calls use the signed-in account's available models and usage limits. Set `CODEX_MODEL` explicitly to a model that account can access. The model names below are the two models selected for this project's comparison; availability depends on the account.
 
-Run the original five synthetic cases once with this backend:
+Run two original synthetic cases once per model under the same settings:
 
 ```bash
-LLM_BACKEND=codex CODEX_MODEL=gpt-6-astra CODEX_REASONING_EFFORT=ultra \
-LLM_TIMEOUT_SECONDS=300 uv run --locked python -m evaluation.run_eval --repeats 1
+for model in gpt-6.1-sol gpt-6-astra; do
+  LLM_BACKEND=codex CODEX_MODEL="$model" CODEX_REASONING_EFFORT=medium \
+  MAX_DIAGNOSIS_RETRIES=0 LLM_TIMEOUT_SECONDS=600 \
+  uv run --locked python -m evaluation.run_eval --cases case_001,case_002 --repeats 1
+done
 ```
 
-Alternatively, set these values in `.env`. `CODEX_CLI_PATH` defaults to `codex`; change it if the executable is elsewhere. `CODEX_REASONING_EFFORT` defaults to `ultra`. `LLM_TIMEOUT_SECONDS` is shared with the OpenAI-compatible backend and applies to each model invocation. `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_BASE_URL`, and `LLM_DISABLE_THINKING` configure the OpenAI-compatible path, not the Codex CLI path.
+Alternatively, set these values in `.env`. `CODEX_CLI_PATH` defaults to `codex`; change it if the executable is elsewhere. `CODEX_REASONING_EFFORT` defaults to `medium`. `LLM_TIMEOUT_SECONDS` is shared with the OpenAI-compatible backend and applies to each model invocation. `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_BASE_URL`, and `LLM_DISABLE_THINKING` configure the OpenAI-compatible path, not the Codex CLI path.
+
+This comparison sets `MAX_DIAGNOSIS_RETRIES=0` because fixed fixtures cannot supply additional information. Each case follows the single-pass five-stage path even if Diagnosis requests more information; that request remains in the raw trace. This controls the comparison protocol and does not establish clinical completeness.
 
 Each case normally makes four model calls, for Intake, Diagnosis, Treatment, and Coding. Audit is deterministic. Diagnostic loopbacks can add Intake and Diagnosis calls, so five cases can require more than twenty model invocations.
 

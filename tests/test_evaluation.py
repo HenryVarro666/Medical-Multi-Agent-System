@@ -45,7 +45,7 @@ def test_codex_provenance_uses_codex_settings_and_discloses_protocol(monkeypatch
 
     assert meta["model"] == "test-codex-model"
     assert meta["base_url"] == ""
-    assert meta["reasoning_effort"] == "ultra"
+    assert meta["reasoning_effort"] == "medium"
     assert meta["llm_timeout_seconds"] == 300
     assert "unsupported" in meta["temperature"]
     assert "requested" in meta["model_revision"]
