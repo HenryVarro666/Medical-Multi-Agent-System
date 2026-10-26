@@ -1,6 +1,6 @@
 # Medical Multi-Agent System
 
-[![Python CI](https://github.com/HenryVarro666/Medical-multi-agent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/HenryVarro666/Medical-multi-agent-system/actions/workflows/ci.yml)
+[![Python CI](https://github.com/HenryVarro666/Medical-Multi-Agent-System/actions/workflows/ci.yml/badge.svg)](https://github.com/HenryVarro666/Medical-Multi-Agent-System/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
