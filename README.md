@@ -91,6 +91,8 @@ PY
 
 Inspect the returned `errors` list as well as the HTTP status; individual agent failures can produce partial results. See the [API reference](docs/api.md).
 
+For a complete recorded input-to-result walkthrough, see the [end-to-end example](#end-to-end-example).
+
 ## Workflow
 
 [![Five-Agent workflow: Intake, Diagnosis, Treatment, Coding, and Audit execute in numbered order. Diagnosis retries Intake only while more information is requested and the retry budget remains; Audit runs after all model stages.](docs/assets/architecture/agent-workflow.png)](docs/assets/architecture/agent-workflow.svg)
@@ -116,6 +118,511 @@ flowchart LR
 </details>
 
 Retries reprocess the same narrative; the API does not collect new information from a user. Once the retry budget is exhausted, the current workflow proceeds with the available information. See [architecture and limitations](docs/architecture.md).
+
+## End-to-end example
+
+This walkthrough uses **`case_001`, repeat 1**, from the July 13, 2026 evaluation with `Qwen/Qwen3-14B`. It displays the input and five stored stage-result sections from the [original pipeline trace](evaluation/results/historical-2026-07-13/raw/case_001_r1.json). The evaluation harness invoked the graph directly; the record is a historical pipeline result, not a captured HTTP response or a new run of the refactored code.
+
+Each expandable block contains the complete recorded JSON for that stage, with no fields omitted. Medication, interaction, coding, confidence, and reference fields are unverified model outputs. They are shown to explain the software workflow and are not clinical instructions or validated citations.
+
+### Input
+
+> 45-year-old male presenting with fever (39.2°C) for 3 days, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing. History of type 2 diabetes (diagnosed 5 years ago) and hypertension. Current medications: metformin 500mg twice daily, lisinopril 10mg daily. Allergies: penicillin (causes rash). Vital signs: BP 130/85, HR 102, RR 22, SpO2 94% on room air. Labs: WBC 15,000/μL (elevated), CRP 85 mg/L (elevated), procalcitonin 2.1 ng/mL (elevated). Chest X-ray shows right lower lobe consolidation.
+
+The API accepts this narrative as `patient_description` and passes it to the graph as `raw_input`. The fixture labels used for scoring are `Community-Acquired Pneumonia` and ICD-10 `J18.1`; these labels are not included in the model input.
+
+### 1. Intake → `patient_info`
+
+Intake reads `raw_input` and extracts a 45-year-old male patient, symptoms, diabetes/hypertension history, two current medications, a penicillin allergy, vital signs, and lab results. This structured object becomes the input to Diagnosis.
+
+<details>
+<summary>Complete Intake output</summary>
+
+```json
+{
+  "patient_id": null,
+  "name": "Unknown",
+  "age": 45,
+  "gender": "male",
+  "chief_complaint": "fever, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing",
+  "symptoms": [
+    {
+      "name": "fever",
+      "duration_days": 3,
+      "severity": "severe",
+      "description": "temperature of 39.2°C"
+    },
+    {
+      "name": "productive cough",
+      "duration_days": 3,
+      "severity": "moderate",
+      "description": "with yellow sputum"
+    },
+    {
+      "name": "right-sided chest pain",
+      "duration_days": 3,
+      "severity": "moderate",
+      "description": "worsens with deep breathing"
+    }
+  ],
+  "medical_history": [
+    "type 2 diabetes",
+    "hypertension"
+  ],
+  "family_history": [],
+  "allergies": [
+    {
+      "substance": "penicillin",
+      "reaction": "causes rash",
+      "severity": "mild"
+    }
+  ],
+  "current_medications": [
+    {
+      "name": "metformin",
+      "dosage": "500mg",
+      "frequency": "twice daily",
+      "start_date": null
+    },
+    {
+      "name": "lisinopril",
+      "dosage": "10mg",
+      "frequency": "daily",
+      "start_date": null
+    }
+  ],
+  "vital_signs": {
+    "temperature": 39.2,
+    "heart_rate": 102,
+    "blood_pressure_systolic": 130,
+    "blood_pressure_diastolic": 85,
+    "respiratory_rate": 22,
+    "oxygen_saturation": 94.0
+  },
+  "lab_results": [
+    {
+      "test_name": "WBC",
+      "value": "15,000/μL",
+      "unit": "/μL",
+      "reference_range": "4,500–11,000",
+      "is_abnormal": true
+    },
+    {
+      "test_name": "CRP",
+      "value": "85 mg/L",
+      "unit": "mg/L",
+      "reference_range": "< 10",
+      "is_abnormal": true
+    },
+    {
+      "test_name": "procalcitonin",
+      "value": "2.1 ng/mL",
+      "unit": "ng/mL",
+      "reference_range": "< 0.5",
+      "is_abnormal": true
+    }
+  ],
+  "raw_input": null,
+  "created_at": "2026-07-12T19:46:04.668905"
+}
+```
+
+</details>
+
+### 2. Diagnosis → `diagnosis`
+
+Diagnosis reads `patient_info` and retrieves five bundled symptom-map candidates. The first candidate is `Influenza`, with one symptom match; the LLM selects `Community-acquired pneumonia`, reports confidence `0.85`, and records its differentials and retrieval trace. Confidence is model-reported, not calibrated accuracy. The archive records one diagnosis attempt.
+
+<details>
+<summary>Complete Diagnosis output</summary>
+
+```json
+{
+  "primary_diagnosis": {
+    "disease_name": "Community-acquired pneumonia",
+    "icd10_hint": "J18.9",
+    "confidence": 0.85,
+    "evidence": [
+      "productive cough with yellow sputum",
+      "right-sided chest pain that worsens with deep breathing (pleuritic chest pain)",
+      "fever of 39.2°C",
+      "elevated WBC (15,000/μL), elevated CRP (85 mg/L), and elevated procalcitonin (2.1 ng/mL) indicating bacterial infection"
+    ],
+    "reasoning": "The combination of fever, productive cough with yellow sputum, pleuritic chest pain, and elevated inflammatory markers (WBC, CRP, procalcitonin) strongly suggests a bacterial infection, most likely community-acquired pneumonia. The presence of pleuritic chest pain and yellow sputum further supports this diagnosis."
+  },
+  "differential_list": [
+    {
+      "disease_name": "Sepsis",
+      "icd10_hint": "A41.9",
+      "confidence": 0.6,
+      "evidence": [
+        "fever",
+        "elevated WBC, CRP, and procalcitonin"
+      ],
+      "reasoning": "Sepsis can present with fever and systemic inflammatory markers. However, the absence of systemic signs such as hypotension, tachycardia beyond what is already present, or altered mental status makes sepsis less likely as the primary diagnosis."
+    },
+    {
+      "disease_name": "Influenza",
+      "icd10_hint": "J11.1",
+      "confidence": 0.5,
+      "evidence": [
+        "fever"
+      ],
+      "reasoning": "Influenza can cause fever and cough, but it typically does not present with pleuritic chest pain or such markedly elevated inflammatory markers. Additionally, influenza is less likely to cause such a high procalcitonin level, which is more indicative of bacterial infection."
+    },
+    {
+      "disease_name": "Pneumothorax",
+      "icd10_hint": "J93.1",
+      "confidence": 0.4,
+      "evidence": [
+        "right-sided chest pain that worsens with deep breathing"
+      ],
+      "reasoning": "Pneumothorax can cause pleuritic chest pain, but it is not typically associated with fever, productive cough, or elevated inflammatory markers. A chest X-ray would be necessary to confirm or rule out this diagnosis."
+    }
+  ],
+  "recommended_tests": [
+    "Chest X-ray to confirm pneumonia or other pulmonary pathology",
+    "Sputum culture and sensitivity to identify the causative organism",
+    "Blood culture to rule out sepsis",
+    "Chest CT scan if the chest X-ray is inconclusive"
+  ],
+  "clinical_notes": "The patient presents with signs and symptoms consistent with community-acquired pneumonia, supported by elevated inflammatory markers. Sepsis and influenza are considered differentials, but the clinical picture is more consistent with a bacterial infection. Further diagnostic testing is recommended to confirm the diagnosis and guide treatment.",
+  "knowledge_sources": [
+    "UpToDate: Community-Acquired Pneumonia",
+    "CDC: Influenza and Sepsis Guidelines",
+    "ICD-10-CM Diagnosis Code Lookup",
+    "GraphRAG knowledge graph (symptom->disease retrieval)"
+  ],
+  "knowledge_graph_candidates": [
+    {
+      "disease": "Influenza",
+      "symptom_match_count": 1,
+      "icd10_code": "J11.1",
+      "icd10_description": "Influenza with other respiratory manifestations"
+    },
+    {
+      "disease": "Pneumonia",
+      "symptom_match_count": 1,
+      "icd10_code": "J18.9",
+      "icd10_description": "Pneumonia, unspecified organism"
+    },
+    {
+      "disease": "COVID-19",
+      "symptom_match_count": 1,
+      "icd10_code": "U07.1",
+      "icd10_description": "COVID-19, virus identified"
+    },
+    {
+      "disease": "Sepsis",
+      "symptom_match_count": 1,
+      "icd10_code": "A41.9",
+      "icd10_description": "Sepsis, unspecified organism"
+    },
+    {
+      "disease": "Malaria",
+      "symptom_match_count": 1,
+      "icd10_code": "",
+      "icd10_description": ""
+    }
+  ]
+}
+```
+
+</details>
+
+### 3. Treatment → `treatment_plan`
+
+Treatment reads the patient information and diagnosis. The LLM proposes `Levofloxacin` and `Acetaminophen` and supplies four interaction descriptions. The deterministic engine checks the proposed drugs against `metformin`, `lisinopril`, and the `penicillin` allergy, recording `checked: true`, **zero curated-rule interaction matches**, and zero rule-based allergy alerts. This stamp does not verify the LLM interaction text or establish medication safety.
+
+<details>
+<summary>Complete Treatment output</summary>
+
+```json
+{
+  "diagnosis_addressed": "Community-acquired pneumonia",
+  "medications": [
+    {
+      "drug_name": "Levofloxacin",
+      "generic_name": "Levofloxacin",
+      "dosage": "500mg",
+      "route": "oral",
+      "frequency": "once daily",
+      "duration": "7 days",
+      "contraindications": [
+        "hypersensitivity to fluoroquinolones",
+        "tendinitis or tendon rupture risk in elderly patients"
+      ],
+      "side_effects": [
+        "nausea",
+        "headache",
+        "dizziness",
+        "photosensitivity",
+        "gastrointestinal upset"
+      ]
+    },
+    {
+      "drug_name": "Acetaminophen",
+      "generic_name": "Acetaminophen",
+      "dosage": "500mg",
+      "route": "oral",
+      "frequency": "every 4–6 hours as needed",
+      "duration": "as needed for fever",
+      "contraindications": [
+        "severe liver disease",
+        "alcoholism"
+      ],
+      "side_effects": [
+        "nausea",
+        "rash",
+        "hepatotoxicity (rare)"
+      ]
+    }
+  ],
+  "drug_interactions": [
+    {
+      "drug_a": "Levofloxacin",
+      "drug_b": "Lisinopril",
+      "severity": "minor",
+      "description": "Levofloxacin may increase the risk of hypoglycemia in patients taking ACE inhibitors like lisinopril, though this is rare.",
+      "recommendation": "Monitor for signs of hypoglycemia and adjust lisinopril dosage if necessary."
+    },
+    {
+      "drug_a": "Levofloxacin",
+      "drug_b": "Metformin",
+      "severity": "minor",
+      "description": "Levofloxacin may increase the risk of lactic acidosis in patients taking metformin, though this is rare.",
+      "recommendation": "Monitor for signs of lactic acidosis and consider alternative antibiotics if risk is high."
+    },
+    {
+      "drug_a": "Acetaminophen",
+      "drug_b": "Lisinopril",
+      "severity": "none",
+      "description": "No significant interaction between acetaminophen and lisinopril.",
+      "recommendation": "No action required."
+    },
+    {
+      "drug_a": "Acetaminophen",
+      "drug_b": "Metformin",
+      "severity": "none",
+      "description": "No significant interaction between acetaminophen and metformin.",
+      "recommendation": "No action required."
+    }
+  ],
+  "non_drug_treatments": [
+    "Hydration with oral fluids",
+    "Chest physiotherapy to aid sputum clearance"
+  ],
+  "lifestyle_recommendations": [
+    "Rest and avoid strenuous activity",
+    "Maintain good hand hygiene",
+    "Avoid smoking and secondhand smoke"
+  ],
+  "follow_up_plan": "Follow up in 48–72 hours to assess clinical improvement. If no improvement, re-evaluate for possible antibiotic resistance or complications. Repeat chest X-ray if symptoms persist.",
+  "warnings": [
+    "Monitor for signs of antibiotic resistance (e.g., worsening symptoms, new fever), allergic reactions to levofloxacin, and signs of lactic acidosis (e.g., nausea, abdominal pain, weakness). Avoid sun exposure while on levofloxacin due to photosensitivity risk."
+  ],
+  "evidence_references": [
+    "UpToDate: Community-Acquired Pneumonia",
+    "CDC Guidelines for the Treatment of Community-Acquired Pneumonia",
+    "American Thoracic Society (ATS) and Infectious Diseases Society of America (IDSA) Guidelines"
+  ],
+  "allergy_alerts": [],
+  "ddi_engine": {
+    "checked": true,
+    "proposed_drugs_checked": [
+      "Levofloxacin",
+      "Acetaminophen"
+    ],
+    "current_medications_checked": [
+      "metformin",
+      "lisinopril"
+    ],
+    "allergies_checked": [
+      "penicillin"
+    ],
+    "engine_flagged_interactions": 0,
+    "engine_flagged_allergy_alerts": 0
+  }
+}
+```
+
+</details>
+
+### 4. Coding → `coding_result`
+
+Coding reads the diagnosis and treatment plan and proposes primary ICD-10 `J18.9` and DRG `193`, plus secondary codes. These are LLM-generated proposals. The primary code differs from the fixture label `J18.1`, so the recorded exact-code check fails while the `J18` category check matches.
+
+<details>
+<summary>Complete Coding output</summary>
+
+```json
+{
+  "primary_icd10": {
+    "code": "J18.9",
+    "description": "Pneumonia, unspecified organism",
+    "confidence": 0.92,
+    "category": "Infectious and parasitic diseases"
+  },
+  "secondary_icd10_codes": [
+    {
+      "code": "R07.0",
+      "description": "Pleuritic chest pain",
+      "confidence": 0.85,
+      "category": "Symptoms, signs, and abnormal clinical and laboratory findings, not elsewhere classified"
+    },
+    {
+      "code": "R74.0",
+      "description": "Elevated white blood cell count",
+      "confidence": 0.8,
+      "category": "Symptoms, signs, and abnormal clinical and laboratory findings, not elsewhere classified"
+    },
+    {
+      "code": "R79.0",
+      "description": "Elevated C-reactive protein",
+      "confidence": 0.75,
+      "category": "Symptoms, signs, and abnormal clinical and laboratory findings, not elsewhere classified"
+    }
+  ],
+  "drg_group": {
+    "drg_code": "193",
+    "description": "Pneumonia, unspecified, with major complications or comorbidities",
+    "weight": 1.2,
+    "mean_los": 4.5
+  },
+  "coding_notes": "The primary diagnosis of community-acquired pneumonia is supported by clinical symptoms (productive cough, pleuritic chest pain, fever) and laboratory findings (elevated WBC, CRP, and procalcitonin). J18.9 is the most specific ICD-10-CM code for unspecified pneumonia. Secondary codes include pleuritic chest pain (R07.0), elevated WBC (R74.0), and elevated CRP (R79.0). DRG 193 is appropriate for pneumonia with complications or comorbidities, with a realistic weight and mean length of stay.",
+  "coding_confidence": 0.9
+}
+```
+
+</details>
+
+### 5. Audit → `audit_result`
+
+Audit scans the four preceding structured outputs. The historical report flags `name`, sets `hipaa_compliant: false`, and reports risk `medium`. The old implementation also claimed `phi_fields_masked: ["name"]` and marked deployment controls `Verified`; those claims did not establish actual redaction or control verification. The current implementation reports deployment controls as unverified and does not claim to have masked the returned data. The archived JSON below is retained unchanged.
+
+<details>
+<summary>Complete historical Audit output</summary>
+
+```json
+{
+  "hipaa_compliant": false,
+  "compliance_checks": [
+    {
+      "check_name": "phi_scan",
+      "passed": false,
+      "detail": "Found 1 PHI types: name"
+    },
+    {
+      "check_name": "data_encryption_at_rest",
+      "passed": true,
+      "detail": "Verified"
+    },
+    {
+      "check_name": "data_encryption_in_transit",
+      "passed": true,
+      "detail": "Verified"
+    },
+    {
+      "check_name": "access_control_rbac",
+      "passed": true,
+      "detail": "Verified"
+    },
+    {
+      "check_name": "audit_logging",
+      "passed": true,
+      "detail": "Verified"
+    },
+    {
+      "check_name": "minimum_necessary_rule",
+      "passed": true,
+      "detail": "Verified"
+    },
+    {
+      "check_name": "breach_notification_ready",
+      "passed": true,
+      "detail": "Verified"
+    },
+    {
+      "check_name": "data_retention_policy",
+      "passed": true,
+      "detail": "Verified"
+    }
+  ],
+  "phi_fields_found": [
+    "name"
+  ],
+  "phi_fields_masked": [
+    "name"
+  ],
+  "audit_trail": [
+    {
+      "timestamp": "2026-07-13T00:46:25.598644+00:00",
+      "user_id": "system",
+      "action": "phi_scan",
+      "resource_type": "pipeline_output",
+      "resource_id": "",
+      "detail": "Scanned 4 sections",
+      "outcome": "success",
+      "ip_address": ""
+    },
+    {
+      "timestamp": "2026-07-13T00:46:25.602111+00:00",
+      "user_id": "system",
+      "action": "data_masking",
+      "resource_type": "pipeline_output",
+      "resource_id": "",
+      "detail": "Masked 1 PHI types",
+      "outcome": "success",
+      "ip_address": ""
+    },
+    {
+      "timestamp": "2026-07-13T00:46:25.602255+00:00",
+      "user_id": "system",
+      "action": "compliance_assessment",
+      "resource_type": "pipeline",
+      "resource_id": "",
+      "detail": "Overall: NEEDS_REVIEW, risk=medium",
+      "outcome": "success",
+      "ip_address": ""
+    }
+  ],
+  "recommendations": [
+    "Ensure all PHI is masked before external transmission",
+    "Review failed compliance checks and remediate",
+    "Maintain audit logs for minimum 6 years per HIPAA requirements"
+  ],
+  "overall_risk_level": "medium"
+}
+```
+
+</details>
+
+### Final recorded result
+
+All five stage-result sections are present in the final `pipeline_output`. The outcome below combines those sections with the [recorded scoring row](evaluation/results/historical-2026-07-13/eval_results.json).
+
+| Item | Recorded result |
+|---|---|
+| Primary diagnosis | `Community-acquired pneumonia` |
+| Diagnosis alias tier | `strict` |
+| Fixture / predicted ICD-10 | `J18.1` / `J18.9` |
+| Exact ICD-10 / category match | `false` / `true` |
+| Treatment proposal | `Levofloxacin`, `Acetaminophen`; unverified model output |
+| Deterministic treatment checks | Executed; 0 curated-rule interaction matches, 0 rule-based allergy alerts |
+| Historical audit | `hipaa_compliant: false`; `name` flagged; legacy masking/control claims are unsupported |
+| Diagnosis attempts | `1` |
+| Stored pipeline `errors` / `harness_error` | `null` / `null` (no errors recorded) |
+| End-to-end latency | **27.10 seconds** |
+
+The pipeline completed this demonstration run, while the exact ICD-10 check did not match and the audit report flagged an identifier pattern. The trace preserves these outcomes and the original model text for inspection.
+
+With a configured backend, run the same fixture against the current code:
+
+```bash
+python -m evaluation.run_eval --cases case_001 --repeats 1
+```
+
+This creates a separate result directory. Model outputs may differ, and the current audit behavior includes the corrections described above.
 
 ## Evaluation
 
