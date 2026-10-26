@@ -38,7 +38,7 @@ The API and offline tools require no model server, GPU, or database. Full analys
 
 ### 1. Clone and install
 
-Install Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). The commands below use macOS/Linux shell syntax. This repository is private; Git credentials must belong to an account with access.
+Install Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). The commands below use macOS/Linux shell syntax. This public repository can be cloned without GitHub credentials.
 
 ```bash
 git clone https://github.com/HenryVarro666/Medical-Multi-Agent-System.git
@@ -810,7 +810,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for change and evidence requirements.
 
 | Symptom | Check |
 |---|---|
-| Clone says repository not found or asks for credentials | The repo is private; confirm GitHub access and authenticate Git |
+| Clone fails or asks for credentials | Use the public HTTPS clone URL above; check network access and local Git/proxy settings |
 | uv selects an old/broken system Python | Run `uv python install 3.12`, then `uv sync --locked --managed-python` |
 | `uvicorn` or a package cannot be found | Use `uv run --locked python -m uvicorn ...`; with pip, activate the correct venv |
 | `.env` or sample data is not found | Start commands from the repository root; restart after changing settings |
