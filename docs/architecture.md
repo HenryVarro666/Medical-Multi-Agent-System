@@ -44,7 +44,9 @@ Installing this extra does not switch diagnosis to a graph database. There is no
 
 Treatment runs curated interaction and allergy checks after the LLM proposes medications. These checks can add warnings and execution stamps. They do not establish medication appropriateness, validate doses, or comprehensively cover interactions.
 
-ICD-10 lookup and DRG grouping use small illustrative mappings. They are not a complete current ICD-10-CM catalog or an implementation of CMS grouping logic.
+The legacy ICD-10 lookup and DRG endpoints use small illustrative mappings. Coding-validation v2 separately loads a packaged official FY2027 catalog, offers bounded candidate families derived from observed diagnosis/history hints, and validates every primary and secondary code. It preserves original model proposals, normalizes valid notation/descriptions and flags invalid/non-reportable proposals without silently choosing replacement codes. The new offline validation endpoint exposes those membership checks. None of these checks implements a CMS DRG grouper or adjudicates clinical appropriateness.
+
+Coding receives the exact original narrative, complete structured patient information, Diagnosis and Treatment. The fixed research contract specifies FY2027 and an unspecified encounter setting, forbids undocumented specificity/culprit/causal inferences, and permits an unresolved DRG to be null. This repairs the v1 context loss without asserting that the model will use every fact correctly.
 
 FHIR helpers convert dictionaries and can submit resources to a configured server if explicitly called. They are outside the default workflow. Current outputs have known limitations, including estimated birth dates and unvalidated medication dose values. No hospital integration or FHIR conformance result is claimed.
 

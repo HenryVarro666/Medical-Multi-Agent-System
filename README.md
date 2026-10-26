@@ -19,6 +19,7 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 - [End-to-end example](#end-to-end-example)
 - [Evaluation](#evaluation)
 - [Current model comparison](#current-model-comparison)
+- [Previous model comparison (v1)](#previous-model-comparison-v1)
 - [Historical results](#historical-results)
 - [Docker](#docker)
 - [Development](#development)
@@ -35,7 +36,8 @@ Use synthetic data only. The project is not clinically validated or HIPAA certif
 | Retrieval | A small bundled symptom map; candidates and retrieval traces enter Diagnosis |
 | Treatment checks | Curated DDI/allergy rules reconcile the model's proposal |
 | Offline API tools | Health, ICD-10 search/lookup, simplified DRG mapping, and DDI checks |
-| Evaluation | Five synthetic fixtures, preserved historical runs, and reproducible figures |
+| Evaluation | Two versioned coding-v2 cases; original five-case fixtures and earlier runs preserved |
+| Coding validation | Packaged official FY2027 complete-code catalog; original patient facts supplied to Coding |
 
 The API and offline tools require no model server, GPU, or database. Full analysis requires a configured OpenAI-compatible backend or a locally installed, authenticated Codex CLI. Neo4j/FHIR helpers are outside the default workflow.
 
@@ -45,10 +47,11 @@ The API and offline tools require no model server, GPU, or database. Full analys
 
 | Data | Current location | Lifetime / persistence |
 |---|---|---|
-| Synthetic input fixtures | [data/sample_patients.json](data/sample_patients.json) | Five version-controlled examples |
+| Synthetic input fixtures | [Original five cases](data/sample_patients.json), [coding-v2 references](data/evaluation_cases_v2.json) | Version-controlled narratives and explicit label/version policy |
 | Patient information and Agent outputs | [ClinicalState](src/medical_multi_agent/graph/state.py) | Memory during one invocation; the API returns the result without saving a patient/session record |
 | Retrieval knowledge | [graphrag_service.py](src/medical_multi_agent/services/graphrag_service.py) | Python dictionaries with 10 symptom keys and 15 disease/code hints; exact normalized symptom overlap |
-| ICD-10 / DRG and medication rules | [ICD/DRG tables](src/medical_multi_agent/services/icd10_service.py), [DDI/allergy rules](src/medical_multi_agent/services/drug_interaction.py) | Small bundled Python mappings; not a complete clinical knowledge base |
+| Official Coding catalog | [Packaged FY2027 data and manifest](src/medical_multi_agent/data/), [validator](src/medical_multi_agent/services/icd10_catalog.py) | Offline compressed reference: 74,879 complete codes and 23,524 headers, with pinned source hashes |
+| Legacy ICD/DRG lookup and medication rules | [Demonstration ICD/DRG tables](src/medical_multi_agent/services/icd10_service.py), [DDI/allergy rules](src/medical_multi_agent/services/drug_interaction.py) | Small illustrative mappings; separate from authoritative Coding membership validation |
 | Evaluation outputs and model-call traces | [evaluation/results/](evaluation/results/) | Runner explicitly writes raw JSON and JSON/Markdown summaries; local `runs/` are Git-ignored, reviewed archives are committed |
 | Audit result | Returned inside the pipeline result | No durable audit database in the default API; evaluation archives retain a copy |
 
@@ -748,6 +751,10 @@ The old code claimed masking and verified deployment controls without establishi
 
 ### Current model comparison
 
+Coding-validation v2 now supplies the original narrative/full patient record, a versioned coding contract, and offline complete-code validation. Its two-case references preserve `J18.1` and refine the incomplete `I21.0` target to `I21.09` using official Index/Tabular evidence. New live results will be archived separately; the v1 observations below remain unchanged.
+
+### Previous model comparison (v1)
+
 On October 26, 2026, two original fixtures (`case_001` and `case_002`) were run once per model through the five-stage pipeline using the signed-in Codex CLI. Both models returned all five Agent sections for both cases, with **no pipeline or harness errors**. Four pipeline outputs contain 16 completed CLI invocations; Audit is deterministic.
 
 The matched protocol uses **medium reasoning**, a **600-second per-call timeout**, and **zero diagnosis loopbacks**. Fixed fixtures cannot answer follow-up questions, so each case follows the single-pass path even if Diagnosis requests more information. Original stage prompts, retrieval/rule code, source revision, and dependency lock are shared. The two model runs were sequential in a clean clone with Python 3.12.13 and Codex CLI 0.163.0.
@@ -773,9 +780,9 @@ Both models produced `J18.9` for the pneumonia case and `I21.09` for the STEMI c
 
 **Why is exact matching 0%?** [`icd10_scores()`](evaluation/run_eval.py) trims outer whitespace, uppercases both strings, and compares the complete codes. `J18.1 != J18.9` and `I21.0 != I21.09`, so both models have **0 exact matches out of 2**. The category check compares only the portion before the decimal (`J18` / `I21`), giving 2/2; it does not validate code existence or clinical equivalence.
 
-There is also a label-quality problem. The [CMS FY 2027 code files](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip) list `I21.0` as a parent/header with more specific children including `I21.09`; it is absent from the complete-code list. Yet the Coding prompt asks for the most specific code. The fixtures do not specify a coding-year or encounter-setting contract, and their labels have not been independently adjudicated. This structural mismatch does not establish that `I21.09` is the correct code for this vignette.
+There is also a label-quality problem. The [CMS FY 2027 code files](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip) list `I21.0` as a parent/header with more specific children including `I21.09`; it is absent from the complete-code list. Yet the Coding prompt asks for the most specific code. The v1 fixtures did not specify a coding-year or encounter-setting contract, and their labels have not been independently adjudicated. This structural mismatch does not establish that `I21.09` is the correct code for this vignette.
 
-For pneumonia, the retrieval map supplies `J18.9`, which both models retain, while the fixture expects `J18.1`. That suggests a possible anchoring effect, not a proven cause; an ablation is needed. **Keep the recorded 0% as fixture-label agreement, not clinical coding accuracy.** A future, versioned evaluation should review the labels, validate catalog membership and specificity, and report expert-adjudicated acceptability separately. The bundled validator checks only a small demonstration subset, so simply wiring it into Coding would not provide authoritative validation.
+For pneumonia, the retrieval map supplies `J18.9`, which both models retain, while the fixture expects `J18.1`. That suggests a possible anchoring effect, not a proven cause; an ablation is needed. **Keep the recorded 0% as fixture-label agreement, not clinical coding accuracy.** A future, versioned evaluation should review the labels, validate catalog membership and specificity, and report expert-adjudicated acceptability separately. The legacy lookup validator checks only a small demonstration subset; v2 now uses a separate complete official catalog.
 
 | Complete raw trace | Model | Expected → generated ICD-10 | More information requested | Elapsed time |
 |---|---|---|---|---:|
@@ -840,7 +847,7 @@ With a configured backend, run from the repository root:
 
 ```bash
 uv run --locked python -m evaluation.run_eval --help
-uv run --locked python -m evaluation.run_eval --cases case_001 --repeats 1
+uv run --locked python -m evaluation.run_eval --dataset data/evaluation_cases_v2.json --cases case_001,case_002 --repeats 1
 uv run --locked python -m evaluation.run_eval --repeats 2
 ```
 
@@ -928,18 +935,18 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for change and evidence requirements.
 
 The audit stage runs after model calls and does not redact returned patient data. Remote model configuration sends narratives and intermediate data to the selected endpoint. Authentication and durable audit storage are not implemented.
 
-Bundled medical mappings and rules are incomplete. FHIR helpers are experimental and outside the pipeline. Historical evidence does not validate clinical accuracy, safety, throughput, FHIR conformance, or HIPAA compliance.
+Bundled symptom, medication and DRG mappings remain incomplete. Official code membership validation does not adjudicate a code for a patient. FHIR helpers are experimental and outside the pipeline. Historical evidence does not validate clinical accuracy, safety, throughput, FHIR conformance, or HIPAA compliance.
 
 Adapted from [bcefghj/medical-multi-agent-system](https://github.com/bcefghj/medical-multi-agent-system) under [MIT](LICENSE). See [attribution and project history](ATTRIBUTION.md) for provenance.
 
 ## Current limitations
 
-The recorded runs establish that the demo can execute and archive its outputs. The following gaps remain in the current implementation; no database or model-quality upgrade below has been implemented or benchmarked.
+The recorded runs establish that the demo can execute and archive its outputs. Coding-validation v2 repairs the documented context handoff and complete-code validation gaps. The remaining limits below are not resolved by catalog membership checks; database extensions and broader clinical-quality upgrades remain proposals.
 
 | Area | Observed limitation | Consequence |
 |---|---|---|
-| Coding labels and validation | A single unreviewed fixture code is the target; labels mix specificity levels and have no coding-year/encounter contract. Coding uses LLM JSON directly and never invokes the bundled catalog validator. | Exact label agreement is not coding correctness. Category-prefix agreement can also accept an invalid suffix. Generated DRG values are not produced by an authoritative grouper. |
-| Information between Agents | Coding receives Diagnosis and Treatment, but not `patient_info` or the original narrative. Intake can estimate/default missing values; later stages mainly parse dictionaries rather than validate the full domain schemas. | Patient facts can be lost or inferred without an adequate source trail. In the saved runs, hypertension and smoking-cessation details present in Intake do not reach Coding. |
+| Coding labels and validation | V2 pins FY2027, refines the non-reportable parent target, and validates all proposed codes. The pneumonia reference is still provisional, encounter setting remains unspecified, and neither case has independent clinical adjudication. | Exact label agreement is not coding correctness. Category-prefix agreement can also accept an invalid suffix. Generated DRG values are not produced by an authoritative grouper. |
+| Information between Agents | V2 now supplies Coding with the exact narrative and full `patient_info`, in addition to Diagnosis/Treatment. Intake can still estimate/default missing values; other stages mainly parse dictionaries rather than validate full domain schemas. | V1 lost hypertension and smoking-cessation details before Coding. V2 preserves the input handoff, but a model may still omit or misinterpret supplied facts; complete clinical fact preservation has not been adjudicated. |
 | Knowledge retrieval | Ten exact symptom keys and 15 disease-to-code hints form the bundled lookup. Synonyms, negation, context, citations, graph traversal, and embeddings are not modeled. | Candidate recall is brittle. A name such as `GraphRAG` does not demonstrate evidence-backed reasoning or an improvement over a simple baseline. |
 | Missing information and retries | A loopback reruns Intake on the same narrative. At the configured cap, Treatment continues even if more information was requested; the matched comparison deliberately uses zero loopbacks. | The graph can terminate without resolving uncertainty. More complete-looking output is not proof of sufficient clinical information. |
 | Evaluation coverage | Two synthetic cases per current model, one repeat, substring diagnosis aliases without negation handling, and structural completion checks. No held-out cohort, clinician/coder review, single-model baseline, or retrieval ablation. | Tied scores and different timings on two observations do not establish comparative clinical quality, reliability, or GraphRAG benefit. |
@@ -970,8 +977,8 @@ These are proposed steps, ordered by the evidence and engineering gaps above. Ex
 
 | Priority | Upgrade / extension | Acceptance evidence |
 |---|---|---|
-| 1. Repair the evaluation contract | Pin ICD-10-CM release, encounter assumptions and label granularity; independently review acceptable codes. Add catalog membership, complete-code specificity, and adjudicated acceptability measures alongside the existing exact match. | A reviewed, versioned label set; separate error analysis for invalid codes, specificity differences, and clinically unacceptable assignments. Do not derive the answer key from current model predictions. |
-| 2. Preserve and validate clinical facts | Pass sourced patient facts to Coding, validate every stage with typed schemas, distinguish known/unknown/inferred fields, and route unresolved information to an explicit clarification/review state. | Handoff tests that preserve relevant facts, invalid-output tests, and termination/clarification cases that do not invent new observations. |
+| 1. Repair the evaluation contract | V2 completes release pinning, parent-label refinement and code-membership checks. Next independently adjudicate the provisional labels and encounter assumptions, and add expert acceptability alongside exact agreement. | A reviewed, versioned label set; separate error analysis for invalid codes, specificity differences, and clinically unacceptable assignments. Do not derive the answer key from current model predictions. |
+| 2. Preserve and validate clinical facts | Coding now receives the original patient context and validates code-bearing output fields. Next validate the remaining stage schemas, distinguish known/unknown/inferred facts, and route unresolved information to explicit clarification/review. | Handoff tests that preserve relevant facts, invalid-output tests, and termination/clarification cases that do not invent new observations. |
 | 3. Add local persistence and a retrieval boundary | Start with a SQLite schema for experiment/session metadata and a separately versioned knowledge corpus; retain JSON export. Introduce interchangeable lexical/vector/graph adapters and method-aware evidence traces. | Persistence across restarts, trace/export parity, adapter contract tests, and a default offline path with no external database requirement. |
 | 4. Evaluate richer retrieval and grounded coding | Normalize symptom terminology; ingest licensed/versioned sources with citations. Test lexical, dense, hybrid and graph retrieval; constrain/rank Coding candidates using a complete code catalog. Use a real grouper if DRG claims are required. | Held-out retrieval and end-to-end ablations under the same input/model/budget; catalog-valid output and reviewed coding/safety checks. More infrastructure is not an acceptance criterion. |
 | 5. Expand the benchmark | Add diverse reviewed cases, ambiguous and adversarial narratives, more repeats, model/backend settings, missing-information cases, and a simple single-model baseline. Measure latency percentiles, error recovery, and complete usage where available. | Versioned raw traces and failure-inclusive reports with appropriate denominators and uncertainty; no post-hoc label changes to improve a score. |

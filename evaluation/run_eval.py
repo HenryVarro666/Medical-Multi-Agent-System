@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run the five synthetic vignettes through a configured LLM pipeline.
+"""Run versioned synthetic vignettes through a configured LLM pipeline.
 
 Run from the repository root after installing the package:
     python -m evaluation.run_eval --repeats 2
@@ -27,12 +27,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_PATH = ROOT / "data" / "sample_patients.json"
+DEFAULT_DATASET = ROOT / "data" / "evaluation_cases_v2.json"
 RESULTS_DIR = ROOT / "evaluation" / "results"
 HISTORICAL_DIR = RESULTS_DIR / "historical-2026-07-13"
 METRICS = (
     "diagnosis_top1_strict", "diagnosis_top1_any", "diagnosis_top3_any",
     "icd10_exact", "icd10_category", "treatment_structure_complete",
     "ddi_engine_checked", "audit_completed",
+    "icd10_primary_catalog_valid", "icd10_all_codes_catalog_valid",
 )
 
 # Keep the historical alias rules explicit for comparisons. "Strict" and
@@ -119,13 +121,17 @@ def score_output(case: dict, result: dict, repeat: int, latency: float,
     coding = result.get("coding_result") or {}
     treatment = result.get("treatment_plan") or {}
     audit = result.get("audit_result") or {}
+    validation = coding.get("code_validation") or {}
     primary = (diagnosis.get("primary_diagnosis") or {}).get("disease_name", "")
     differentials = [
         (item or {}).get("disease_name", "")
         for item in (diagnosis.get("differential_list") or [])
     ]
     top1 = match_diagnosis(case["id"], primary)
-    predicted_code = (coding.get("primary_icd10") or {}).get("code", "")
+    primary_code = coding.get("primary_icd10")
+    predicted_code = primary_code.get("code", "") if isinstance(primary_code, dict) else ""
+    if not isinstance(predicted_code, str):
+        predicted_code = ""
     exact, category = icd10_scores(case["expected_icd10"], predicted_code)
     ddi = treatment.get("ddi_engine") or {}
     candidates = diagnosis.get("knowledge_graph_candidates") or []
@@ -145,6 +151,12 @@ def score_output(case: dict, result: dict, repeat: int, latency: float,
         "predicted_icd10": predicted_code,
         "icd10_exact": exact,
         "icd10_category": category,
+        "legacy_expected_icd10": case.get("legacy_expected_icd10", case["expected_icd10"]),
+        "icd10_exact_legacy_label": icd10_scores(
+            case.get("legacy_expected_icd10", case["expected_icd10"]), predicted_code,
+        )[0],
+        "icd10_primary_catalog_valid": (validation.get("primary") or {}).get("valid") is True,
+        "icd10_all_codes_catalog_valid": validation.get("valid") is True,
         "treatment_structure_complete": bool(treatment.get("medications") and ddi.get("checked") is True),
         "ddi_engine_checked": ddi.get("checked") is True,
         "ddi_engine_flags": ddi.get("engine_flagged_interactions", 0),
@@ -231,6 +243,7 @@ def to_markdown(meta: dict, rows: list[dict], summary: dict) -> str:
         f"- Model: `{meta['model']}`; backend: `{meta.get('backend', meta['base_url'] or 'OpenAI API')}`",
         f"- Cases: {meta['n_cases']}; repeats: {meta['repeats']}; runs: {summary['n_runs']}",
         f"- Source revision: `{meta['git_revision']}`; uncommitted changes: {meta['git_dirty']}",
+        f"- Dataset: `{meta.get('dataset_version', 'legacy')}`; scorer: `{meta.get('scoring_version', 'legacy')}`",
         "- Raw pipeline results: `raw/`", "",
         "| Case | Repeat | Diagnosis alias tier | ICD exact | ICD category | Latency (s) |",
         "|---|---:|---|---|---|---:|",
@@ -255,6 +268,8 @@ def to_markdown(meta: dict, rows: list[dict], summary: dict) -> str:
         "it does not assess drug selection, dosage, completeness, or safety.",
         "`audit_completed` means a report exists; it does not establish HIPAA compliance.",
         "Latency depends on the backend and hardware; no throughput claim is made.",
+        "Catalog validity verifies complete-code membership, not clinical correctness.",
+        "The revised exact-match reference is not directly comparable with the old label set.",
     ]
     return "\n".join(lines) + "\n"
 
@@ -308,9 +323,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repeats", type=_positive_int, default=1)
     parser.add_argument("--cases", default="", help="comma-separated fixture IDs; default: all")
+    parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET,
+                        help="versioned dataset JSON; default: data/evaluation_cases_v2.json")
     parser.add_argument("--output-dir", type=Path, help="new output directory; default: a timestamped directory under evaluation/results")
     args = parser.parse_args(argv)
-    cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))
+    try:
+        args.dataset = args.dataset.resolve()
+        data = json.loads(args.dataset.read_text(encoding="utf-8"))
+        cases = data["cases"] if isinstance(data, dict) else data
+        if not isinstance(cases, list) or not cases:
+            raise ValueError("dataset must contain a nonempty case list")
+        ids = [case["id"] for case in cases]
+        if len(ids) != len(set(ids)):
+            raise ValueError("dataset contains duplicate case IDs")
+        if any(not all(isinstance(case.get(key), str) and case[key].strip()
+                       for key in ("id", "description", "expected_diagnosis", "expected_icd10"))
+               for case in cases):
+            raise ValueError("each case requires id, description, expected_diagnosis and expected_icd10")
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        parser.error(f"invalid dataset: {exc}")
+    args.dataset_meta = {key: value for key, value in data.items() if key != "cases"} if isinstance(data, dict) else {
+        "dataset_version": "legacy-unversioned", "scoring_version": "coding-validation-v2",
+    }
     if args.cases:
         ids = [value.strip() for value in args.cases.split(",")]
         known_ids = {case["id"] for case in cases}
@@ -346,8 +380,21 @@ def _source_state() -> dict:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     # Deliberately lazy: --help and scoring imports need no runtime or backend.
+    from medical_multi_agent.agents.coding_agent import CODING_CONTEXT
     from medical_multi_agent.config.settings import get_settings
     from medical_multi_agent.graph.clinical_pipeline import build_clinical_pipeline
+    from medical_multi_agent.services.icd10_catalog import catalog_info, validate_code
+
+    # Reject incomplete/unknown reference codes before any inference is started.
+    for case in args.selected_cases:
+        reference = validate_code(case["expected_icd10"])
+        if not reference["valid"]:
+            raise ValueError(f"Invalid complete-code reference for {case['id']}: {reference['reason']}")
+        if reference["code"] != case["expected_icd10"]:
+            raise ValueError(f"Reference for {case['id']} must use canonical dotted catalog notation")
+    catalog = catalog_info()
+    if args.dataset_meta.get("catalog_release", catalog["release"]) != catalog["release"]:
+        raise ValueError("Dataset and runtime ICD-10-CM catalog releases do not match")
 
     settings = get_settings()
     meta = {
@@ -356,7 +403,12 @@ def main(argv: list[str] | None = None) -> int:
         "n_cases": len(args.selected_cases),
         "repeats": args.repeats,
         "python_version": sys.version.split()[0],
-        "fixture_sha256": hashlib.sha256(CASES_PATH.read_bytes()).hexdigest(),
+        "fixture_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
+        "dataset_version": args.dataset_meta.get("dataset_version", "legacy-unversioned"),
+        "scoring_version": "coding-validation-v2",
+        "label_policy": args.dataset_meta.get("label_review", {}),
+        "coding_catalog": catalog,
+        "coding_context": CODING_CONTEXT,
         **_source_state(),
     }
     print(f"[eval] model={meta['model']} cases={meta['n_cases']} repeats={args.repeats}")

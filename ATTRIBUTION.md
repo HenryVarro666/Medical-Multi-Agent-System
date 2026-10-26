@@ -19,3 +19,10 @@ Historical raw model outputs and summaries are retained unchanged. Their origina
 ## Third-party software
 
 The project uses LangGraph, LangChain integrations, FastAPI, Pydantic, HTTPX, structlog, Uvicorn, and optionally the Neo4j driver. Their respective licenses apply to those dependencies. A model backend, its weights, and its serving stack are separate dependencies governed by their own terms.
+
+
+## Packaged ICD-10-CM reference
+
+Coding-validation v2 uses an offline catalog derived from the [CMS FY2027 Code Descriptions in Tabular Order archive](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip). The packaged compressed data and manifest preserve the release, source/archive/member hashes, official descriptions, and complete-code/header distinctions. `evaluation.build_icd10_catalog` rebuilds those bytes from a separately downloaded, hash-verified source archive without network access. This is external reference data, not a code set authored by this project; applicable source rights and terms remain with their owners.
+
+The v2 research fixture refines the original case_002 parent label using the [official FY2027 Index/Tabular](https://www.cms.gov/files/zip/2027-code-tables-tabular-index.zip). Narratives and the original fixture file remain unchanged; the change and its limits are versioned. Catalog review is not independent clinical coding adjudication, endorsement, or a validated DRG grouping implementation.

@@ -19,6 +19,7 @@ from ..config.llm import LLMConfigurationError
 from ..config.settings import get_settings
 from ..graph.clinical_pipeline import get_pipeline
 from ..services.drug_interaction import check_interactions
+from ..services.icd10_catalog import validate_code
 from ..services.icd10_service import get_drg_group, lookup_icd10, search_icd10_by_text
 
 router = APIRouter(tags=["Clinical Decision"])
@@ -120,6 +121,12 @@ async def get_icd10(code: str):
         raise HTTPException(status_code=404, detail=f"ICD-10 code {code} not found")
     drg = get_drg_group(code)
     return {"icd10": result, "drg_group": drg}
+
+
+@router.get("/clinical/icd10/validate/{code}")
+def validate_catalog_code(code: str):
+    """Check offline FY2027 complete-code membership, not clinical correctness."""
+    return validate_code(code)
 
 
 @router.post("/clinical/ddi/check")

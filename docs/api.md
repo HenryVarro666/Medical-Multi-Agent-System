@@ -8,6 +8,7 @@ Start the API as described in the root README. Interactive schemas are available
 | POST | `/api/v1/clinical/analyze` | Configured LLM |
 | POST | `/api/v1/clinical/icd10/search` | None |
 | GET | `/api/v1/clinical/icd10/{code}` | None |
+| GET | `/api/v1/clinical/icd10/validate/{code}` | None |
 | POST | `/api/v1/clinical/ddi/check` | None |
 
 ## Full analysis
@@ -62,6 +63,18 @@ curl -s http://127.0.0.1:8000/api/v1/clinical/icd10/J18.9
 ```
 
 The response contains `icd10` and `drg_group`. Unknown codes return HTTP 404. Absence from this small catalog does not mean a code is invalid in an official code set. DRG results use simplified mappings.
+
+## Official ICD-10-CM validation
+
+```bash
+curl --fail http://127.0.0.1:8000/api/v1/clinical/icd10/validate/I21.09
+```
+
+This offline endpoint checks the packaged CMS FY2027 catalog. It returns the normalized code, `valid`, `reason`, `is_complete_code`, official description and catalog release. `I21.09` is complete; `I21.0` returns `valid: false` with `reason: non_reportable_header`. Malformed and unknown codes also return an explicit invalid verdict. These verdicts do not adjudicate whether a code is supported by a particular patient record.
+
+The older search/lookup endpoints above still use the small demonstration tables, so a lookup 404 is not an authoritative validation verdict.
+
+Coding now receives the original narrative and full patient record and adds `code_validation`, `requires_review`, `clinical_review_required`, `model_proposal` and `raw_model_output` to its result. Primary and every secondary code are checked; invalid codes or code-bearing JSON shapes set `requires_review` and add a pipeline error. Raw proposals remain visible. Valid descriptions are replaced with catalog descriptions while original descriptions are retained. `clinical_review_required` remains true even when catalog checks pass. DRG proposals remain unverified and may be null.
 
 ## Drug interaction check
 

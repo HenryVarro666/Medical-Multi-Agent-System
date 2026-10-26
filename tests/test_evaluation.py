@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 from contextlib import contextmanager
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -60,6 +61,61 @@ def test_scoring_distinguishes_alias_and_code_granularity():
     assert icd10_scores("J18.1", "j18.9") == (False, True)
     assert icd10_scores("J18.1", "J18.1") == (True, True)
     assert icd10_scores("", "") == (False, False)
+
+
+def test_v2_references_fix_only_parent_granularity_and_keep_original_narratives():
+    old = {case["id"]: case for case in json.loads(Path("data/sample_patients.json").read_text())}
+    args = parse_args([])
+    assert args.dataset_meta["dataset_version"] == "coding-v2-fy2027"
+    assert [case["id"] for case in args.selected_cases] == ["case_001", "case_002"]
+    for case in args.selected_cases:
+        assert case["description"] == old[case["id"]]["description"]
+        assert case["legacy_expected_icd10"] == old[case["id"]]["expected_icd10"]
+        assert "not independently clinically adjudicated" in case["label_status"]
+    assert [case["expected_icd10"] for case in args.selected_cases] == ["J18.1", "I21.09"]
+
+
+def test_catalog_validity_is_separate_from_reference_agreement():
+    result = {"coding_result": {
+        "primary_icd10": {"code": "J18.9"},
+        "code_validation": {"primary": {"valid": True}, "valid": False},
+    }}
+    row = score_output(CASE, result, 1, 0)
+    assert row["icd10_exact"] is False
+    assert row["icd10_primary_catalog_valid"] is True
+    assert row["icd10_all_codes_catalog_valid"] is False
+
+
+def test_revised_label_and_frozen_legacy_score_are_reported_separately():
+    case = {**CASE, "id": "case_002", "expected_icd10": "I21.09", "legacy_expected_icd10": "I21.0"}
+    row = score_output(case, {"coding_result": {"primary_icd10": {"code": "I21.09"}}}, 1, 0)
+    assert row["icd10_exact"] is True
+    assert row["icd10_exact_legacy_label"] is False
+
+
+@pytest.mark.parametrize("primary", ["J18.9", ["J18.9"], {"code": 17}, {"code": None}])
+def test_invalid_coding_shapes_are_scored_as_failures_not_harness_crashes(primary):
+    output = {"coding_result": {"primary_icd10": primary,
+                               "code_validation": {"valid": False, "primary": {"valid": False}}},
+              "errors": ["Coding validation failed"]}
+    row = score_output(CASE, output, 1, 0)
+    assert row["predicted_icd10"] == ""
+    assert row["icd10_exact"] is False
+    assert row["icd10_primary_catalog_valid"] is False
+    assert row["pipeline_errors"] == ["Coding validation failed"]
+    assert row["harness_error"] is None
+
+
+def test_incomplete_reference_fails_before_pipeline_construction(tmp_path, monkeypatch):
+    from medical_multi_agent.graph import clinical_pipeline
+
+    dataset = tmp_path / "bad-reference.json"
+    dataset.write_text(json.dumps([{**CASE, "expected_icd10": "I21.0"}]))
+    build = Mock()
+    monkeypatch.setattr(clinical_pipeline, "build_clinical_pipeline", build)
+    with pytest.raises(ValueError, match="non_reportable_header"):
+        main(["--dataset", str(dataset), "--output-dir", str(tmp_path / "out")])
+    build.assert_not_called()
 
 
 def test_structure_completion_does_not_measure_treatment_safety():

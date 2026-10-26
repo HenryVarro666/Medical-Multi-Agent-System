@@ -42,6 +42,21 @@ def test_default_request_labels_are_unique():
     assert first.thread_id != second.thread_id
 
 
+def test_official_code_validation_distinguishes_complete_codes_and_headers(client, monkeypatch):
+    monkeypatch.setattr(routes, "get_pipeline", lambda: pytest.fail("Validation must be offline"))
+    complete = client.get("/api/v1/clinical/icd10/validate/i2109")
+    assert complete.status_code == 200
+    assert complete.json()["valid"] is True
+    assert complete.json()["code"] == "I21.09"
+    assert complete.json()["catalog_release"] == "FY2027"
+    header = client.get("/api/v1/clinical/icd10/validate/I21.0")
+    assert header.status_code == 200
+    assert header.json()["valid"] is False
+    assert header.json()["reason"] == "non_reportable_header"
+    unknown = client.get("/api/v1/clinical/icd10/validate/I21.not-a-code")
+    assert unknown.json()["valid"] is False
+
+
 def test_reused_request_label_runs_in_isolated_checkpoint_state(client, monkeypatch):
     checkpoints = {}
 

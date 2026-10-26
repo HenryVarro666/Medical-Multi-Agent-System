@@ -1,0 +1,30 @@
+{
+  "catalog": {
+    "filename": "icd10cm_fy2027.json.gz",
+    "sha256": "0f6ab0461f99974a0927bbaa7451cfb8d5115a146df03a3e281a452e61d7c0bf",
+    "uncompressed_sha256": "41d9c28b751a3b7322077efe563b070f9ca44220c1ad491e1591af0404055f59"
+  },
+  "code_set": "ICD-10-CM",
+  "counts": {
+    "complete_codes": 74879,
+    "non_reportable_headers": 23524,
+    "total_entries": 98403
+  },
+  "release": "FY2027",
+  "schema_version": 1,
+  "scope": "Official release membership and long descriptions only. Complete-code status does not establish clinical appropriateness, sequencing or encounter-specific coding.",
+  "source": {
+    "members": {
+      "Code Descriptions/icd10cm_codes_2027.txt": {
+        "lines": 74879,
+        "sha256": "3c0583a38ee0e848f7dc0ac8ce88e8f001bbba8c6385ed825d44d46f6e5297c9"
+      },
+      "Code Descriptions/icd10cm_order_2027.txt": {
+        "lines": 98403,
+        "sha256": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f"
+      }
+    },
+    "sha256": "91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965",
+    "url": "https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip"
+  }
+}

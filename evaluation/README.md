@@ -1,6 +1,6 @@
 # Evaluation
 
-The runner executes the five synthetic cases in `data/sample_patients.json` through the configured five-stage pipeline. It records raw outputs, rule-execution stamps, errors, alias-based scores, ICD-10 matches, and wall-clock latency. It is an engineering demonstration, not a clinical benchmark.
+The runner defaults to the two versioned research references in `data/evaluation_cases_v2.json` through the configured five-stage pipeline. The original five synthetic fixtures remain unchanged in `data/sample_patients.json`. It records raw outputs, rule-execution stamps, errors, alias-based scores, ICD-10 matches, and wall-clock latency. It is an engineering demonstration, not a clinical benchmark.
 
 ## Run a new evaluation
 
@@ -11,11 +11,11 @@ From the repository root, install the package and configure `.env` as described 
 ```bash
 python -m evaluation.run_eval --help
 python -m evaluation.run_eval --repeats 2
-python -m evaluation.run_eval --cases case_001,case_003 --repeats 1
+python -m evaluation.run_eval --cases case_001,case_002 --repeats 1
 python -m evaluation.run_eval --output-dir /tmp/clinical-eval-new
 ```
 
-`--repeats` must be a positive integer. `--cases` accepts known, unique fixture IDs separated by commas. The default selects all five cases. `--help` and importing the scoring functions do not load LangGraph, construct an LLM client, or contact a backend.
+`--repeats` must be a positive integer. `--cases` accepts known, unique fixture IDs separated by commas. The default selects both v2 cases. `--dataset` selects another fixture file; reference codes must be complete canonical codes in the pinned runtime catalog before any model calls. `--help` and importing the scoring functions do not load LangGraph, construct an LLM client, or contact a backend.
 
 ### Optional Codex CLI backend
 
@@ -67,6 +67,18 @@ Output directories are checked for writability before inference begins. If malfo
 
 Metadata includes timestamp, selected backend and model, Python version, fixture SHA-256, Git revision, and whether uncommitted changes were present. For a reproducible report, also record the model revision, serving command and versions, hardware, decoding configuration, and the exact source diff when dirty. Those details are not all captured automatically.
 
+## Coding-validation v2 protocol
+
+`data/evaluation_cases_v2.json` freezes the same case_001/case_002 narratives with an explicit FY2027 code-set contract. It preserves the original `J18.1` pneumonia reference as provisional, and refines the non-reportable `I21.0` parent to complete `I21.09` using the official Index anterior-STEMI entry and Tabular anterior-wall NOS inclusion. It records old targets, source hashes, revision rationale and the absence of independent clinical adjudication. References and review metadata never enter the model's input.
+
+The Coding stage receives `raw_input`, full `patient_info`, Diagnosis, Treatment, the generic coding contract and bounded official catalog candidates derived from observed diagnosis/history hints. It validates every primary/secondary code and retains original model output. Complete-code membership does not establish clinical correctness. The earlier three model stages, deterministic treatment rules and Audit remain unchanged.
+
+The evaluator rejects incomplete, unknown or noncanonical reference codes and catalog-version mismatches before inference. New metadata pins the dataset/scorer, coding contract and catalog manifest along with source/fixture/dependency hashes. The new validity metrics require the runtime's deterministic validation report; missing or invalid outputs count as failures. `icd10_exact_legacy_label` separately retains the original reference comparison. No earlier result file or score is rewritten.
+
+The revised exact score uses a different target for case_002. Report it alongside frozen-legacy-label agreement and, when comparing with old runs, a clearly labeled post-hoc rescore of old predictions under the same v2 references. Such rescoring does not establish a clinical improvement. Keep failures and all attempted cases in denominators.
+
+The new charts use `--prefix coding-v2-2026-10-26`; the plot tool rejects mixing dataset/scorer/catalog identities or overwriting the v1 figure prefix with v2 input.
+
 ## Score definitions
 
 | Field | Definition and limit |
@@ -75,6 +87,9 @@ Metadata includes timestamp, selected backend and model, Python version, fixture
 | `diagnosis_top1_any` | Primary name matches either strict or compatible aliases |
 | `diagnosis_top3_any` | Either alias tier matches the primary name or first two differentials |
 | `icd10_exact` | Case-insensitive equality with the fixture label |
+| `icd10_primary_catalog_valid` | Primary proposal passed format, catalog membership and complete-code validation |
+| `icd10_all_codes_catalog_valid` | Code-bearing JSON schema, primary and all secondary proposals passed deterministic validation |
+| `icd10_exact_legacy_label` | Proposal compared with the preserved original target; reported separately from v2 agreement |
 | `icd10_category` | Code prefix before the decimal matches; this is a category, not a chapter |
 | `treatment_structure_complete` | Medications are present and the deterministic DDI check stamp is true |
 | `ddi_engine_checked` | DDI execution stamp is true |
@@ -87,11 +102,11 @@ Treatment structure checks do not evaluate drug selection, dosage, contraindicat
 
 ## Interpreting the two-case exact ICD-10 score
 
-The recorded 0/2 exact matches per model are correct under the frozen string-comparison rule. Both models generate `J18.9` versus the case_001 label `J18.1`, and `I21.09` versus the case_002 label `I21.0`. Normalizing case and outer whitespace does not make either pair equal. Category-prefix matching yields 2/2, but does not validate code existence, specificity, or clinical equivalence.
+The recorded 0/2 exact matches per model are correct under the frozen string-comparison rule. In the preserved v1 comparison, both models generate `J18.9` versus the case_001 label `J18.1`, and `I21.09` versus the case_002 label `I21.0`. Normalizing case and outer whitespace does not make either pair equal. Category-prefix matching yields 2/2, but does not validate code existence, specificity, or clinical equivalence.
 
 A documentation review on October 26, 2026 checked the [CMS FY 2027 Code Descriptions in Tabular Order archive](https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip), listed on the [CMS ICD-10 page](https://www.cms.gov/medicare/coding-billing/icd-10-codes). In `Code Descriptions/icd10cm_order_2027.txt`, `I210` has the header indicator 0 and children `I2101`, `I2102`, and `I2109` have indicator 1. The complete-code file `icd10cm_codes_2027.txt` includes those children and omits `I210`. `J181` and `J189` are separate complete-code entries. This confirms a label-granularity defect; it does not adjudicate the correct code for either vignette.
 
-The reviewed ZIP SHA-256 was `91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965`. This was a post-run catalog review, not a catalog/version recorded by the original model evaluations. The fixtures do not pin encounter setting, code-set year, acceptable alternatives, or an independent coding review. Coding's prompt requests specific codes, while its context omits the original patient record and its output is not catalog-validated. The bundled lookup validator only checks a small subset; absence there is not proof that an official code is invalid.
+The reviewed ZIP SHA-256 was `91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965`. This was a post-run catalog review, not a catalog/version recorded by the original model evaluations. The v1 fixtures did not pin encounter setting, code-set year, acceptable alternatives, or an independent coding review. The v1 Coding prompt requested specific codes while omitting the original patient record and applying no catalog validation. The bundled lookup validator only checks a small subset; absence there is not proof that an official code is invalid.
 
 For case_001, the bundled retrieval hint supplies `J18.9` and both models carry it into Coding. Anchoring is a hypothesis requiring a retrieval/hint ablation; it is not an established explanation for every coding mismatch.
 

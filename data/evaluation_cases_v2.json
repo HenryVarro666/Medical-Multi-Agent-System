@@ -1,0 +1,35 @@
+{
+  "dataset_version": "coding-v2-fy2027",
+  "scoring_version": "coding-validation-v2",
+  "catalog_release": "FY2027",
+  "code_system": "ICD-10-CM",
+  "parent_dataset": "data/sample_patients.json",
+  "parent_fixture_sha256": "b5c26331ff3ca58875d1b5ea2e0f8b6b2c3f166d709b1cba0513f7288ab96044",
+  "label_review": {
+    "date": "2026-10-26",
+    "scope": "Reference-code granularity and catalog membership only; no independent clinical coding adjudication",
+    "source": "https://www.cms.gov/files/zip/2027-code-tables-tabular-index.zip",
+    "source_sha256": "37baa476323714be16f95c9b2c96812bf6f3623d9f15188866e584dc529b0298",
+    "narratives": "Unchanged from original case_001 and case_002; reference labels and revision notes are never passed to the model."
+  },
+  "cases": [
+    {
+      "id": "case_001",
+      "description": "45-year-old male presenting with fever (39.2°C) for 3 days, productive cough with yellow sputum, and right-sided chest pain that worsens with deep breathing. History of type 2 diabetes (diagnosed 5 years ago) and hypertension. Current medications: metformin 500mg twice daily, lisinopril 10mg daily. Allergies: penicillin (causes rash). Vital signs: BP 130/85, HR 102, RR 22, SpO2 94% on room air. Labs: WBC 15,000/μL (elevated), CRP 85 mg/L (elevated), procalcitonin 2.1 ng/mL (elevated). Chest X-ray shows right lower lobe consolidation.",
+      "expected_diagnosis": "Community-Acquired Pneumonia",
+      "expected_icd10": "J18.1",
+      "legacy_expected_icd10": "J18.1",
+      "label_status": "structurally reviewed research reference; not independently clinically adjudicated",
+      "label_revision_rationale": "Retain J18.1, the original complete-code reference. Lobar versus unspecified pneumonia remains a provisional annotation distinction; do not change it to J18.9 to fit existing model predictions."
+    },
+    {
+      "id": "case_002",
+      "description": "62-year-old female with sudden onset of crushing chest pain radiating to the left arm for 2 hours, associated with diaphoresis, nausea, and shortness of breath. History of hyperlipidemia, smoking (30 pack-years, quit 2 years ago), and family history of MI (father at age 55). Current medications: atorvastatin 40mg daily, aspirin 81mg daily. No known allergies. Vital signs: BP 160/95, HR 110, RR 24, SpO2 96%. ECG shows ST elevation in leads V1-V4. Troponin I: 4.5 ng/mL (markedly elevated).",
+      "expected_diagnosis": "ST-Elevation Myocardial Infarction (STEMI)",
+      "expected_icd10": "I21.09",
+      "legacy_expected_icd10": "I21.0",
+      "label_status": "structurally reviewed research reference; not independently clinically adjudicated",
+      "label_revision_rationale": "Replace non-reportable parent I21.0 with complete anterior-wall NOS code I21.09. The official FY2027 Index anterior STEMI entry and Tabular anterior-wall NOS inclusion support this refinement; no documented culprit artery is assumed."
+    }
+  ]
+}
