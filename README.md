@@ -1,6 +1,6 @@
 # Medical Multi-Agent System
 
-[![Python CI](https://github.com/HenryVarro666/medical-multi-agent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/HenryVarro666/medical-multi-agent-system/actions/workflows/ci.yml)
+[![Python CI](https://github.com/HenryVarro666/Medical-multi-agent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/HenryVarro666/Medical-multi-agent-system/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
@@ -122,6 +122,10 @@ Retries reprocess the same narrative; the API does not collect new information f
 ## End-to-end example
 
 This walkthrough uses **`case_001`, repeat 1**, from the July 13, 2026 evaluation with `Qwen/Qwen3-14B`. It displays the input and five stored stage-result sections from the [original pipeline trace](evaluation/results/historical-2026-07-13/raw/case_001_r1.json). The evaluation harness invoked the graph directly; the record is a historical pipeline result, not a captured HTTP response or a new run of the refactored code.
+
+[![Historical case_001 flow: synthetic input passes through Intake, Diagnosis, Treatment, Coding, and legacy Audit. The final result took 27.10 seconds, matched the strict diagnosis alias tier, and predicted ICD-10 J18.9 versus fixture J18.1.](docs/assets/examples/case-001-walkthrough.png)](docs/assets/examples/case-001-walkthrough.svg)
+
+The diagram follows the single recorded diagnosis attempt and reads its values from the archive. Click it for the vector version; see [diagram regeneration](evaluation/README.md#case-walkthrough-figure) for the command. The input and complete stage outputs remain below.
 
 Each expandable block contains the complete recorded JSON for that stage, with no fields omitted. Medication, interaction, coding, confidence, and reference fields are unverified model outputs. They are shown to explain the software workflow and are not clinical instructions or validated citations.
 

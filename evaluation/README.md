@@ -68,6 +68,16 @@ uv run --locked --extra plots python -m evaluation.plot_results
 
 The optional `plots` extra supplies Matplotlib. Outputs go to `docs/assets/evaluation/`; `--results` and `--output-dir` select a different evaluation JSON and destination. Original result files are read only. The first five bars represent label matching; the final three represent output structure and stage execution.
 
+### Case walkthrough figure
+
+The `case_001` flowchart connects the archived input, five key stage outputs, and final scoring result. It reads `raw/case_001_r1.json` and the matching scoring row; it does not execute the pipeline or call a model.
+
+```bash
+uv run --locked --extra plots python -m evaluation.draw_case
+```
+
+Outputs are written as HTML, SVG, and PNG to `docs/assets/examples/`. Use `--output-dir` for a different destination. The single observed path includes one diagnosis attempt, the exact ICD-10 mismatch, and the historical audit limitations.
+
 ### Evaluation tests
 
 ```bash

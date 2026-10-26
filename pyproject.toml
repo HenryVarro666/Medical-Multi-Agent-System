@@ -27,8 +27,8 @@ plots = ["matplotlib>=3.9,<4"]
 dev = ["build>=1.2,<2", "pytest>=8.3,<10", "ruff>=0.9,<1"]
 
 [project.urls]
-Repository = "https://github.com/HenryVarro666/medical-multi-agent-system"
-Issues = "https://github.com/HenryVarro666/medical-multi-agent-system/issues"
+Repository = "https://github.com/HenryVarro666/Medical-multi-agent-system"
+Issues = "https://github.com/HenryVarro666/Medical-multi-agent-system/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/medical_multi_agent"]

@@ -28,6 +28,9 @@ jobs:
       - name: Render architecture diagrams
         if: matrix.python-version == '3.12'
         run: uv run --locked --extra dev --extra plots python -m evaluation.draw_architecture --output-dir /tmp/architecture-diagrams
+      - name: Render archived case walkthrough
+        if: matrix.python-version == '3.12'
+        run: uv run --locked --extra dev --extra plots python -m evaluation.draw_case --output-dir /tmp/case-diagrams
       - run: uv build
 
   container:
